@@ -17,8 +17,8 @@ const Footer: React.FC<FooterProps> = ({ theme }) => {
   return (
     <footer className={`border-t pt-16 pb-8 transition-all duration-300 ${
       isLight 
-        ? 'bg-white/90 backdrop-blur-md border-gray-200' 
-        : 'bg-black/90 backdrop-blur-md border-gray-800'
+        ? 'bg-white/30 backdrop-blur-md border-gray-200' 
+        : 'bg-black/30 backdrop-blur-md border-gray-800'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
