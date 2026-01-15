@@ -6,7 +6,21 @@ interface CatalogueProps {
   onPageChange: (page: PageType) => void;
 }
 
-const peintureSubcategories = [
+interface Subcategory {
+  name: string;
+  description: string;
+  icon: string;
+  products: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  products: string;
+  image: string;
+}
+
+const peintureSubcategories: Subcategory[] = [
   {
     name: 'PEINTURES',
     description: 'Peintures acryliques et glycéro',
@@ -45,7 +59,7 @@ const peintureSubcategories = [
   }
 ];
 
-const collesSubcategories = [
+const collesSubcategories: Subcategory[] = [
   {
     name: 'COLLE À CARRELAGE',
     description: 'Pour tous types de carrelage',
@@ -96,33 +110,39 @@ const collesSubcategories = [
   }
 ];
 
-const categories = [
+const categories: Category[] = [
   {
+    id: 'PEINTURE_FINITION',
     name: 'PEINTURE_FINITION',
     products: '0 PRODUITS',
     image: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
   },
   {
+    id: 'COLLES_MASTICS',
     name: 'COLLES_MASTICS',
     products: '0 PRODUITS',
     image: 'linear-gradient(135deg, #1f1f1f 0%, #333333 100%)'
   },
   {
+    id: 'OUTILLAGE_PEINTRE',
     name: 'OUTILLAGE_PEINTRE',
     products: '0 PRODUITS',
     image: 'linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)'
   },
   {
+    id: 'OUTILLAGE_CARRELEUR',
     name: 'OUTILLAGE_CARRELEUR',
     products: '0 PRODUITS',
     image: 'linear-gradient(135deg, #222222 0%, #383838 100%)'
   },
   {
+    id: 'PREPARATION_SOLS',
     name: 'PREPARATION_SOLS',
     products: '0 PRODUITS',
     image: 'linear-gradient(135deg, #1c1c1c 0%, #303030 100%)'
   },
   {
+    id: 'FIXATION_VISSERIE',
     name: 'FIXATION_VISSERIE',
     products: '0 PRODUITS',
     image: 'linear-gradient(135deg, #1e1e1e 0%, #353535 100%)'
@@ -130,72 +150,100 @@ const categories = [
 ];
 
 const Catalogue: React.FC<CatalogueProps> = ({ onPageChange }) => {
-  const [selectedCategory, setSelectedCategory] = useState<'peinture' | 'colles' | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const handleCategoryClick = (categoryName: string): void => {
-    if (categoryName === 'PEINTURE_FINITION') {
-      setSelectedCategory('peinture');
+  const handleCategorySelect = (categoryId: string): void => {
+    setSelectedCategory(categoryId);
+    if (categoryId === 'PEINTURE_FINITION') {
       onPageChange('catalogue-peinture');
-    } else if (categoryName === 'COLLES_MASTICS') {
-      setSelectedCategory('colles');
+    } else if (categoryId === 'COLLES_MASTICS') {
       onPageChange('catalogue-colles');
     }
   };
 
-  const handleBackToRaysons = (): void => {
+  const handleBack = (): void => {
     setSelectedCategory(null);
     onPageChange('catalogue');
   };
 
-  const renderSubcategories = (
-    titleWhite: string,
-    titleOrange: string,
-    subcategories: typeof peintureSubcategories,
-    gridCols: string
-  ) => (
-    <section className="py-12 bg-black">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <button
-          onClick={handleBackToRaysons}
-          className="mb-8 text-gray-500 hover:text-[#FF6B00] transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2"
-        >
-          ← RETOUR
-        </button>
+  if (selectedCategory === 'PEINTURE_FINITION') {
+    return (
+      <section className="py-12 bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <button
+            onClick={handleBack}
+            className="mb-8 text-gray-500 hover:text-[#FF6B00] transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2"
+          >
+            ← RETOUR
+          </button>
 
-        <div className="text-center mb-10">
-          <h1 className="font-black italic text-4xl uppercase tracking-tight">
-            <span className="text-white">{titleWhite}</span>{' '}
-            <span className="text-[#FF6B00]">{titleOrange}</span>
-          </h1>
+          <div className="text-center mb-10">
+            <h1 className="font-black italic text-4xl uppercase tracking-tight">
+              <span className="text-white">PEINTURE &</span>{' '}
+              <span className="text-[#FF6B00]">FINITION</span>
+            </h1>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {peintureSubcategories.map((sub: Subcategory, index: number) => (
+              <div
+                key={index}
+                className="bg-zinc-900 rounded-2xl p-6 hover:bg-zinc-800 transition-colors duration-200 cursor-pointer border border-zinc-800 hover:border-[#FF6B00]"
+              >
+                <div className="text-4xl mb-4">{sub.icon}</div>
+                <h3 className="font-bold italic text-lg uppercase text-white mb-2 leading-tight">
+                  {sub.name}
+                </h3>
+                <p className="text-gray-500 text-xs mb-4">{sub.description}</p>
+                <span className="text-[#FF6B00] text-xs font-medium uppercase tracking-wide">
+                  {sub.products}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-
-        <div className={`grid grid-cols-1 ${gridCols} gap-4`}>
-          {subcategories.map((sub, index) => (
-            <div
-              key={index}
-              className="bg-zinc-900 rounded-2xl p-6 hover:bg-zinc-800 transition-colors duration-200 cursor-pointer border border-zinc-800 hover:border-[#FF6B00]"
-            >
-              <div className="text-4xl mb-4">{sub.icon}</div>
-              <h3 className="font-bold italic text-lg uppercase text-white mb-2 leading-tight">
-                {sub.name}
-              </h3>
-              <p className="text-gray-500 text-xs mb-4">{sub.description}</p>
-              <span className="text-[#FF6B00] text-xs font-medium uppercase tracking-wide">
-                {sub.products}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-
-  if (selectedCategory === 'peinture') {
-    return renderSubcategories('PEINTURE &', 'FINITION', peintureSubcategories, 'md:grid-cols-3');
+      </section>
+    );
   }
 
-  if (selectedCategory === 'colles') {
-    return renderSubcategories('COLLES &', 'MASTICS', collesSubcategories, 'md:grid-cols-4');
+  if (selectedCategory === 'COLLES_MASTICS') {
+    return (
+      <section className="py-12 bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <button
+            onClick={handleBack}
+            className="mb-8 text-gray-500 hover:text-[#FF6B00] transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2"
+          >
+            ← RETOUR
+          </button>
+
+          <div className="text-center mb-10">
+            <h1 className="font-black italic text-4xl uppercase tracking-tight">
+              <span className="text-white">COLLES &</span>{' '}
+              <span className="text-[#FF6B00]">MASTICS</span>
+            </h1>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {collesSubcategories.map((sub: Subcategory, index: number) => (
+              <div
+                key={index}
+                className="bg-zinc-900 rounded-2xl p-6 hover:bg-zinc-800 transition-colors duration-200 cursor-pointer border border-zinc-800 hover:border-[#FF6B00]"
+              >
+                <div className="text-4xl mb-4">{sub.icon}</div>
+                <h3 className="font-bold italic text-lg uppercase text-white mb-2 leading-tight">
+                  {sub.name}
+                </h3>
+                <p className="text-gray-500 text-xs mb-4">{sub.description}</p>
+                <span className="text-[#FF6B00] text-xs font-medium uppercase tracking-wide">
+                  {sub.products}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
@@ -214,10 +262,10 @@ const Catalogue: React.FC<CatalogueProps> = ({ onPageChange }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {categories.map((category, index) => (
+          {categories.map((category: Category, index: number) => (
             <div
               key={index}
-              onClick={() => handleCategoryClick(category.name)}
+              onClick={() => handleCategorySelect(category.id)}
               className="relative h-64 rounded-xl overflow-hidden group cursor-pointer"
               style={{
                 background: category.image
