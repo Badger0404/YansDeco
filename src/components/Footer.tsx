@@ -7,11 +7,15 @@ interface FooterProps {
 }
 
 const Footer: React.FC<FooterProps> = ({ onPageChange }) => {
-  const footerLinks = [
-    { key: 'accueil' as PageType, label: 'Accueil' },
-    { key: 'catalogue' as PageType, label: 'Catalogue' },
-    { key: 'calculateurs' as PageType, label: 'Calculateurs' }
+  const footerLinks: { key: PageType; label: string }[] = [
+    { key: 'accueil', label: 'Accueil' },
+    { key: 'catalogue', label: 'Catalogue' },
+    { key: 'calculateurs', label: 'Calculateurs' }
   ];
+
+  const handleClick = (page: PageType): void => {
+    onPageChange(page);
+  };
 
   return (
     <footer className="bg-gray-900 border-t border-gray-800 pt-16 pb-8 dark:bg-gray-900 light:bg-gray-100 light:border-gray-300">
@@ -19,7 +23,7 @@ const Footer: React.FC<FooterProps> = ({ onPageChange }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div>
             <button
-              onClick={() => onPageChange('accueil')}
+              onClick={() => handleClick('accueil')}
               className="text-2xl font-bold tracking-wider mb-4 hover:opacity-80 transition-opacity"
             >
               <span className="text-[#FF6B00]">YAN'S</span>
@@ -40,7 +44,7 @@ const Footer: React.FC<FooterProps> = ({ onPageChange }) => {
               {footerLinks.map((link) => (
                 <li key={link.key}>
                   <button
-                    onClick={() => onPageChange(link.key)}
+                    onClick={() => handleClick(link.key)}
                     className="text-gray-400 dark:text-gray-400 light:text-gray-600 hover:text-[#FF6B00] transition-colors text-sm text-left"
                   >
                     {link.label}

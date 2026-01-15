@@ -13,7 +13,7 @@ type PageType = 'accueil' | 'catalogue' | 'marques' | 'services' | 'calculateurs
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PageType>('accueil');
 
-  const renderPage = () => {
+  const renderPage = (): React.ReactNode => {
     switch (currentPage) {
       case 'accueil':
         return <Accueil />;
@@ -34,11 +34,11 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      <Header currentPage={currentPage} onPageChange={(page) => setCurrentPage(page)} />
+      <Header currentPage={currentPage} onPageChange={setCurrentPage} />
       <main>
         {renderPage()}
       </main>
-      <Footer onPageChange={(page) => setCurrentPage(page)} />
+      <Footer onPageChange={setCurrentPage} />
     </div>
   );
 };

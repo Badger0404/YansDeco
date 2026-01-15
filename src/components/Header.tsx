@@ -10,6 +10,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange }) => {
   const [isDark, setIsDark] = useState(true);
   const [activeLang, setActiveLang] = useState('FR');
+
   const navItems: { key: PageType; label: string }[] = [
     { key: 'accueil', label: 'Accueil' },
     { key: 'catalogue', label: 'Catalogue' },
@@ -29,20 +30,27 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange }) => {
     }
   }, [isDark]);
 
+  const handleNavClick = (page: PageType): void => {
+    onPageChange(page);
+  };
+
   return (
     <header className="w-full bg-black text-white flex items-center justify-between px-10 py-4 border-b border-gray-800 dark:bg-black dark:border-gray-800 light:bg-white light:text-black light:border-gray-200 fixed top-0 left-0 right-0 z-50">
-      <div className="flex-shrink-0 cursor-pointer" onClick={() => onPageChange('accueil')}>
+      <button
+        onClick={() => handleNavClick('accueil')}
+        className="flex-shrink-0 hover:opacity-80 transition-opacity"
+      >
         <h1 className="font-bold text-2xl tracking-wide">
           <span className="text-[#FF6B00]">YAN'S</span>
           <span className="dark:text-white light:text-black">DECO</span>
         </h1>
-      </div>
+      </button>
 
       <nav className="flex items-center gap-6">
         {navItems.map((item) => (
           <button
             key={item.key}
-            onClick={() => onPageChange(item.key)}
+            onClick={() => handleNavClick(item.key)}
             className={`text-xs uppercase tracking-widest font-medium transition-colors duration-200 ${
               currentPage === item.key
                 ? 'text-[#FF6B00]'
