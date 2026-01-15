@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-type PageType = 'accueil' | 'catalogue' | 'catalogue-peinture' | 'marques' | 'services' | 'calculateurs' | 'contact';
+type PageType = 'accueil' | 'catalogue' | 'catalogue-peinture' | 'catalogue-colles' | 'marques' | 'services' | 'calculateurs' | 'contact';
 
 interface HeaderProps {
   currentPage: PageType;
@@ -34,6 +34,10 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange }) => {
     onPageChange(page);
   };
 
+  const isCataloguePage = (page: PageType): boolean => {
+    return page === 'catalogue' || page === 'catalogue-peinture' || page === 'catalogue-colles';
+  };
+
   return (
     <header className="w-full bg-black text-white flex items-center justify-between px-10 py-4 border-b border-gray-800 dark:bg-black dark:border-gray-800 light:bg-white light:text-black light:border-gray-200 fixed top-0 left-0 right-0 z-50">
       <button
@@ -52,7 +56,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange }) => {
             key={item.key}
             onClick={() => handleNavClick(item.key)}
             className={`text-xs uppercase tracking-widest font-medium transition-colors duration-200 ${
-              currentPage === item.key
+              (item.key === 'catalogue' && isCataloguePage(currentPage)) || currentPage === item.key
                 ? 'text-[#FF6B00]'
                 : 'text-white dark:text-white light:text-black hover:text-[#FF6B00]'
             }`}
