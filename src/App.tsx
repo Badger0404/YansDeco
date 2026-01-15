@@ -8,7 +8,7 @@ import Services from './pages/Services';
 import Calculateurs from './pages/Calculateurs';
 import Contact from './pages/Contact';
 
-type PageType = 'accueil' | 'catalogue' | 'marques' | 'services' | 'calculateurs' | 'contact';
+type PageType = 'accueil' | 'catalogue' | 'catalogue-peinture' | 'marques' | 'services' | 'calculateurs' | 'contact';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<PageType>('accueil');
@@ -18,7 +18,9 @@ const App: React.FC = () => {
       case 'accueil':
         return <Accueil />;
       case 'catalogue':
-        return <Catalogue />;
+        return <Catalogue onPageChange={setCurrentPage} />;
+      case 'catalogue-peinture':
+        return <Catalogue onPageChange={setCurrentPage} />;
       case 'marques':
         return <Marques />;
       case 'services':

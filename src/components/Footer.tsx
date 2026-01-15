@@ -1,6 +1,6 @@
 import React from 'react';
 
-type PageType = 'accueil' | 'catalogue' | 'marques' | 'services' | 'calculateurs' | 'contact';
+type PageType = 'accueil' | 'catalogue' | 'catalogue-peinture' | 'marques' | 'services' | 'calculateurs' | 'contact';
 
 interface FooterProps {
   onPageChange: (page: PageType) => void;
