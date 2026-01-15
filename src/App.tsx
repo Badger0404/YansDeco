@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Accueil from './pages/Accueil';
@@ -8,39 +9,22 @@ import Services from './pages/Services';
 import Calculateurs from './pages/Calculateurs';
 import Contact from './pages/Contact';
 
-type PageType = 'accueil' | 'catalogue' | 'catalogue-peinture' | 'catalogue-colles' | 'marques' | 'services' | 'calculateurs' | 'contact';
-
 const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<PageType>('accueil');
-
-  const renderPage = (): React.ReactNode => {
-    switch (currentPage) {
-      case 'accueil':
-        return <Accueil />;
-      case 'catalogue':
-      case 'catalogue-peinture':
-      case 'catalogue-colles':
-        return <Catalogue onPageChange={setCurrentPage} />;
-      case 'marques':
-        return <Marques />;
-      case 'services':
-        return <Services />;
-      case 'calculateurs':
-        return <Calculateurs />;
-      case 'contact':
-        return <Contact />;
-      default:
-        return <Accueil />;
-    }
-  };
-
   return (
     <div className="min-h-screen bg-black">
-      <Header currentPage={currentPage} onPageChange={setCurrentPage} />
+      <Header />
       <main>
-        {renderPage()}
+        <Routes>
+          <Route path="/" element={<Accueil />} />
+          <Route path="/catalogue" element={<Catalogue />} />
+          <Route path="/catalogue/:categoryId" element={<Catalogue />} />
+          <Route path="/marques" element={<Marques />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/calculateurs" element={<Calculateurs />} />
+          <Route path="/contact" element={<Contact />} />
+        </Routes>
       </main>
-      <Footer onPageChange={setCurrentPage} />
+      <Footer />
     </div>
   );
 };

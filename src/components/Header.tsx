@@ -1,23 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
 
-type PageType = 'accueil' | 'catalogue' | 'catalogue-peinture' | 'catalogue-colles' | 'marques' | 'services' | 'calculateurs' | 'contact';
-
-interface HeaderProps {
-  currentPage: PageType;
-  onPageChange: (page: PageType) => void;
-}
-
-const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange }) => {
+const Header: React.FC = () => {
   const [isDark, setIsDark] = useState(true);
   const [activeLang, setActiveLang] = useState('FR');
 
-  const navItems: { key: PageType; label: string }[] = [
-    { key: 'accueil', label: 'Accueil' },
-    { key: 'catalogue', label: 'Catalogue' },
-    { key: 'marques', label: 'Marques' },
-    { key: 'services', label: 'Services' },
-    { key: 'calculateurs', label: 'Calculateurs' },
-    { key: 'contact', label: 'Contact' }
+  const navItems = [
+    { key: 'accueil', label: 'Accueil', path: '/' },
+    { key: 'catalogue', label: 'Catalogue', path: '/catalogue' },
+    { key: 'marques', label: 'Marques', path: '/marques' },
+    { key: 'services', label: 'Services', path: '/services' },
+    { key: 'calculateurs', label: 'Calculateurs', path: '/calculateurs' },
+    { key: 'contact', label: 'Contact', path: '/contact' }
   ];
 
   useEffect(() => {
@@ -30,39 +24,33 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange }) => {
     }
   }, [isDark]);
 
-  const handleNavClick = (page: PageType): void => {
-    onPageChange(page);
-  };
-
-  const isCataloguePage = (page: PageType): boolean => {
-    return page === 'catalogue' || page === 'catalogue-peinture' || page === 'catalogue-colles';
-  };
-
   return (
     <header className="w-full bg-black text-white flex items-center justify-between px-10 py-4 border-b border-gray-800 dark:bg-black dark:border-gray-800 light:bg-white light:text-black light:border-gray-200 fixed top-0 left-0 right-0 z-50">
-      <button
-        onClick={() => handleNavClick('accueil')}
+      <NavLink
+        to="/"
         className="flex-shrink-0 hover:opacity-80 transition-opacity"
       >
         <h1 className="font-bold text-2xl tracking-wide">
           <span className="text-[#FF6B00]">YAN'S</span>
           <span className="dark:text-white light:text-black">DECO</span>
         </h1>
-      </button>
+      </NavLink>
 
       <nav className="flex items-center gap-6">
         {navItems.map((item) => (
-          <button
+          <NavLink
             key={item.key}
-            onClick={() => handleNavClick(item.key)}
-            className={`text-xs uppercase tracking-widest font-medium transition-colors duration-200 ${
-              (item.key === 'catalogue' && isCataloguePage(currentPage)) || currentPage === item.key
-                ? 'text-[#FF6B00]'
-                : 'text-white dark:text-white light:text-black hover:text-[#FF6B00]'
-            }`}
+            to={item.path}
+            className={({ isActive }) =>
+              `text-xs uppercase tracking-widest font-medium transition-colors duration-200 ${
+                isActive
+                  ? 'text-[#FF6B00]'
+                  : 'text-white dark:text-white light:text-black hover:text-[#FF6B00]'
+              }`
+            }
           >
             {item.label}
-          </button>
+          </NavLink>
         ))}
       </nav>
 

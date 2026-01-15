@@ -1,38 +1,25 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-type PageType = 'accueil' | 'catalogue' | 'catalogue-peinture' | 'catalogue-colles' | 'marques' | 'services' | 'calculateurs' | 'contact';
-
-interface FooterProps {
-  onPageChange: (page: PageType) => void;
-}
-
-const Footer: React.FC<FooterProps> = ({ onPageChange }) => {
-  const footerLinks: { key: PageType; label: string }[] = [
-    { key: 'accueil', label: 'Accueil' },
-    { key: 'catalogue', label: 'Catalogue' },
-    { key: 'calculateurs', label: 'Calculateurs' }
+const Footer: React.FC = () => {
+  const footerLinks = [
+    { label: 'Accueil', path: '/' },
+    { label: 'Catalogue', path: '/catalogue' },
+    { label: 'Calculateurs', path: '/calculateurs' }
   ];
-
-  const handleClick = (page: PageType): void => {
-    onPageChange(page);
-  };
-
-  const isCataloguePage = (page: PageType): boolean => {
-    return page === 'catalogue' || page === 'catalogue-peinture' || page === 'catalogue-colles';
-  };
 
   return (
     <footer className="bg-black border-t border-gray-800 pt-16 pb-8 dark:bg-black dark:border-gray-800 light:bg-gray-100 light:border-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div>
-            <button
-              onClick={() => handleClick('accueil')}
-              className="text-2xl font-bold tracking-wider mb-4 hover:opacity-80 transition-opacity"
+            <Link
+              to="/"
+              className="text-2xl font-bold tracking-wider mb-4 hover:opacity-80 transition-opacity inline-block"
             >
               <span className="text-[#FF6B00]">YAN'S</span>
               <span className="dark:text-white light:text-black">DECO</span>
-            </button>
+            </Link>
             <p className="text-gray-500 dark:text-gray-400 light:text-gray-600 mb-4 font-light text-sm leading-relaxed">
               Le partenaire de vos chantiers et projets de rénovation. Qualité, conseil et expertise à votre service.
             </p>
@@ -46,17 +33,13 @@ const Footer: React.FC<FooterProps> = ({ onPageChange }) => {
             <h4 className="text-white dark:text-white light:text-black font-bold uppercase tracking-wider text-xs mb-4">Liens Rapides</h4>
             <ul className="space-y-2">
               {footerLinks.map((link) => (
-                <li key={link.key}>
-                  <button
-                    onClick={() => handleClick(link.key)}
-                    className={`text-sm text-left transition-colors duration-200 ${
-                      (link.key === 'catalogue' && isCataloguePage(link.key)) 
-                        ? 'text-[#FF6B00]' 
-                        : 'text-gray-500 dark:text-gray-400 light:text-gray-600 hover:text-[#FF6B00]'
-                    }`}
+                <li key={link.label}>
+                  <Link
+                    to={link.path}
+                    className="text-gray-500 dark:text-gray-400 light:text-gray-600 hover:text-[#FF6B00] transition-colors text-sm"
                   >
                     {link.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>

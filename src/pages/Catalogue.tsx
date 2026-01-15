@@ -1,10 +1,5 @@
-import React, { useState } from 'react';
-
-type PageType = 'accueil' | 'catalogue' | 'catalogue-peinture' | 'catalogue-colles' | 'marques' | 'services' | 'calculateurs' | 'contact';
-
-interface CatalogueProps {
-  onPageChange: (page: PageType) => void;
-}
+import React from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface Subcategory {
   name: string;
@@ -149,24 +144,19 @@ const categories: Category[] = [
   }
 ];
 
-const Catalogue: React.FC<CatalogueProps> = ({ onPageChange }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+const Catalogue: React.FC = () => {
+  const navigate = useNavigate();
+  const { categoryId } = useParams<{ categoryId: string }>();
 
-  const handleCategorySelect = (categoryId: string): void => {
-    setSelectedCategory(categoryId);
-    if (categoryId === 'PEINTURE_FINITION') {
-      onPageChange('catalogue-peinture');
-    } else if (categoryId === 'COLLES_MASTICS') {
-      onPageChange('catalogue-colles');
-    }
+  const handleCategoryClick = (categoryId: string): void => {
+    navigate(`/catalogue/${categoryId}`);
   };
 
   const handleBack = (): void => {
-    setSelectedCategory(null);
-    onPageChange('catalogue');
+    navigate(-1);
   };
 
-  if (selectedCategory === 'PEINTURE_FINITION') {
+  if (categoryId === 'PEINTURE_FINITION') {
     return (
       <section className="py-12 bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -206,7 +196,7 @@ const Catalogue: React.FC<CatalogueProps> = ({ onPageChange }) => {
     );
   }
 
-  if (selectedCategory === 'COLLES_MASTICS') {
+  if (categoryId === 'COLLES_MASTICS') {
     return (
       <section className="py-12 bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -265,7 +255,7 @@ const Catalogue: React.FC<CatalogueProps> = ({ onPageChange }) => {
           {categories.map((category: Category, index: number) => (
             <div
               key={index}
-              onClick={() => handleCategorySelect(category.id)}
+              onClick={() => handleCategoryClick(category.id)}
               className="relative h-64 rounded-xl overflow-hidden group cursor-pointer"
               style={{
                 background: category.image
