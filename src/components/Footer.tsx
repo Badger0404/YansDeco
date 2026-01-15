@@ -31,13 +31,13 @@ const Footer: React.FC<FooterProps> = ({ theme }) => {
               <span className={isLight ? 'text-black' : 'text-white'}>DECO</span>
             </Link>
             <p className={`mb-4 font-light text-sm leading-relaxed ${
-              isLight ? 'text-gray-600' : 'text-gray-500 dark:text-gray-400'
+              isLight ? 'text-gray-800' : 'text-gray-300'
             }`}>
               Le partenaire de vos chantiers et projets de rénovation. Qualité, conseil et expertise à votre service.
             </p>
             <div className="space-y-2 text-sm">
-              <p className={isLight ? 'text-gray-600' : 'text-gray-500'}>+33 1 23 45 67 89</p>
-              <p className={isLight ? 'text-gray-600' : 'text-gray-500'}>contact@yansdeco.fr</p>
+              <p className={isLight ? 'text-gray-700' : 'text-gray-300'}>+33 1 23 45 67 89</p>
+              <p className={isLight ? 'text-gray-700' : 'text-gray-300'}>contact@yansdeco.fr</p>
             </div>
           </div>
 
@@ -54,8 +54,8 @@ const Footer: React.FC<FooterProps> = ({ theme }) => {
                     to={link.path}
                     className={`text-sm transition-colors ${
                       isLight 
-                        ? 'text-gray-600 hover:text-[#FF6B00]' 
-                        : 'text-gray-500 dark:text-gray-400 hover:text-[#FF6B00]'
+                        ? 'text-gray-700 hover:text-[#FF6B00]' 
+                        : 'text-gray-300 hover:text-[#FF6B00]'
                     }`}
                   >
                     {link.label}
@@ -71,7 +71,7 @@ const Footer: React.FC<FooterProps> = ({ theme }) => {
             }`}>
               Yan's Deco
             </h4>
-            <p className={isLight ? 'text-gray-600' : 'text-gray-500'}>© 2026 YAN'S DECO</p>
+            <p className={isLight ? 'text-gray-700' : 'text-gray-300'}>© 2026 YAN'S DECO</p>
             <p className="text-[#FF6B00] font-semibold text-sm mt-2">
               Groslay • Montmorency • Ile-de-France
             </p>
@@ -79,7 +79,7 @@ const Footer: React.FC<FooterProps> = ({ theme }) => {
         </div>
 
         <div className={`mt-12 pt-8 text-center text-xs transition-colors ${
-          isLight ? 'text-gray-500 border-gray-200' : 'text-gray-600 border-gray-800'
+          isLight ? 'text-gray-600 border-gray-300' : 'text-gray-400 border-gray-700'
         }`} style={{ borderTopWidth: '1px', borderTopStyle: 'solid' }}>
           <p>Tous droits réservés. Conception et réalisation.</p>
         </div>
