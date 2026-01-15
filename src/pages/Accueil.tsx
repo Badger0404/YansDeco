@@ -9,10 +9,9 @@ const Accueil: React.FC<AccueilProps> = ({ theme }) => {
 
   return (
     <main>
-      <section className={`relative min-h-screen flex items-center justify-center pt-20 bg-splash-texture ${
+      <section className={`relative min-h-screen flex items-center justify-center pt-20 ${
         isLight ? 'bg-transparent' : 'bg-transparent'
       }`}>
-        <div className="absolute inset-0 bg-grid-pattern"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <span className="inline-block bg-[#FF6B00] text-black px-5 py-1.5 text-xs font-bold uppercase tracking-wider mb-8">
             Conseil Expert

@@ -51,9 +51,7 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-black dark:bg-black light:bg-white pt-20 bg-splash-texture">
-      <div className="absolute inset-0 bg-grid-pattern"></div>
-
+    <section className="relative min-h-screen flex items-center justify-center pt-20">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div
           className={`transition-opacity duration-700 ${
