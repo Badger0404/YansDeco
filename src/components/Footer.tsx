@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-black border-t border-gray-800 pt-16 pb-8 dark:bg-black dark:border-gray-800 light:bg-gray-100 light:border-gray-300">
+    <footer className="bg-black/90 backdrop-blur-md border-t border-gray-800 pt-16 pb-8 dark:bg-black/90 dark:border-gray-800 light:bg-white/90 light:border-gray-300 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div>

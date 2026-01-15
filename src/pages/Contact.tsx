@@ -111,8 +111,18 @@ const Contact: React.FC = () => {
 
               <div className="mt-8 bg-gray-800 border border-gray-700 p-6">
                 <h3 className="text-white font-bold uppercase tracking-wide mb-4">Carte</h3>
-                <div className="aspect-video bg-gray-700 flex items-center justify-center">
-                  <span className="text-gray-500 text-sm">Carte Google Maps</span>
+                <div className="aspect-video bg-gray-700 rounded-lg overflow-hidden">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d209744.5877158955!2d2.224599285644086!3d48.89565071186338!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e6650377a5514b%3A0x4d26b24471303767!2s95410%20Groslay!5e0!3m2!1sfr!2sfr!4v1699900000000!5m2!1sfr!2sfr"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Yan's Deco - Groslay"
+                    className="w-full h-full min-h-[300px]"
+                  />
                 </div>
               </div>
             </div>

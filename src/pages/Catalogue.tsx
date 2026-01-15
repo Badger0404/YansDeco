@@ -105,7 +105,161 @@ const collesSubcategories: Subcategory[] = [
   }
 ];
 
-const categories: Category[] = [
+const outillagePeintreSubcategories: Subcategory[] = [
+  {
+    name: 'BROSSES & PINCEAUX',
+    description: 'Pinceaux professionnels',
+    icon: '🖌️',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'ROULEAUX',
+    description: 'Rouleaux et manchons',
+    icon: '🔄',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'RÂTEAUX & SPALTES',
+    description: 'Outils de précision',
+    icon: '🔧',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'RUBANS DE MASQUAGE',
+    description: 'Adhésifs de protection',
+    icon: '📏',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'BACS À PEINTURE',
+    description: 'Bacs et grilles',
+    icon: '🪣',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'ESCABEAUX & ÉCHAFAUDAGES',
+    description: 'Accès en hauteur',
+    icon: '🪜',
+    products: '0 PRODUITS'
+  }
+];
+
+const outillageCarreleurSubcategories: Subcategory[] = [
+  {
+    name: 'TRUELLE & MALAXEUR',
+    description: 'Outils de pose',
+    icon: '🔧',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'CRÉMAILLÈRES',
+    description: 'Peignes à colle',
+    icon: '📐',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'COUPE-CARREAUX',
+    description: 'Coupe-carrelage manuel',
+    icon: '🔪',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'Scies & DISQUES',
+    description: 'Découpe électrique',
+    icon: '⚙️',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'NIVEAU & FIL À PLOMB',
+    description: 'Contrôle de planéité',
+    icon: '📏',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'CROISILLONS & CALES',
+    description: 'Joints et espacements',
+    icon: '➕',
+    products: '0 PRODUITS'
+  }
+];
+
+const preparationSolsSubcategories: Subcategory[] = [
+  {
+    name: 'RAGRÉAGE',
+    description: 'Enduits de lissage',
+    icon: '🧱',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'PRIMAIRE D\'ACCROCHE',
+    description: 'Sous-couches sols',
+    icon: '🖌️',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'MORTIER DE RÉPARATION',
+    description: 'Réparations structurales',
+    icon: '🔧',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'DÉSHUMIDIFIANTS',
+    description: 'Traitement humidité',
+    icon: '💧',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'PROTECTION DE SOL',
+    description: 'Films et bâches',
+    icon: '🛡️',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'NETTOYANTS SPÉCIAUX',
+    description: 'Nettoyage sols',
+    icon: '🧹',
+    products: '0 PRODUITS'
+  }
+];
+
+const fixationVisserieSubcategories: Subcategory[] = [
+  {
+    name: 'CHEVILLES',
+    description: 'Cheville tous supports',
+    icon: '🔩',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'VIS À BOIS',
+    description: 'Vis et boulons',
+    icon: '🔩',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'VIS À MÉTAL',
+    description: 'Fixations métalliques',
+    icon: '⚙️',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'VIS À BÉTON',
+    description: 'Scellement chimique',
+    icon: '🔨',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'CLOUS & PISTOLET',
+    description: 'Clouage rapide',
+    icon: '🔧',
+    products: '0 PRODUITS'
+  },
+  {
+    name: 'BOULONS & ÉCROUS',
+    description: 'Visserie industrielle',
+    icon: '⚙️',
+    products: '0 PRODUITS'
+  }
+];
   {
     id: 'PEINTURE_FINITION',
     name: 'PEINTURE_FINITION',
@@ -216,6 +370,166 @@ const Catalogue: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {collesSubcategories.map((sub: Subcategory, index: number) => (
+              <div
+                key={index}
+                className="bg-zinc-900 rounded-2xl p-6 hover:bg-zinc-800 transition-colors duration-200 cursor-pointer border border-zinc-800 hover:border-[#FF6B00]"
+              >
+                <div className="text-4xl mb-4">{sub.icon}</div>
+                <h3 className="font-bold italic text-lg uppercase text-white mb-2 leading-tight">
+                  {sub.name}
+                </h3>
+                <p className="text-gray-500 text-xs mb-4">{sub.description}</p>
+                <span className="text-[#FF6B00] text-xs font-medium uppercase tracking-wide">
+                  {sub.products}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (categoryId === 'OUTILLAGE_PEINTRE') {
+    return (
+      <section className="py-12 bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <button
+            onClick={handleBack}
+            className="mb-8 text-gray-500 hover:text-[#FF6B00] transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2"
+          >
+            ← RETOUR
+          </button>
+
+          <div className="text-center mb-10">
+            <h1 className="font-black italic text-4xl uppercase tracking-tight">
+              <span className="text-white">OUTILLAGE</span>{' '}
+              <span className="text-[#FF6B00]">PEINTRE</span>
+            </h1>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {outillagePeintreSubcategories.map((sub: Subcategory, index: number) => (
+              <div
+                key={index}
+                className="bg-zinc-900 rounded-2xl p-6 hover:bg-zinc-800 transition-colors duration-200 cursor-pointer border border-zinc-800 hover:border-[#FF6B00]"
+              >
+                <div className="text-4xl mb-4">{sub.icon}</div>
+                <h3 className="font-bold italic text-lg uppercase text-white mb-2 leading-tight">
+                  {sub.name}
+                </h3>
+                <p className="text-gray-500 text-xs mb-4">{sub.description}</p>
+                <span className="text-[#FF6B00] text-xs font-medium uppercase tracking-wide">
+                  {sub.products}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (categoryId === 'OUTILLAGE_CARRELEUR') {
+    return (
+      <section className="py-12 bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <button
+            onClick={handleBack}
+            className="mb-8 text-gray-500 hover:text-[#FF6B00] transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2"
+          >
+            ← RETOUR
+          </button>
+
+          <div className="text-center mb-10">
+            <h1 className="font-black italic text-4xl uppercase tracking-tight">
+              <span className="text-white">OUTILLAGE</span>{' '}
+              <span className="text-[#FF6B00]">CARRELEUR</span>
+            </h1>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {outillageCarreleurSubcategories.map((sub: Subcategory, index: number) => (
+              <div
+                key={index}
+                className="bg-zinc-900 rounded-2xl p-6 hover:bg-zinc-800 transition-colors duration-200 cursor-pointer border border-zinc-800 hover:border-[#FF6B00]"
+              >
+                <div className="text-4xl mb-4">{sub.icon}</div>
+                <h3 className="font-bold italic text-lg uppercase text-white mb-2 leading-tight">
+                  {sub.name}
+                </h3>
+                <p className="text-gray-500 text-xs mb-4">{sub.description}</p>
+                <span className="text-[#FF6B00] text-xs font-medium uppercase tracking-wide">
+                  {sub.products}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (categoryId === 'PREPARATION_SOLS') {
+    return (
+      <section className="py-12 bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <button
+            onClick={handleBack}
+            className="mb-8 text-gray-500 hover:text-[#FF6B00] transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2"
+          >
+            ← RETOUR
+          </button>
+
+          <div className="text-center mb-10">
+            <h1 className="font-black italic text-4xl uppercase tracking-tight">
+              <span className="text-white">PRÉPARATION</span>{' '}
+              <span className="text-[#FF6B00]">SOLS</span>
+            </h1>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {preparationSolsSubcategories.map((sub: Subcategory, index: number) => (
+              <div
+                key={index}
+                className="bg-zinc-900 rounded-2xl p-6 hover:bg-zinc-800 transition-colors duration-200 cursor-pointer border border-zinc-800 hover:border-[#FF6B00]"
+              >
+                <div className="text-4xl mb-4">{sub.icon}</div>
+                <h3 className="font-bold italic text-lg uppercase text-white mb-2 leading-tight">
+                  {sub.name}
+                </h3>
+                <p className="text-gray-500 text-xs mb-4">{sub.description}</p>
+                <span className="text-[#FF6B00] text-xs font-medium uppercase tracking-wide">
+                  {sub.products}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (categoryId === 'FIXATION_VISSERIE') {
+    return (
+      <section className="py-12 bg-black">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <button
+            onClick={handleBack}
+            className="mb-8 text-gray-500 hover:text-[#FF6B00] transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2"
+          >
+            ← RETOUR
+          </button>
+
+          <div className="text-center mb-10">
+            <h1 className="font-black italic text-4xl uppercase tracking-tight">
+              <span className="text-white">FIXATION &</span>{' '}
+              <span className="text-[#FF6B00]">VISSERIE</span>
+            </h1>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {fixationVisserieSubcategories.map((sub: Subcategory, index: number) => (
               <div
                 key={index}
                 className="bg-zinc-900 rounded-2xl p-6 hover:bg-zinc-800 transition-colors duration-200 cursor-pointer border border-zinc-800 hover:border-[#FF6B00]"

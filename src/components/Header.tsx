@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 const Header: React.FC = () => {
-  const [isDark, setIsDark] = useState(true);
-  const [activeLang, setActiveLang] = useState('FR');
+  const { isDark, toggleTheme } = useTheme();
+  const [activeLang, setActiveLang] = React.useState('FR');
 
   const navItems = [
     { key: 'accueil', label: 'Accueil', path: '/' },
@@ -14,18 +15,8 @@ const Header: React.FC = () => {
     { key: 'contact', label: 'Contact', path: '/contact' }
   ];
 
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-      document.body.classList.remove('light-theme');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.body.classList.add('light-theme');
-    }
-  }, [isDark]);
-
   return (
-    <header className="w-full bg-black text-white flex items-center justify-between px-10 py-4 border-b border-gray-800 dark:bg-black dark:border-gray-800 light:bg-white light:text-black light:border-gray-200 fixed top-0 left-0 right-0 z-50">
+    <header className="w-full bg-black/80 backdrop-blur-md text-white flex items-center justify-between px-10 py-4 border-b border-gray-800 dark:bg-black/80 dark:border-gray-800 light:bg-white/80 light:text-black light:border-gray-200 fixed top-0 left-0 right-0 z-50 transition-all duration-300">
       <NavLink
         to="/"
         className="flex-shrink-0 hover:opacity-80 transition-opacity"
@@ -87,7 +78,7 @@ const Header: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setIsDark(!isDark)}
+          onClick={toggleTheme}
           className="text-gray-400 hover:text-[#FF6B00] transition-colors duration-200"
           aria-label="Toggle theme"
         >
