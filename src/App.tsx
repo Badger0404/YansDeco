@@ -27,11 +27,9 @@ const App: React.FC = () => {
       <div
         className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700"
         style={{
-          backgroundImage: `url(${currentBg})`,
-          backgroundColor: theme === 'dark' ? '#0a0a0a' : '#f5f5f5'
+          backgroundImage: `url(${currentBg})`
         }}
       />
-      <div className="fixed inset-0 z-0 backdrop-blur-[1px] transition-all duration-500 pointer-events-none" />
       
       <Header theme={theme} onToggleTheme={toggleTheme} />
       <main className="relative z-10">
