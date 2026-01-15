@@ -325,7 +325,7 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
 
   if (categoryId === 'PEINTURE_FINITION') {
     return (
-      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-gray-100' : 'bg-black'}`}>
+      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-transparent' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
             onClick={handleBack}
@@ -368,7 +368,7 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
 
   if (categoryId === 'COLLES_MASTICS') {
     return (
-      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-gray-100' : 'bg-black'}`}>
+      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-transparent' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
             onClick={handleBack}
@@ -411,7 +411,7 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
 
   if (categoryId === 'OUTILLAGE_PEINTRE') {
     return (
-      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-gray-100' : 'bg-black'}`}>
+      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-transparent' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
             onClick={handleBack}
@@ -454,7 +454,7 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
 
   if (categoryId === 'OUTILLAGE_CARRELEUR') {
     return (
-      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-gray-100' : 'bg-black'}`}>
+      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-transparent' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
             onClick={handleBack}
@@ -497,7 +497,7 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
 
   if (categoryId === 'PREPARATION_SOLS') {
     return (
-      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-gray-100' : 'bg-black'}`}>
+      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-transparent' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
             onClick={handleBack}
@@ -540,7 +540,7 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
 
   if (categoryId === 'FIXATION_VISSERIE') {
     return (
-      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-gray-100' : 'bg-black'}`}>
+      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-transparent' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
             onClick={handleBack}

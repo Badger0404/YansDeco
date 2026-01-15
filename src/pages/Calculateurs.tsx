@@ -55,7 +55,7 @@ const Calculateurs: React.FC<CalculateursProps> = ({ theme }) => {
   return (
     <main className="pt-24">
       <section className={`py-16 transition-colors duration-500 ${
-        isLight ? 'bg-gray-100' : 'bg-gray-900'
+        isLight ? 'bg-transparent' : 'bg-transparent'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className={`text-4xl md:text-5xl font-bold mb-8 uppercase tracking-wider ${

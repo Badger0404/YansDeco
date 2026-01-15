@@ -9,6 +9,9 @@ import Services from './pages/Services';
 import Calculateurs from './pages/Calculateurs';
 import Contact from './pages/Contact';
 
+const bgDark = '/assets/bg/bg-dark.png';
+const bgLight = '/assets/bg/bg-light.png';
+
 const App: React.FC = () => {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
@@ -16,22 +19,24 @@ const App: React.FC = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
+  const currentBg = theme === 'dark' ? bgDark : bgLight;
+  console.log('Current bg path:', currentBg);
+
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${
-      theme === 'dark' ? 'bg-black' : 'bg-gray-100'
-    }`}>
+    <div className="relative min-h-screen">
       <div
-        className="fixed inset-0 z-[-1] bg-fixed bg-cover bg-center transition-all duration-700"
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700"
         style={{
-          backgroundImage: `url('/assets/bg/bg-${theme}.svg')`
+          backgroundImage: `url(${currentBg})`,
+          backgroundColor: theme === 'dark' ? '#0a0a0a' : '#f5f5f5'
         }}
       />
-      <div className="fixed inset-0 z-[-1] backdrop-blur-[1px] transition-all duration-500" />
+      <div className="fixed inset-0 z-0 backdrop-blur-[1px] transition-all duration-500 pointer-events-none" />
       
       <Header theme={theme} onToggleTheme={toggleTheme} />
-      <main className={theme === 'dark' ? '' : 'light-theme'}>
+      <main className="relative z-10">
         <Routes>
-          <Route path="/" element={<Accueil />} />
+          <Route path="/" element={<Accueil theme={theme} />} />
           <Route path="/catalogue" element={<Catalogue theme={theme} />} />
           <Route path="/catalogue/:categoryId" element={<Catalogue theme={theme} />} />
           <Route path="/marques" element={<Marques theme={theme} />} />
