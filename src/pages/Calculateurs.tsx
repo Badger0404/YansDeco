@@ -39,33 +39,39 @@ const Calculateurs: React.FC<CalculateursProps> = ({ theme }) => {
     setResult(Math.ceil(quantity * 10) / 10);
   };
 
-  const cardClass = `p-8 transition-all duration-200 group ${
+  const cardClass = `relative rounded-2xl p-8 transition-all duration-300 cursor-pointer border overflow-hidden ${
     isLight 
-      ? 'bg-white/80 backdrop-blur-md border border-gray-200 shadow-lg hover:border-[#FF6B00]' 
-      : 'bg-gray-800 border border-gray-700 hover:border-[#FF6B00]'
+      ? 'bg-white/40 backdrop-blur-md border-white/20 hover:border-[#FF6B00]' 
+      : 'bg-black/40 backdrop-blur-md border-white/10 hover:border-[#FF6B00]'
   }`;
 
-  const iconBgClass = isLight ? 'bg-gray-100' : 'bg-gray-700';
-  const inputClass = `w-full px-4 py-2 transition-colors focus:outline-none ${
+  const iconBgClass = isLight ? 'bg-white/60' : 'bg-black/60';
+  const inputClass = `w-full px-4 py-3 transition-colors focus:outline-none ${
     isLight 
       ? 'bg-white border border-gray-300 text-black focus:border-[#FF6B00]' 
-      : 'bg-gray-700 border border-gray-600 text-white focus:border-[#FF6B00]'
+      : 'bg-black/60 border border-white/10 text-white focus:border-[#FF6B00]'
   }`;
+  const textClass = isLight ? 'text-black' : 'text-white';
+  const descClass = isLight ? 'text-gray-700' : 'text-gray-300';
+  const labelClass = isLight ? 'text-gray-600' : 'text-gray-400';
 
   return (
-    <main className="pt-24">
-      <section className={`py-16 transition-colors duration-500 ${
-        isLight ? 'bg-transparent' : 'bg-transparent'
-      }`}>
+    <main className="min-h-screen pt-4">
+      <section className="py-16 transition-colors duration-500 bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className={`text-4xl md:text-5xl font-bold mb-8 uppercase tracking-wider ${
-            isLight ? 'text-black' : 'text-white'
-          }`}>
-            Calculateurs
-          </h1>
-          <p className={`mb-12 max-w-2xl ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
-            Outils pratiques pour estimer vos besoins en matériaux et optimiser vos projets.
-          </p>
+          <div className="text-center mb-12">
+            <h1 className="font-black italic text-5xl uppercase tracking-tight mb-4 drop-shadow-lg">
+              <span className={isLight ? 'text-black' : 'text-white'}>NOS</span>{' '}
+              <span className="text-[#FF6B00]">CALCULATEURS</span>
+            </h1>
+            <p className={`max-w-2xl mx-auto text-sm leading-relaxed drop-shadow-md ${
+              isLight ? 'text-gray-700' : 'text-gray-300'
+            }`}>
+              Outils pratiques pour estimer vos besoins en matériaux et optimiser vos projets.
+              <br />
+              Calculs précis pour vos chantiers.
+            </p>
+          </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className={cardClass}>
@@ -81,19 +87,17 @@ const Calculateurs: React.FC<CalculateursProps> = ({ theme }) => {
               }`}>
                 MiMo-V2
               </h3>
-              <p className={`text-sm leading-relaxed mb-4 ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
+              <p className={`text-sm leading-relaxed mb-4 ${descClass}`}>
                 Calculateur de consommation de matériaux pour vos projets de construction et rénovation.
               </p>
               <span className="text-green-400 text-sm font-medium uppercase tracking-wide">
                 Fonctionnel
               </span>
 
-              <div className="mt-6 pt-6 border-t border-gray-700">
+              <div className="mt-6 pt-6 border-t border-white/10">
                 <div className="space-y-4">
                   <div>
-                    <label className={`block text-xs uppercase tracking-wide mb-2 ${
-                      isLight ? 'text-gray-600' : 'text-gray-400'
-                    }`}>
+                    <label className={`block text-xs uppercase tracking-wide mb-2 ${labelClass}`}>
                       Matériau
                     </label>
                     <select
@@ -113,9 +117,7 @@ const Calculateurs: React.FC<CalculateursProps> = ({ theme }) => {
                   </div>
 
                   <div>
-                    <label className={`block text-xs uppercase tracking-wide mb-2 ${
-                      isLight ? 'text-gray-600' : 'text-gray-400'
-                    }`}>
+                    <label className={`block text-xs uppercase tracking-wide mb-2 ${labelClass}`}>
                       Surface (m²)
                     </label>
                     <input
@@ -137,23 +139,21 @@ const Calculateurs: React.FC<CalculateursProps> = ({ theme }) => {
 
                   {result !== null && (
                     <div className={`p-4 mt-4 border ${
-                      isLight ? 'bg-gray-100 border-gray-200' : 'bg-gray-700/50 border-gray-600'
+                      isLight ? 'bg-white/60 border-white/20' : 'bg-black/60 border-white/10'
                     }`}>
-                      <p className={`text-xs uppercase tracking-wide mb-1 ${
-                        isLight ? 'text-gray-600' : 'text-gray-400'
-                      }`}>
+                      <p className={`text-xs uppercase tracking-wide mb-1 ${labelClass}`}>
                         Quantité estimée
                       </p>
                       <p className="text-[#FF6B00] text-2xl font-bold">
                         {result} <span className="text-sm">{selectedMaterial.unit.split('/')[0]}</span>
                       </p>
-                      <p className={`text-xs mt-2 ${isLight ? 'text-gray-500' : 'text-gray-500'}`}>
+                      <p className={`text-xs mt-2 ${labelClass}`}>
                         {selectedMaterial.coats > 1 ? `(${selectedMaterial.coats} couches recommandées)` : '(1 couche)'}
                       </p>
                     </div>
                   )}
 
-                  <div className={`text-xs mt-4 ${isLight ? 'text-gray-500' : 'text-gray-500'}`}>
+                  <div className={`text-xs mt-4 ${labelClass}`}>
                     <p>Consommation: {selectedMaterial.consumption} {selectedMaterial.unit}</p>
                   </div>
                 </div>
@@ -173,7 +173,7 @@ const Calculateurs: React.FC<CalculateursProps> = ({ theme }) => {
               }`}>
                 Calculateur de surface
               </h3>
-              <p className={`text-sm leading-relaxed mb-4 ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
+              <p className={`text-sm leading-relaxed mb-4 ${descClass}`}>
                 Estimez la surface à couvrir pour vos revêtements de sol et muraux.
               </p>
               <span className="text-[#FF6B00] text-sm font-medium uppercase tracking-wide">
@@ -194,7 +194,7 @@ const Calculateurs: React.FC<CalculateursProps> = ({ theme }) => {
               }`}>
                 Calculateur de quantité
               </h3>
-              <p className={`text-sm leading-relaxed mb-4 ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
+              <p className={`text-sm leading-relaxed mb-4 ${descClass}`}>
                 Déterminez la quantité exacte de matériaux nécessaire pour votre chantier.
               </p>
               <span className="text-[#FF6B00] text-sm font-medium uppercase tracking-wide">

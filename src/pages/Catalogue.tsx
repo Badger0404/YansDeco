@@ -325,23 +325,24 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
 
   if (categoryId === 'PEINTURE_FINITION') {
     return (
-      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-transparent' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <button
-            onClick={handleBack}
-            className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
-              isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-500 hover:text-[#FF6B00]'
-            }`}
-          >
-            ← RETOUR
-          </button>
+      <main className="min-h-screen pt-4">
+        <section className="py-12 transition-colors duration-500 bg-transparent">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <button
+              onClick={handleBack}
+              className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
+                isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-500 hover:text-[#FF6B00]'
+              }`}
+            >
+              ← RETOUR
+            </button>
 
-          <div className="text-center mb-10">
-            <h1 className="font-black italic text-4xl uppercase tracking-tight">
-              <span className={isLight ? 'text-black' : 'text-white'}>PEINTURE &</span>{' '}
-              <span className="text-[#FF6B00]">FINITION</span>
-            </h1>
-          </div>
+            <div className="text-center mb-10">
+              <h1 className="font-black italic text-4xl uppercase tracking-tight">
+                <span className={isLight ? 'text-black' : 'text-white'}>PEINTURE &</span>{' '}
+                <span className="text-[#FF6B00]">FINITION</span>
+              </h1>
+            </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {peintureSubcategories.map((sub: Subcategory, index: number) => (
@@ -363,28 +364,30 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
           </div>
         </div>
       </section>
-    );
-  }
+    </main>
+  );
+}
 
-  if (categoryId === 'COLLES_MASTICS') {
+if (categoryId === 'COLLES_MASTICS') {
     return (
-      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-transparent' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <button
-            onClick={handleBack}
-            className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
-              isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-500 hover:text-[#FF6B00]'
-            }`}
-          >
-            ← RETOUR
-          </button>
+      <main className="min-h-screen pt-4">
+        <section className="py-12 transition-colors duration-500 bg-transparent">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <button
+              onClick={handleBack}
+              className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
+                isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-500 hover:text-[#FF6B00]'
+              }`}
+            >
+              ← RETOUR
+            </button>
 
-          <div className="text-center mb-10">
-            <h1 className="font-black italic text-4xl uppercase tracking-tight">
-              <span className={isLight ? 'text-black' : 'text-white'}>COLLES &</span>{' '}
-              <span className="text-[#FF6B00]">MASTICS</span>
-            </h1>
-          </div>
+            <div className="text-center mb-10">
+              <h1 className="font-black italic text-4xl uppercase tracking-tight">
+                <span className={isLight ? 'text-black' : 'text-white'}>COLLES &</span>{' '}
+                <span className="text-[#FF6B00]">MASTICS</span>
+              </h1>
+            </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {collesSubcategories.map((sub: Subcategory, index: number) => (
@@ -406,28 +409,30 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
           </div>
         </div>
       </section>
-    );
-  }
+    </main>
+  );
+}
 
-  if (categoryId === 'OUTILLAGE_PEINTRE') {
+if (categoryId === 'OUTILLAGE_PEINTRE') {
     return (
-      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-transparent' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <button
-            onClick={handleBack}
-            className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
-              isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-500 hover:text-[#FF6B00]'
-            }`}
-          >
-            ← RETOUR
-          </button>
+      <main className="min-h-screen pt-4">
+        <section className="py-12 transition-colors duration-500 bg-transparent">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <button
+              onClick={handleBack}
+              className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
+                isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-500 hover:text-[#FF6B00]'
+              }`}
+            >
+              ← RETOUR
+            </button>
 
-          <div className="text-center mb-10">
-            <h1 className="font-black italic text-4xl uppercase tracking-tight">
-              <span className={isLight ? 'text-black' : 'text-white'}>OUTILLAGE</span>{' '}
-              <span className="text-[#FF6B00]">PEINTRE</span>
-            </h1>
-          </div>
+            <div className="text-center mb-10">
+              <h1 className="font-black italic text-4xl uppercase tracking-tight">
+                <span className={isLight ? 'text-black' : 'text-white'}>OUTILLAGE</span>{' '}
+                <span className="text-[#FF6B00]">PEINTRE</span>
+              </h1>
+            </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {outillagePeintreSubcategories.map((sub: Subcategory, index: number) => (
@@ -449,28 +454,30 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
           </div>
         </div>
       </section>
-    );
-  }
+    </main>
+  );
+}
 
-  if (categoryId === 'OUTILLAGE_CARRELEUR') {
+if (categoryId === 'OUTILLAGE_CARRELEUR') {
     return (
-      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-transparent' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <button
-            onClick={handleBack}
-            className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
-              isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-500 hover:text-[#FF6B00]'
-            }`}
-          >
-            ← RETOUR
-          </button>
+      <main className="min-h-screen pt-4">
+        <section className="py-12 transition-colors duration-500 bg-transparent">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <button
+              onClick={handleBack}
+              className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
+                isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-500 hover:text-[#FF6B00]'
+              }`}
+            >
+              ← RETOUR
+            </button>
 
-          <div className="text-center mb-10">
-            <h1 className="font-black italic text-4xl uppercase tracking-tight">
-              <span className={isLight ? 'text-black' : 'text-white'}>OUTILLAGE</span>{' '}
-              <span className="text-[#FF6B00]">CARRELEUR</span>
-            </h1>
-          </div>
+            <div className="text-center mb-10">
+              <h1 className="font-black italic text-4xl uppercase tracking-tight">
+                <span className={isLight ? 'text-black' : 'text-white'}>OUTILLAGE</span>{' '}
+                <span className="text-[#FF6B00]">CARRELEUR</span>
+              </h1>
+            </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {outillageCarreleurSubcategories.map((sub: Subcategory, index: number) => (
@@ -492,28 +499,30 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
           </div>
         </div>
       </section>
-    );
-  }
+    </main>
+  );
+}
 
-  if (categoryId === 'PREPARATION_SOLS') {
+if (categoryId === 'PREPARATION_SOLS') {
     return (
-      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-transparent' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <button
-            onClick={handleBack}
-            className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
-              isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-500 hover:text-[#FF6B00]'
-            }`}
-          >
-            ← RETOUR
-          </button>
+      <main className="min-h-screen pt-4">
+        <section className="py-12 transition-colors duration-500 bg-transparent">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <button
+              onClick={handleBack}
+              className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
+                isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-500 hover:text-[#FF6B00]'
+              }`}
+            >
+              ← RETOUR
+            </button>
 
-          <div className="text-center mb-10">
-            <h1 className="font-black italic text-4xl uppercase tracking-tight">
-              <span className={isLight ? 'text-black' : 'text-white'}>PRÉPARATION</span>{' '}
-              <span className="text-[#FF6B00]">SOLS</span>
-            </h1>
-          </div>
+            <div className="text-center mb-10">
+              <h1 className="font-black italic text-4xl uppercase tracking-tight">
+                <span className={isLight ? 'text-black' : 'text-white'}>PRÉPARATION</span>{' '}
+                <span className="text-[#FF6B00]">SOLS</span>
+              </h1>
+            </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {preparationSolsSubcategories.map((sub: Subcategory, index: number) => (
@@ -535,28 +544,30 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
           </div>
         </div>
       </section>
-    );
-  }
+    </main>
+  );
+}
 
-  if (categoryId === 'FIXATION_VISSERIE') {
+if (categoryId === 'FIXATION_VISSERIE') {
     return (
-      <section className={`py-12 transition-colors duration-500 ${isLight ? 'bg-transparent' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <button
-            onClick={handleBack}
-            className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
-              isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-500 hover:text-[#FF6B00]'
-            }`}
-          >
-            ← RETOUR
-          </button>
+      <main className="min-h-screen pt-4">
+        <section className="py-12 transition-colors duration-500 bg-transparent">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <button
+              onClick={handleBack}
+              className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
+                isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-500 hover:text-[#FF6B00]'
+              }`}
+            >
+              ← RETOUR
+            </button>
 
-          <div className="text-center mb-10">
-            <h1 className="font-black italic text-4xl uppercase tracking-tight">
-              <span className={isLight ? 'text-black' : 'text-white'}>FIXATION &</span>{' '}
-              <span className="text-[#FF6B00]">VISSERIE</span>
-            </h1>
-          </div>
+            <div className="text-center mb-10">
+              <h1 className="font-black italic text-4xl uppercase tracking-tight">
+                <span className={isLight ? 'text-black' : 'text-white'}>FIXATION &</span>{' '}
+                <span className="text-[#FF6B00]">VISSERIE</span>
+              </h1>
+            </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {fixationVisserieSubcategories.map((sub: Subcategory, index: number) => (
@@ -582,21 +593,22 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
   }
 
   return (
-    <section className="py-20 transition-colors duration-500 bg-transparent">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h1 className="font-black italic text-5xl uppercase tracking-tight mb-4 drop-shadow-lg">
-            <span className={isLight ? 'text-black' : 'text-white'}>NOS</span>{' '}
-            <span className="text-[#FF6B00]">RAYONS</span>
-          </h1>
-          <p className={`max-w-2xl mx-auto text-sm leading-relaxed drop-shadow-md ${
-            isLight ? 'text-gray-700' : 'text-gray-300'
-          }`}>
-            Du bâtiment à la rénovation, toute une gamme de matériaux, outillage et accessoires pour les professionnels et les particuliers.
-            <br />
-            Des conseils personnalisés pour vous accompagner dans tous vos projets.
-          </p>
-        </div>
+    <main className="min-h-screen pt-4">
+      <section className="py-16 transition-colors duration-500 bg-transparent">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h1 className="font-black italic text-5xl uppercase tracking-tight mb-4 drop-shadow-lg">
+              <span className={isLight ? 'text-black' : 'text-white'}>NOS</span>{' '}
+              <span className="text-[#FF6B00]">RAYONS</span>
+            </h1>
+            <p className={`max-w-2xl mx-auto text-sm leading-relaxed drop-shadow-md ${
+              isLight ? 'text-gray-700' : 'text-gray-300'
+            }`}>
+              Du bâtiment à la rénovation, toute une gamme de matériaux, outillage et accessoires pour les professionnels et les particuliers.
+              <br />
+              Des conseils personnalisés pour vous accompagner dans tous vos projets.
+            </p>
+          </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {categories.map((category: Category, index: number) => (
@@ -626,8 +638,9 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
             </div>
           ))}
         </div>
-      </div>
-    </section>
+        </div>
+      </section>
+    </main>
   );
 };
 

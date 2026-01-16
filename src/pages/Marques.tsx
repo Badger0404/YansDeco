@@ -27,10 +27,10 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
   }`;
 
   return (
-    <main className="pt-24">
+    <main className="min-h-screen pt-4">
       <section className="py-16 transition-colors duration-500 bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <h1 className="font-black italic text-5xl uppercase tracking-tight mb-4 drop-shadow-lg">
               <span className={isLight ? 'text-black' : 'text-white'}>NOS</span>{' '}
               <span className="text-[#FF6B00]">MARQUES</span>
