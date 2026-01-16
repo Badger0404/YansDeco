@@ -1,101 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
-interface Slide {
-  badge: string;
-  title: string;
-  sub: string;
-}
-
-const slides: Slide[] = [
-  {
-    badge: 'CONSEIL EXPERT',
-    title: "TOUTE GAMME <span class='text-[#FF6B00]'>DE MATÉRIAUX</span>",
-    sub: "Des revêtements aux outils, tout pour vos projets",
-  },
-  {
-    badge: 'QUALITÉ PROFESSIONNELLE',
-    title: "SERVICE LOCAL <span class='text-[#FF6B00]'>EN ÎLE-DE-FRANCE</span>",
-    sub: "Prix compétitifs pour les pros et les particuliers",
-  },
-  {
-    badge: 'QUALITÉ PROFESSIONNELLE',
-    title: "SERVICE LOCAL <span class='text-[#FF6B00]'>DE MATERFRANCE</span>",
-    sub: "Prix compétitifs aux outils, tout pour particuliers",
-  },
-];
+const words = ["MATÉRIAUX", "PEINTURES", "OUTILS", "SOLUTIONS"];
 
 const HeroSection: React.FC = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [displayedWord, setDisplayedWord] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const typingSpeed = 100;
+  const deletingSpeed = 50;
+  const pauseDuration = 2000;
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAnimating(true);
-      setTimeout(() => {
-        setCurrentSlide((prev) => (prev + 1) % slides.length);
-        setIsAnimating(false);
-      }, 700);
-    }, 5000);
+    const word = words[currentWordIndex];
+    
+    const handleTyping = () => {
+      if (isDeleting) {
+        setDisplayedWord(word.substring(0, displayedWord.length - 1));
+        if (displayedWord.length === 0) {
+          setIsDeleting(false);
+          setCurrentWordIndex((prev) => (prev + 1) % words.length);
+        }
+      } else {
+        setDisplayedWord(word.substring(0, displayedWord.length + 1));
+        if (displayedWord.length === word.length) {
+          setTimeout(() => setIsDeleting(true), pauseDuration);
+        }
+      }
+    };
 
-    return () => clearInterval(interval);
-  }, []);
+    const timeout = setTimeout(
+      handleTyping,
+      isDeleting ? deletingSpeed : typingSpeed
+    );
 
-  const handleDotClick = (index: number) => {
-    if (index !== currentSlide) {
-      setIsAnimating(true);
-      setTimeout(() => {
-        setCurrentSlide(index);
-        setIsAnimating(false);
-      }, 700);
-    }
-  };
+    return () => clearTimeout(timeout);
+  }, [currentWordIndex, displayedWord, isDeleting]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-20">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div
-          className={`transition-opacity duration-700 ${
-            isAnimating ? 'opacity-0' : 'opacity-100'
-          }`}
-        >
-          <span className="inline-block bg-[#FF6B00] text-black px-5 py-1.5 text-xs font-bold uppercase tracking-wider mb-8">
-            {slides[currentSlide].badge}
+        <span className="inline-block bg-[#FF6B00] text-black px-5 py-1.5 text-xs font-bold uppercase tracking-wider mb-8">
+          Conseil Expert
+        </span>
+
+        <h2 className="text-5xl md:text-7xl lg:text-8xl font-black italic tracking-tight mb-10 leading-[1.15] drop-shadow-lg">
+          TOUTE GAMME DE{' '}
+          <span className="text-[#FF6B00] inline-block min-w-[200px] text-left">
+            {displayedWord}
+            <span className="animate-pulse">|</span>
           </span>
+        </h2>
 
-          <h2
-            className="text-5xl md:text-7xl lg:text-8xl font-black italic tracking-tight mb-10 leading-[1.15] dark:text-white light:text-black"
-            dangerouslySetInnerHTML={{
-              __html: slides[currentSlide].title,
-            }}
-          />
-
-          <p className="text-lg md:text-xl text-gray-400 dark:text-gray-400 light:text-gray-600 mb-12 max-w-2xl mx-auto font-light tracking-wide">
-            {slides[currentSlide].sub}
-          </p>
-        </div>
+        <p className="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto font-light tracking-wide drop-shadow-md">
+          Des revêtements aux outils, tout pour vos projets
+        </p>
 
         <div className="flex flex-row items-center justify-center gap-5">
           <button className="bg-[#FF6B00] text-black px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all rounded-none">
             Calculer Mes Besoins
           </button>
-          <button className="border-2 border-white dark:border-white light:border-black text-white dark:text-white light:text-black px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black light:hover:bg-black light:hover:text-white transition-all rounded-none">
+          <button className="border-2 border-white text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-all rounded-none">
             Demander Un Devis
           </button>
-        </div>
-
-        <div className="flex items-center justify-center gap-2 mt-10">
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => handleDotClick(index)}
-              className={`transition-all duration-300 ${
-                index === currentSlide
-                  ? 'bg-[#FF6B00] h-2 rounded-none'
-                  : 'bg-gray-600 dark:bg-gray-600 light:bg-gray-300 h-2 rounded-full'
-              } ${index === currentSlide ? 'w-8' : 'w-2'}`}
-              aria-label={`Aller au slide ${index + 1}`}
-            />
-          ))}
         </div>
       </div>
     </section>

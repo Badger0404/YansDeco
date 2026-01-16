@@ -1,14 +1,16 @@
 import React from 'react';
+import HeroSection from '../components/Hero';
 
-interface AccueilProps {
+interface HomeProps {
   theme: 'dark' | 'light';
 }
 
-const Accueil: React.FC<AccueilProps> = ({ theme }) => {
+const Home: React.FC<HomeProps> = ({ theme }) => {
   const isLight = theme === 'light';
 
   return (
-    <main>
+    <>
+      <HeroSection />
       <section className={`py-20 transition-colors duration-500 ${
         isLight ? 'bg-transparent' : 'bg-transparent'
       }`}>
@@ -20,19 +22,19 @@ const Accueil: React.FC<AccueilProps> = ({ theme }) => {
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-            <div key={item} className={`aspect-square flex items-center justify-center border ${
-              isLight 
-                ? 'bg-white/80 backdrop-blur-md border-gray-200 shadow-lg' 
-                : 'bg-black/50 backdrop-blur-md border-gray-700'
-              }`}>
-                <span className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-500'}`}>Produit {item}</span>
-              </div>
+              <div key={item} className={`aspect-square flex items-center justify-center border ${
+                isLight 
+                  ? 'bg-white/80 backdrop-blur-md border-gray-200 shadow-lg' 
+                  : 'bg-black/50 backdrop-blur-md border-gray-700'
+                }`}>
+                  <span className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-500'}`}>Produit {item}</span>
+                </div>
             ))}
           </div>
         </div>
       </section>
-    </main>
+    </>
   );
 };
 
-export default Accueil;
+export default Home;

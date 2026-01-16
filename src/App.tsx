@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import Accueil from './pages/Accueil';
+import Home from './pages/Home';
 import Catalogue from './pages/Catalogue';
 import Marques from './pages/Marques';
 import Services from './pages/Services';
@@ -34,7 +34,7 @@ const App: React.FC = () => {
       <Header theme={theme} onToggleTheme={toggleTheme} />
       <main className="relative z-10">
         <Routes>
-          <Route path="/" element={<Accueil theme={theme} />} />
+          <Route path="/" element={<Home theme={theme} />} />
           <Route path="/catalogue" element={<Catalogue theme={theme} />} />
           <Route path="/catalogue/:categoryId" element={<Catalogue theme={theme} />} />
           <Route path="/marques" element={<Marques theme={theme} />} />
