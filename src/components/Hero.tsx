@@ -13,7 +13,7 @@ const slides: Slide[] = [
     sub: "Basé à Groslay, nous servons les professionnels et particuliers à Montmorency et dans toute l'Île-de-France. Qualité industrielle, service local. Nos prix vous surprendront agréablement.",
   },
   {
-    badge: 'QUALITÉ PROFESSIONNELLE',
+    badge: 'Qualité Professionnelle',
     title: "SERVICE LOCAL <span class='text-[#FF6B00]'>EN ÎLE-DE-FRANCE</span>",
     sub: "Prix compétitifs pour les pros et les particuliers",
   },
