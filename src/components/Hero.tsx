@@ -8,9 +8,9 @@ interface Slide {
 
 const slides: Slide[] = [
   {
-    badge: 'CONSEIL EXPERT',
-    title: "TOUTE GAMME <span class='text-[#FF6B00]'>DE MATÉRIAUX</span>",
-    sub: "Des revêtements aux outils, tout pour vos projets",
+    badge: 'Livraison Express disponible',
+    title: "Matériaux de construction <span class='text-[#FF6B00]'>avec livraison rapide</span>",
+    sub: "Basé à Groslay, nous servons les professionnels et particuliers à Montmorency et dans toute l'Île-de-France. Qualité industrielle, service local. Nos prix vous surprendront agréablement.",
   },
   {
     badge: 'QUALITÉ PROFESSIONNELLE',
