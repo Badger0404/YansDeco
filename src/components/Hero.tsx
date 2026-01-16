@@ -1,59 +1,93 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const words = ["MATÉRIAUX", "PEINTURES", "OUTILS", "SOLUTIONS"];
+interface Slide {
+  badge: string;
+  title: string;
+  sub: string;
+}
+
+const slides: Slide[] = [
+  {
+    badge: 'CONSEIL EXPERT',
+    title: "TOUTE GAMME <span class='text-[#FF6B00]'>DE MATÉRIAUX</span>",
+    sub: "Des revêtements aux outils, tout pour vos projets",
+  },
+  {
+    badge: 'QUALITÉ PROFESSIONNELLE',
+    title: "SERVICE LOCAL <span class='text-[#FF6B00]'>EN ÎLE-DE-FRANCE</span>",
+    sub: "Prix compétitifs pour les pros et les particuliers",
+  },
+  {
+    badge: 'QUALITÉ PROFESSIONNELLE',
+    title: "SERVICE LOCAL <span class='text-[#FF6B00]'>DE MATERFRANCE</span>",
+    sub: "Prix compétitifs aux outils, tout pour particuliers",
+  },
+];
 
 const HeroSection: React.FC = () => {
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [displayedWord, setDisplayedWord] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
-  const typingSpeed = 100;
-  const deletingSpeed = 50;
-  const pauseDuration = 2000;
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    const word = words[currentWordIndex];
+    if (isPaused) return;
+
+    const interval = setInterval(() => {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+        setIsAnimating(false);
+      }, 700);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [isPaused]);
+
+  const handleDotClick = (index: number) => {
+    if (index === currentSlide) return;
     
-    const handleTyping = () => {
-      if (isDeleting) {
-        setDisplayedWord(word.substring(0, displayedWord.length - 1));
-        if (displayedWord.length === 0) {
-          setIsDeleting(false);
-          setCurrentWordIndex((prev) => (prev + 1) % words.length);
-        }
-      } else {
-        setDisplayedWord(word.substring(0, displayedWord.length + 1));
-        if (displayedWord.length === word.length) {
-          setTimeout(() => setIsDeleting(true), pauseDuration);
-        }
-      }
-    };
+    setIsPaused(true);
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentSlide(index);
+      setIsAnimating(false);
+      setIsPaused(false);
+    }, 700);
+  };
 
-    const timeout = setTimeout(
-      handleTyping,
-      isDeleting ? deletingSpeed : typingSpeed
-    );
-
-    return () => clearTimeout(timeout);
-  }, [currentWordIndex, displayedWord, isDeleting]);
+  const handleMouseEnter = () => setIsPaused(true);
+  const handleMouseLeave = () => setIsPaused(false);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center pt-20">
+    <section 
+      className="relative min-h-screen flex items-center justify-center pt-20"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <span className="inline-block bg-[#FF6B00] text-black px-5 py-1.5 text-xs font-bold uppercase tracking-wider mb-8">
-          Conseil Expert
-        </span>
-
-        <h2 className="text-5xl md:text-7xl lg:text-8xl font-black italic tracking-tight mb-10 leading-[1.15] drop-shadow-lg">
-          TOUTE GAMME DE{' '}
-          <span className="text-[#FF6B00] inline-block min-w-[200px] text-left">
-            {displayedWord}
-            <span className="animate-pulse">|</span>
+        <div
+          className={`transition-opacity duration-700 ${
+            isAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
+          }`}
+          style={{
+            transitionProperty: 'opacity, transform',
+          }}
+        >
+          <span className="inline-block bg-[#FF6B00] text-black px-5 py-1.5 text-xs font-bold uppercase tracking-wider mb-8">
+            {slides[currentSlide].badge}
           </span>
-        </h2>
 
-        <p className="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto font-light tracking-wide drop-shadow-md">
-          Des revêtements aux outils, tout pour vos projets
-        </p>
+          <h2
+            className="text-5xl md:text-6xl lg:text-7xl font-black italic uppercase tracking-tight mb-10 leading-[1.1] text-white drop-shadow-lg"
+            dangerouslySetInnerHTML={{
+              __html: slides[currentSlide].title,
+            }}
+          />
+
+          <p className="text-lg md:text-xl text-gray-300 mb-12 max-w-2xl mx-auto font-light tracking-wide drop-shadow-md">
+            {slides[currentSlide].sub}
+          </p>
+        </div>
 
         <div className="flex flex-row items-center justify-center gap-5">
           <button className="bg-[#FF6B00] text-black px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all rounded-none">
@@ -62,6 +96,21 @@ const HeroSection: React.FC = () => {
           <button className="border-2 border-white text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-all rounded-none">
             Demander Un Devis
           </button>
+        </div>
+
+        <div className="flex items-center justify-center gap-3 mt-10">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => handleDotClick(index)}
+              className={`transition-all duration-300 ${
+                index === currentSlide
+                  ? 'bg-[#FF6B00] h-2 rounded-none w-8'
+                  : 'bg-gray-500 hover:bg-gray-400 h-2 rounded-full w-2'
+              }`}
+              aria-label={`Aller au slide ${index + 1}`}
+            />
+          ))}
         </div>
       </div>
     </section>
