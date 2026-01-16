@@ -319,8 +319,8 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
 
   const cardBaseClass = `rounded-2xl p-6 transition-all duration-200 cursor-pointer border ${
     isLight 
-      ? 'bg-white/70 backdrop-blur-md shadow-lg border-gray-200 hover:border-[#FF6B00]' 
-      : 'bg-zinc-900/80 border-zinc-800 hover:border-[#FF6B00]'
+      ? 'bg-white/40 backdrop-blur-md border-white/20 hover:border-[#FF6B00]' 
+      : 'bg-black/40 backdrop-blur-md border-white/10 hover:border-[#FF6B00]'
   }`;
 
   if (categoryId === 'PEINTURE_FINITION') {
@@ -352,9 +352,9 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                 }`}>
                   {sub.name}
                 </h3>
-                <p className={`text-xs mb-4 ${isLight ? 'text-gray-600' : 'text-gray-500'}`}>
-                  {sub.description}
-                </p>
+                 <p className={`text-xs mb-4 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
+                   {sub.description}
+                 </p>
                 <span className="text-[#FF6B00] text-xs font-medium uppercase tracking-wide">
                   {sub.products}
                 </span>
@@ -395,9 +395,9 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                 }`}>
                   {sub.name}
                 </h3>
-                <p className={`text-xs mb-4 ${isLight ? 'text-gray-600' : 'text-gray-500'}`}>
-                  {sub.description}
-                </p>
+                 <p className={`text-xs mb-4 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
+                   {sub.description}
+                 </p>
                 <span className="text-[#FF6B00] text-xs font-medium uppercase tracking-wide">
                   {sub.products}
                 </span>
@@ -438,9 +438,9 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                 }`}>
                   {sub.name}
                 </h3>
-                <p className={`text-xs mb-4 ${isLight ? 'text-gray-600' : 'text-gray-500'}`}>
-                  {sub.description}
-                </p>
+                 <p className={`text-xs mb-4 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
+                   {sub.description}
+                 </p>
                 <span className="text-[#FF6B00] text-xs font-medium uppercase tracking-wide">
                   {sub.products}
                 </span>
@@ -481,9 +481,9 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                 }`}>
                   {sub.name}
                 </h3>
-                <p className={`text-xs mb-4 ${isLight ? 'text-gray-600' : 'text-gray-500'}`}>
-                  {sub.description}
-                </p>
+                 <p className={`text-xs mb-4 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
+                   {sub.description}
+                 </p>
                 <span className="text-[#FF6B00] text-xs font-medium uppercase tracking-wide">
                   {sub.products}
                 </span>
@@ -524,9 +524,9 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                 }`}>
                   {sub.name}
                 </h3>
-                <p className={`text-xs mb-4 ${isLight ? 'text-gray-600' : 'text-gray-500'}`}>
-                  {sub.description}
-                </p>
+                 <p className={`text-xs mb-4 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
+                   {sub.description}
+                 </p>
                 <span className="text-[#FF6B00] text-xs font-medium uppercase tracking-wide">
                   {sub.products}
                 </span>
@@ -567,9 +567,9 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                 }`}>
                   {sub.name}
                 </h3>
-                <p className={`text-xs mb-4 ${isLight ? 'text-gray-600' : 'text-gray-500'}`}>
-                  {sub.description}
-                </p>
+                 <p className={`text-xs mb-4 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
+                   {sub.description}
+                 </p>
                 <span className="text-[#FF6B00] text-xs font-medium uppercase tracking-wide">
                   {sub.products}
                 </span>
@@ -582,15 +582,15 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
   }
 
   return (
-    <section className={`py-20 transition-colors duration-500 ${isLight ? 'bg-gray-100' : 'bg-black'}`}>
+    <section className="py-20 transition-colors duration-500 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h1 className="font-black italic text-5xl uppercase tracking-tight mb-4">
+          <h1 className="font-black italic text-5xl uppercase tracking-tight mb-4 drop-shadow-lg">
             <span className={isLight ? 'text-black' : 'text-white'}>NOS</span>{' '}
             <span className="text-[#FF6B00]">RAYONS</span>
           </h1>
-          <p className={`max-w-2xl mx-auto text-sm leading-relaxed ${
-            isLight ? 'text-gray-600' : 'text-gray-500'
+          <p className={`max-w-2xl mx-auto text-sm leading-relaxed drop-shadow-md ${
+            isLight ? 'text-gray-700' : 'text-gray-300'
           }`}>
             Du bâtiment à la rénovation, toute une gamme de matériaux, outillage et accessoires pour les professionnels et les particuliers.
             <br />
