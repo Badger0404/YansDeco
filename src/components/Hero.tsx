@@ -18,9 +18,9 @@ const slides: Slide[] = [
     sub: "Prix compétitifs pour les pros et les particuliers",
   },
   {
-    badge: 'QUALITÉ PROFESSIONNELLE',
-    title: "SERVICE LOCAL <span class='text-[#FF6B00]'>DE MATERFRANCE</span>",
-    sub: "Prix compétitifs aux outils, tout pour particuliers",
+    badge: 'Conseil Expert',
+    title: "TOUTE GAMME <span class='text-[#FF6B00]'>DE MATÉRIAUX</span>",
+    sub: "Des revêtements aux outils, tout pour vos projets",
   },
 ];
 
