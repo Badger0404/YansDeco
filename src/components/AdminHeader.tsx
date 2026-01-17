@@ -15,7 +15,8 @@ import {
   User,
   ChevronRight,
   Menu,
-  X
+  X,
+  Home
 } from 'lucide-react';
 
 const AdminHeader: React.FC = () => {
@@ -24,31 +25,39 @@ const AdminHeader: React.FC = () => {
   const [isLight, setIsLight] = useState(() => localStorage.getItem('site-theme') === 'light');
   const [cloudStatus, setCloudStatus] = useState<'online' | 'offline' | 'syncing'>('online');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
+
+  const handleStorageChange = () => {
+    setIsLight(localStorage.getItem('site-theme') === 'light');
+  };
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      const mobile = window.innerWidth < 768;
+      if (mobile !== isMobile) {
+        setIsMobile(mobile);
+      }
     };
+    
     handleResize();
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    window.addEventListener('themechange', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('themechange', handleStorageChange);
+    };
+  }, [isMobile]);
 
   useEffect(() => {
-    const handleStorageChange = () => {
-      setIsLight(localStorage.getItem('site-theme') === 'light');
-    };
-    
-    const handleThemeChange = () => {
-      setIsLight(localStorage.getItem('site-theme') === 'light');
-    };
-    
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('themechange', handleThemeChange);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('themechange', handleThemeChange);
     };
   }, []);
 
@@ -60,7 +69,7 @@ const AdminHeader: React.FC = () => {
   };
 
   const adminNavItems = [
-    { id: 'dashboard', key: 'admin.sections.dashboard', label: t('admin.nav.dashboard'), icon: null, path: '/admin' },
+    { id: 'dashboard', key: 'admin.sections.dashboard', label: t('admin.nav.dashboard'), icon: <Home className="w-5 h-5" />, path: '/admin' },
     { id: 'products', key: 'admin.sections.products', label: t('admin.sections.products.title'), icon: <Package className="w-5 h-5" />, path: '/admin/products' },
     { id: 'categories', key: 'admin.sections.categories', label: t('admin.sections.categories.title'), icon: <Tag className="w-5 h-5" />, path: '/admin/categories' },
     { id: 'brands', key: 'admin.sections.brands', label: t('admin.sections.brands.title'), icon: <Award className="w-5 h-5" />, path: '/admin/brands' },
@@ -100,12 +109,10 @@ const AdminHeader: React.FC = () => {
           
           <Link
             to="/"
-            className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${
-              isLight ? 'text-gray-500 hover:text-[#FF6B00]' : 'text-zinc-500 hover:text-[#FF6B00]'
-            }`}
+            className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${isLight ? 'text-gray-500 hover:text-[#FF6B00]' : 'text-zinc-500 hover:text-[#FF6B00]'}`}
           >
             <ChevronRight className="w-3.5 h-3.5 rotate-180" />
-            {t('admin.backToSite')}
+            {!isMobile && t('admin.backToSite')}
           </Link>
           
           {!isMobile && <div className={`h-4 w-px ${isLight ? 'bg-gray-300' : 'bg-white/10'}`} />}
