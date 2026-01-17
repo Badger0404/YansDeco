@@ -146,25 +146,37 @@ const AddProduct: React.FC = () => {
     setIsUploading(true);
     setError('');
     
+    console.log('[Upload] Starting upload, file:', file.name, 'size:', file.size, 'bytes');
+    
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', 'products');
 
     try {
+      console.log('[Upload] Sending request to:', `${API_URL}/api/upload`);
+      
       const response = await fetch(`${API_URL}/api/upload`, {
         method: 'POST',
         body: formData
       });
+      
+      console.log('[Upload] Response status:', response.status, response.statusText);
+      console.log('[Upload] Response headers:', Object.fromEntries(response.headers.entries()));
+      
       const data = await response.json();
+      console.log('[Upload] Response data:', data);
       
       if (data.success) {
+        console.log('[Upload] Success! URL:', data.data.url);
         setImageUrl(data.data.url);
         setImagePreview(data.data.url);
       } else {
-        setError(data.error || 'Upload failed');
+        console.error('[Upload] Error from server:', data.error);
+        setError(`Ошибка загрузки: ${data.error || 'Неизвестная ошибка'}`);
       }
     } catch (err) {
-      setError('Failed to upload image');
+      console.error('[Upload] Network error:', err);
+      setError(`Ошибка загрузки изображения: ${err instanceof Error ? err.message : 'Network error'}`);
     } finally {
       setIsUploading(false);
     }

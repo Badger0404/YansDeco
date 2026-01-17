@@ -278,24 +278,29 @@ app.post('/api/ai/translate', async (c) => {
 // ==================== IMAGE UPLOAD (R2) ====================
 
 app.post('/api/upload', async (c) => {
-  const contentType = c.req.header('Content-Type') || '';
-
-  if (!contentType.includes('multipart/form-data') && !contentType.includes('application/octet-stream')) {
-    return c.json({ success: false, error: 'Invalid content type' }, { status: 400 });
-  }
-
+  console.log('[Upload] Starting upload request...');
+  
   try {
     const formData = await c.req.formData();
     const file = formData.get('file') as File;
     const folder = formData.get('folder') as string || 'products';
 
+    console.log('[Upload] File received:', file ? file.name : 'null');
+    console.log('[Upload] Folder:', folder);
+
     if (!file) {
+      console.log('[Upload] Error: No file provided');
       return c.json({ success: false, error: 'No file provided' }, { status: 400 });
     }
+
+    console.log('[Upload] File size:', file.size, 'bytes');
+    console.log('[Upload] File type:', file.type);
 
     const arrayBuffer = await file.arrayBuffer();
     const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
     const path = `${folder}/${fileName}`;
+
+    console.log('[Upload] Uploading to R2:', path);
 
     await c.env.ASSETS.put(path, arrayBuffer, {
       httpMetadata: {
@@ -303,7 +308,8 @@ app.post('/api/upload', async (c) => {
       },
     });
 
-    // Return public URL (you'll need to configure your domain mapping)
+    console.log('[Upload] Success! URL generated');
+
     const publicUrl = `https://yans-deco-assets.yansdeco.workers.dev/${path}`;
 
     return c.json({ 
@@ -315,6 +321,7 @@ app.post('/api/upload', async (c) => {
       }
     });
   } catch (error: any) {
+    console.error('[Upload] Error:', error.message);
     return c.json({ success: false, error: error.message }, { status: 500 });
   }
 });
