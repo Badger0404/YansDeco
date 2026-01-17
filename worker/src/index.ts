@@ -11,7 +11,7 @@ const app = new Hono<{ Bindings: Env }>();
 
 // CORS
 app.use('/*', cors({
-  origin: ['http://localhost:5173', 'https://yans-deco.pages.dev', 'https://yansdeco.com'],
+  origin: ['http://localhost:5173', 'https://yans-deco.pages.dev', 'https://preview.yans-deco.pages.dev', 'https://*.pages.dev', 'https://yansdeco.com'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
   credentials: true,

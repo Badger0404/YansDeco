@@ -23,7 +23,8 @@ import {
   FolderTree,
   ChevronDown,
   ChevronRight as ChevronRightIcon,
-  ArrowLeft
+  ArrowLeft,
+  Camera
 } from 'lucide-react';
 
 interface Category {
@@ -759,9 +760,22 @@ const Categories: React.FC = () => {
                         <p className={`text-sm mb-2 ${mutedClass}`}>
                           Перетащите файл или нажмите для выбора
                         </p>
-                        <p className={`text-xs ${mutedClass} opacity-70`}>
+                        <p className={`text-xs ${mutedClass} opacity-70 mb-4`}>
                           PNG, JPG до 5MB
                         </p>
+                        
+                        <label className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF6B00] text-black text-sm font-bold uppercase tracking-wide rounded-lg hover:bg-[#FF8533] transition-colors cursor-pointer">
+                          <Camera className="w-5 h-5" />
+                          Загрузить фото
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            onChange={handleFileSelect}
+                            className="hidden"
+                          />
+                        </label>
+                        
                         <input
                           type="file"
                           accept="image/*"
