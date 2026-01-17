@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
 import Header from './components/Header';
+import AdminHeader from './components/AdminHeader';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
@@ -111,7 +112,8 @@ const App: React.FC = () => {
           setTheme(newTheme);
           window.dispatchEvent(new Event('themechange'));
         }} />}
-        <ScrollTop />
+        {isAdmin && <AdminHeader />}
+        <ScrollToTop />
         <main className="relative z-10">
           <AnimatedRoutes theme={theme} />
         </main>

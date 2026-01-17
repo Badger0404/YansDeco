@@ -1,0 +1,205 @@
+{
+  "brands": [
+    {
+      "id": "bostik",
+      "name": {
+        "fr": "BOSTIK",
+        "en": "BOSTIK",
+        "ru": "BOSTIK"
+      },
+      "slug": "bostik",
+      "logoPath": "/assets/brands/bostik.svg",
+      "imageUrl": "https://cdn.yansdeco.com/brands/bostik.png",
+      "order": 1,
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "peinture_finition",
+      "name": {
+        "fr": "PEINTURE & FINITION",
+        "en": "PAINT & FINISHING",
+        "ru": "КРАСКИ И ОТДЕЛКА"
+      },
+      "slug": "peinture_finition",
+      "icon": "🎨",
+      "imageUrl": "https://cdn.yansdeco.com/categories/peinture.png",
+      "order": 1,
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "subcategories": [
+    {
+      "id": "peintures",
+      "name": {
+        "fr": "PEINTURES",
+        "en": "PAINTS",
+        "ru": "КРАСКИ"
+      },
+      "slug": "peintures",
+      "categoryId": "peinture_finition",
+      "icon": "🎨",
+      "order": 1,
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "prod_001",
+      "name": {
+        "fr": "Peinture Acrylique Blanche",
+        "en": "White Acrylic Paint",
+        "ru": "Белая Акриловая Краска"
+      },
+      "slug": "peinture-acrylique-blanche",
+      "description": {
+        "fr": "Peinture blanche mate intérieur haute couverture. Séchage rapide, faible odeur.",
+        "en": "High coverage white matte interior paint. Quick drying, low odor.",
+        "ru": "Высокоукрывистая белая матовая краска для внутренних работ. Быстро сохнет, низкий запах."
+      },
+      "shortDescription": {
+        "fr": "Peinture mate haute couverture",
+        "en": "High coverage matte paint",
+        "ru": "Матовая краска высокой укрывистости"
+      },
+      "brandId": "bostik",
+      "categoryId": "peinture_finition",
+      "subcategoryId": "peintures",
+      "price": 24.90,
+      "priceUnit": "€",
+      "sku": "BOS-PAB-001",
+      "imageUrl": "https://cdn.yansdeco.com/products/bostik-acrylique.jpg",
+      "images": [
+        "https://cdn.yansdeco.com/products/bostik-acrylique-1.jpg",
+        "https://cdn.yansdeco.com/products/bostik-acrylique-2.jpg"
+      ],
+      "specifications": {
+        "coverPower": {
+          "fr": "Couverture: 10m²/L",
+          "en": "Coverage: 10m²/L",
+          "ru": "Укрывистость: 10м²/л"
+        },
+        "dryingTime": {
+          "fr": "Séchage: 2h",
+          "en": "Drying: 2h",
+          "ru": "Время высыхания: 2ч"
+        },
+        "application": {
+          "fr": "Application: Rouleau, pinceau",
+          "en": "Application: Roller, brush",
+          "ru": "Нанесение: Валик, кисть"
+        }
+      },
+      "isActive": true,
+      "inStock": true,
+      "stockQuantity": 150,
+      "order": 1,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "services": [
+    {
+      "id": "livraison",
+      "title": {
+        "fr": "Livraison Rapide",
+        "en": "Fast Delivery",
+        "ru": "Быстрая Доставка"
+      },
+      "slug": "livraison-rapide",
+      "description": {
+        "fr": "Livraison express sur Groslay et ses environs dans les 24 heures.",
+        "en": "Express delivery in Groslay and surrounding areas within 24 hours.",
+        "ru": "Экспресс-доставка по Гролэ и окрестностям в течение 24 часов."
+      },
+      "icon": "🚚",
+      "order": 1,
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "pages": [
+    {
+      "id": "home",
+      "slug": "home",
+      "title": {
+        "fr": "Yan's Deco - Matériaux de Construction",
+        "en": "Yan's Deco - Construction Materials",
+        "ru": "Yan's Deco - Строительные Материалы"
+      },
+      "content": {
+        "fr": "Bienvenue chez Yan's Deco, votre partenaire de confiance...",
+        "en": "Welcome to Yan's Deco, your trusted partner...",
+        "ru": "Добро пожаловать в Yan's Deco, вашего надёжного партнёра..."
+      },
+      "seoTitle": {
+        "fr": "Yan's Deco - Matériaux construction Île-de-France",
+        "en": "Yan's Deco - Construction materials Île-de-France",
+        "ru": "Yan's Deco - Строительные материалы Иль-де-Франс"
+      },
+      "seoDescription": {
+        "fr": "Matériaux de construction de qualité professionnelle...",
+        "en": "Professional quality construction materials...",
+        "ru": "Строительные материалы профессионального качества..."
+      },
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "siteConfig": {
+    "companyName": {
+      "fr": "YAN'S DECO",
+      "en": "YAN'S DECO",
+      "ru": "YAN'S DECO"
+    },
+    "tagline": {
+      "fr": "Le partenaire de vos chantiers",
+      "en": "The partner for your construction projects",
+      "ru": "Партнёр ваших строительных проектов"
+    },
+    "phone1": "+33 1 23 45 67 89",
+    "phone2": "+33 6 12 34 56 78",
+    "email": "contact@yansdeco.com",
+    "address": {
+      "fr": "1 Rue Magnier Bédu, 95410 Groslay, France",
+      "en": "1 Rue Magnier Bédu, 95410 Groslay, France",
+      "ru": "1 Rue Magnier Bédu, 95410 Гролэ, Франция"
+    },
+    "workingHours": {
+      "mondayFriday": {
+        "fr": "Lundi - Vendredi: 8h00 - 18h00",
+        "en": "Monday - Friday: 8:00 AM - 6:00 PM",
+        "ru": "Понедельник - Пятница: 8:00 - 18:00"
+      },
+      "saturday": {
+        "fr": "Samedi: 9h00 - 17h00",
+        "en": "Saturday: 9:00 AM - 5:00 PM",
+        "ru": "Суббота: 9:00 - 17:00"
+      },
+      "sunday": {
+        "fr": "Dimanche: Fermé",
+        "en": "Sunday: Closed",
+        "ru": "Воскресенье: Закрыто"
+      },
+      "closed": {
+        "fr": "Fermé",
+        "en": "Closed",
+        "ru": "Закрыто"
+      }
+    },
+    "socialLinks": {
+      "facebook": "https://facebook.com/yansdeco",
+      "instagram": "https://instagram.com/yansdeco",
+      "vk": "https://vk.com/yansdeco"
+    }
+  }
+}

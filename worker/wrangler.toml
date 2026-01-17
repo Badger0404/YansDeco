@@ -1,0 +1,23 @@
+name = "yasndeco-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[vars]
+ENV = "production"
+
+account_id = "a6f65be7d970b82c7844bea3eb1134b7"
+
+# D1 Database bindings
+[[d1_databases]]
+binding = "DB"
+database_name = "yasndeco"
+database_id = "9c32735c-132c-4111-a661-097a1a52055d"
+
+# R2 Bucket binding
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "yans-deco-assets"
+
+# AI binding
+[ai]
+binding = "AI"

@@ -1,0 +1,296 @@
+{
+  "header": {
+    "phone1": "+33 1 23 45 67 89",
+    "phone2": "+33 6 12 34 56 78",
+    "connexion": "Login",
+    "menu": "MENU"
+  },
+  "nav": {
+    "home": "Home",
+    "catalogue": "Catalogue",
+    "brands": "Brands",
+    "services": "Services",
+    "calculators": "Calculators",
+    "contact": "Contact"
+  },
+  "home": {
+    "popular": "★ Popular",
+    "comingSoon": "Products coming soon",
+    "slider": {
+      "slide1": {
+        "label": "EXPRESS DELIVERY AVAILABLE",
+        "title": "CONSTRUCTION MATERIALS WITH FAST DELIVERY",
+        "description": "Based in Groslay, we serve professionals and individuals in Montmorency and throughout Île-de-France. Industrial quality, local service."
+      },
+      "slide2": {
+        "label": "PROFESSIONAL QUALITY",
+        "title": "LOCAL SERVICE IN ÎLE-DE-FRANCE",
+        "description": "Competitive prices for professionals and individuals"
+      },
+      "slide3": {
+        "label": "EXPERT ADVICE",
+        "title": "FULL RANGE OF MATERIALS",
+        "description": "From coatings to tools, everything for your projects"
+      }
+    },
+    "cta": {
+      "calculate": "Calculate my needs",
+      "quote": "Request a quote"
+    }
+  },
+  "footer": {
+    "tagline": "The partner for your construction projects",
+    "quickLinks": "Quick Links",
+    "copyright": "© 2026 YAN'S DECO",
+    "location": "Groslay • Montmorency • Île-de-France"
+  },
+  "catalogue": {
+    "title": "Our Departments",
+    "subtitle": "From construction to renovation, a complete range of materials, tools and accessories for professionals and individuals.",
+    "back": "← BACK",
+    "products": "VIEW ALL PRODUCTS",
+    "categories": {
+      "PEINTURE_FINITION": "PAINT & FINISHING",
+      "COLLES_MASTICS": "ADHESIVES & SEALANTS",
+      "OUTILLAGE_PEINTRE": "PAINTER TOOLS",
+      "OUTILLAGE_CARRELEUR": "TILER TOOLS",
+      "PREPARATION_SOLS": "FLOOR PREPARATION",
+      "FIXATION_VISSERIE": "FASTENERS & HARDWARE"
+    },
+    "subcategories": {
+      "PEINTURES": "PAINTS",
+      "SOUS-COUCHES": "PRIMERS",
+      "ENDUITS": "FILLERS",
+      "BANDES À JOINTS": "JOINT TAPES",
+      "BANDES ARMÉES": "REINFORCED TAPES",
+      "PRODUITS DE FINITION": "FINISHING PRODUCTS",
+      "COLLE À CARRELAGE": "TILE ADHESIVE",
+      "COLLE À PARQUET": "PARQUET ADHESIVE",
+      "COLLE SOL SOUPLE": "FLEXIBLE FLOOR ADHESIVE",
+      "COLLE POUR CARREAUX DE PLÂTRE": "PLASTER TILE ADHESIVE",
+      "COLLES EN TUBE": "TUBE ADHESIVES",
+      "MASTICS ACRYLIQUES": "ACRYLIC SEALANTS",
+      "MASTICS SILICONE": "SILICONE SEALANTS",
+      "COLLES SPÉCIALES": "SPECIALTY ADHESIVES",
+      "BROSSES & PINCEAUX": "BRUSHES & BRUSHES",
+      "ROULEAUX": "ROLLERS",
+      "RÂTEAUX & SPALTES": "SCRAPERS & SPALTES",
+      "RUBANS DE MASQUAGE": "MASKING TAPES",
+      "BACS À PEINTURE": "PAINT TRAYS",
+      "ESCABEAUX & ÉCHAFAUDAGES": "STEPLADDERS & SCAFFOLDING",
+      "TRUELLE & MALAXEUR": "TROWEL & MIXER",
+      "CRÉMAILLÈRES": "NOTCHED TROWELS",
+      "COUPE-CARREAUX": "TILE CUTTERS",
+      "SCIES & DISQUES": "SAWS & DISCS",
+      "NIVEAU & FIL À PLOMB": "LEVEL & PLUMB LINE",
+      "CROISILLONS & CALES": "SPACERS & WEDGES",
+      "RAGRÉAGE": "SELF-LEVELING COMPOUND",
+      "PRIMAIRE D'ACCROCHE": "BONDING PRIMER",
+      "MORTIER DE RÉPARATION": "REPAIR MORTAR",
+      "DÉSHUMIDIFIANTS": "DEHUMIDIFIERS",
+      "PROTECTION DE SOL": "FLOOR PROTECTION",
+      "NETTOYANTS SPÉCIAUX": "SPECIALTY CLEANERS",
+      "CHEVILLES": "WALL PLUGS",
+      "VIS À BOIS": "WOOD SCREWS",
+      "VIS À MÉTAL": "METAL SCREWS",
+      "VIS À BÉTON": "CONCRETE SCREWS",
+      "CLOUS & PISTOLET": "NAILS & NAIL GUN",
+      "BOULONS & ÉCROUS": "BOLTS & NUTS"
+    }
+  },
+  "brands": {
+    "title": "OUR BRANDS",
+    "subtitle": "We work with the leading brands in the industry to guarantee you quality and reliability.",
+    "viewAll": "View all products"
+  },
+  "services": {
+    "title": "OUR SERVICES",
+    "subtitle": "Complete services to support all your construction and renovation projects.",
+    "livraison": {
+      "title": "Fast Delivery",
+      "desc": "Express delivery in Groslay and surrounding areas"
+    },
+    "retrait": {
+      "title": "In-Store Pickup",
+      "desc": "Order online and pick up at the store"
+    },
+    "conseils": {
+      "title": "Technical Advice",
+      "desc": "Qualified team to guide you in your choices"
+    },
+    "devis": {
+      "title": "Professional Quotes",
+      "desc": "Free quote within 24 hours"
+    }
+  },
+  "contact": {
+    "title": "WHERE TO FIND US",
+    "subtitle": "Come discover our products and benefit from personalized advice in our stores.",
+    "localisation": "Our location",
+    "address": "1 Rue Magnier Bédu, 95410 Groslay",
+    "openMaps": "Open in Google Maps",
+    "hours": "Opening Hours",
+    "mondayFriday": "Monday - Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "closed": "Closed",
+    "contacts": "Contacts",
+    "email": "YANS.DECO95@GMAIL.COM",
+    "addressTitle": "Address",
+    "seeMap": "View on map →",
+    "contactForm": "Contact Us",
+    "name": "Name",
+    "emailLabel": "Email",
+    "message": "Message",
+    "send": "Send",
+    "sending": "Sending...",
+    "success": "Message sent successfully!",
+    "viewProduct": "View product",
+    "addToCart": "Add to cart",
+    "features": "Features",
+    "notFound": "Product not found."
+  },
+  "admin": {
+    "backToSite": "← RETURN TO SITE",
+    "backToDashboard": "← BACK",
+    "logout": "Logout",
+    "cloudStatus": {
+      "online": "Online",
+      "offline": "Offline",
+      "syncing": "Syncing..."
+    },
+    "sync": "SYNC",
+    "title": "Administration Panel",
+    "subtitle": "Site management",
+    "sections": {
+      "products": {
+        "title": "PRODUCTS",
+        "description": "Add, delete or change product prices"
+      },
+      "categories": {
+        "title": "CATEGORIES",
+        "description": "Manage categories and subcategories"
+      },
+      "brands": {
+        "title": "BRANDS",
+        "description": "Add and edit brands"
+      },
+      "translations": {
+        "title": "TRANSLATIONS",
+        "description": "Edit interface texts and translations"
+      },
+"calculators": {
+        "title": "CALCULATORS",
+        "description": "Formula and parameter settings",
+        "addNew": "New Calculator"
+      },
+      "settings": {
+        "title": "SETTINGS",
+        "description": "General settings and Cloud",
+        "general": "General Settings",
+        "siteConfig": "Site configuration",
+        "uploadMedia": "Upload Media",
+        "mediaManagement": "Images and files management",
+        "backup": "Backup & Restore",
+        "backupDesc": "Data backup"
+      },
+      "settings": {
+        "title": "SETTINGS",
+        "description": "General settings and Cloud"
+      }
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "newProduct": "New Product",
+      "importCsv": "Import CSV",
+      "exportData": "Export Data",
+      "syncCloud": "Sync Cloud"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "items": {
+        "productModified": "Product modified",
+        "categoryAdded": "New category added",
+        "syncComplete": "Cloud sync completed",
+        "translationUpdated": "Translation updated"
+      }
+    },
+"footer": {
+        "rights": "All rights reserved.",
+        "version": "Version",
+        "copyright": "© 2026 created by Andrey Barsukov"
+      },
+    "products": {
+      "title": "Product Management",
+      "addNew": "Add Product",
+      "edit": "Edit",
+      "delete": "Delete",
+      "view": "View",
+      "price": "Price",
+      "stock": "Stock",
+      "active": "Active",
+      "inactive": "Inactive",
+      "search": "Search product...",
+      "noProducts": "No products found",
+      "confirmDelete": "Are you sure you want to delete this product?",
+      "save": "Save",
+      "cancel": "Cancel",
+      "name": "Product name",
+      "description": "Description",
+      "category": "Category",
+      "brand": "Brand",
+      "sku": "Product ref.",
+      "quantity": "Quantity",
+      "images": "Images",
+      "specifications": "Specifications",
+      "actions": "Actions"
+    },
+    "categories": {
+      "title": "Category Management",
+      "addNew": "Add Category",
+      "edit": "Edit",
+      "delete": "Delete",
+      "view": "View products",
+      "parent": "Parent category",
+      "order": "Display order",
+      "icon": "Icon",
+      "noCategories": "No categories found"
+    },
+    "brands": {
+      "title": "Brand Management",
+      "addNew": "Add Brand",
+      "edit": "Edit",
+      "delete": "Delete",
+      "logo": "Logo",
+      "website": "Website",
+      "noBrands": "No brands found"
+    },
+    "translations": {
+      "title": "Translation Management",
+      "addNew": "Add Translation",
+      "edit": "Edit",
+      "sourceLanguage": "Source language",
+      "targetLanguage": "Target language",
+      "key": "Translation key",
+      "value": "Value",
+      "syncAll": "Sync all translations",
+      "noTranslations": "No translations found"
+    },
+    "cloud": {
+      "title": "Cloud Settings",
+      "status": "Connection status",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "lastSync": "Last synchronization",
+      "syncNow": "Sync now",
+      "upload": "Upload to cloud",
+      "download": "Download from cloud",
+      "autoSync": "Automatic synchronization",
+      "settings": "Cloud settings"
+    },
+    "theme": {
+      "light": "Light mode",
+      "dark": "Dark mode"
+    }
+  }
+}

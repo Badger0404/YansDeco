@@ -1,0 +1,296 @@
+{
+  "header": {
+    "phone1": "+33 1 23 45 67 89",
+    "phone2": "+33 6 12 34 56 78",
+    "connexion": "Connexion",
+    "menu": "MENU"
+  },
+  "nav": {
+    "home": "Accueil",
+    "catalogue": "Catalogue",
+    "brands": "Marques",
+    "services": "Services",
+    "calculators": "Calculateurs",
+    "contact": "Contact"
+  },
+  "home": {
+    "popular": "★ Populaires",
+    "comingSoon": "Produits bientôt disponibles",
+    "slider": {
+      "slide1": {
+        "label": "LIVRAISON EXPRESS DISPONIBLE",
+        "title": "MATÉRIAUX DE CONSTRUCTION AVEC LIVRAISON RAPIDE",
+        "description": "Basé à Groslay, nous servons les professionnels et particuliers à Montmorency et dans toute l'Île-de-France. Qualité industrielle, service local. Nos prix vous surprendront agréablement."
+      },
+      "slide2": {
+        "label": "QUALITÉ PROFESSIONNELLE",
+        "title": "SERVICE LOCAL EN ÎLE-DE-FRANCE",
+        "description": "Prix compétitifs pour les pros et les particuliers"
+      },
+      "slide3": {
+        "label": "CONSEIL EXPERT",
+        "title": "TOUTE GAMME DE MATÉRIAUX",
+        "description": "Des revêtements aux outils, tout pour vos projets"
+      }
+    },
+    "cta": {
+      "calculate": "Calculer mes besoins",
+      "quote": "Demander un devis"
+    }
+  },
+  "footer": {
+    "tagline": "Le partenaire de vos chantiers",
+    "quickLinks": "Liens rapides",
+    "copyright": "© 2026 YAN'S DECO",
+    "location": "Groslay • Montmorency • Île-de-France"
+  },
+  "catalogue": {
+    "title": "Nos Rayons",
+    "subtitle": "Du bâtiment à la rénovation, toute une gamme de matériaux, outillage et accessoires pour les professionnels et les particuliers.",
+    "back": "← RETOUR",
+    "products": "VOIR TOUS LES PRODUITS",
+    "categories": {
+      "PEINTURE_FINITION": "PEINTURE & FINITION",
+      "COLLES_MASTICS": "COLLES & MASTICS",
+      "OUTILLAGE_PEINTRE": "OUTILLAGE PEINTRE",
+      "OUTILLAGE_CARRELEUR": "OUTILLAGE CARRELEUR",
+      "PREPARATION_SOLS": "PRÉPARATION SOLS",
+      "FIXATION_VISSERIE": "FIXATION & VISSERIE"
+    },
+    "subcategories": {
+      "PEINTURES": "PEINTURES",
+      "SOUS-COUCHES": "SOUS-COUCHES",
+      "ENDUITS": "ENDUITS",
+      "BANDES À JOINTS": "BANDES À JOINTS",
+      "BANDES ARMÉES": "BANDES ARMÉES",
+      "PRODUITS DE FINITION": "PRODUITS DE FINITION",
+      "COLLE À CARRELAGE": "COLLE À CARRELAGE",
+      "COLLE À PARQUET": "COLLE À PARQUET",
+      "COLLE SOL SOUPLE": "COLLE SOL SOUPLE",
+      "COLLE POUR CARREAUX DE PLÂTRE": "COLLE POUR CARREAUX DE PLÂTRE",
+      "COLLES EN TUBE": "COLLES EN TUBE",
+      "MASTICS ACRYLIQUES": "MASTICS ACRYLIQUES",
+      "MASTICS SILICONE": "MASTICS SILICONE",
+      "COLLES SPÉCIALES": "COLLES SPÉCIALES",
+      "BROSSES & PINCEAUX": "BROSSES & PINCEAUX",
+      "ROULEAUX": "ROULEAUX",
+      "RÂTEAUX & SPALTES": "RÂTEAUX & SPALTES",
+      "RUBANS DE MASQUAGE": "RUBANS DE MASQUAGE",
+      "BACS À PEINTURE": "BACS À PEINTURE",
+      "ESCABEAUX & ÉCHAFAUDAGES": "ESCABEAUX & ÉCHAFAUDAGES",
+      "TRUELLE & MALAXEUR": "TRUELLE & MALAXEUR",
+      "CRÉMAILLÈRES": "CRÉMAILLÈRES",
+      "COUPE-CARREAUX": "COUPE-CARREAUX",
+      "SCIES & DISQUES": "SCIES & DISQUES",
+      "NIVEAU & FIL À PLOMB": "NIVEAU & FIL À PLOMB",
+      "CROISILLONS & CALES": "CROISILLONS & CALES",
+      "RAGRÉAGE": "RAGRÉAGE",
+      "PRIMAIRE D'ACCROCHE": "PRIMAIRE D'ACCROCHE",
+      "MORTIER DE RÉPARATION": "MORTIER DE RÉPARATION",
+      "DÉSHUMIDIFIANTS": "DÉSHUMIDIFIANTS",
+      "PROTECTION DE SOL": "PROTECTION DE SOL",
+      "NETTOYANTS SPÉCIAUX": "NETTOYANTS SPÉCIAUX",
+      "CHEVILLES": "CHEVILLES",
+      "VIS À BOIS": "VIS À BOIS",
+      "VIS À MÉTAL": "VIS À MÉTAL",
+      "VIS À BÉTON": "VIS À BÉTON",
+      "CLOUS & PISTOLET": "CLOUS & PISTOLET",
+      "BOULONS & ÉCROUS": "BOULONS & ÉCROUS"
+    }
+  },
+  "brands": {
+    "title": "NOS MARQUES",
+    "subtitle": "Nous travaillons avec les plus grandes marques du secteur pour vous garantir qualité et fiabilité.",
+    "viewAll": "Voir tous les produits"
+  },
+  "services": {
+    "title": "NOS SERVICES",
+    "subtitle": "Des services complets pour accompagner tous vos projets de construction et rénovation.",
+    "livraison": {
+      "title": "Livraison Rapide",
+      "desc": "Livraison express sur Groslay et ses environs"
+    },
+    "retrait": {
+      "title": "Retrait en Magasin",
+      "desc": "Commandez en ligne et retirez sur place"
+    },
+    "conseils": {
+      "title": "Conseils Techniques",
+      "desc": "Équipe qualifiée pour vous guider dans vos choix"
+    },
+    "devis": {
+      "title": "Devis Professionnels",
+      "desc": "Devis gratuit sous 24h"
+    }
+  },
+  "contact": {
+    "title": "OÙ NOUS TROUVER",
+    "subtitle": "Venez découvrir nos produits et bénéficier de conseils personnalisés dans nos établissements.",
+    "localisation": "Notre localisation",
+    "address": "1 Rue Magnier Bédu, 95410 Groslay",
+    "openMaps": "Ouvrir dans Google Maps",
+    "hours": "Horaires d'ouverture",
+    "mondayFriday": "Lundi - Vendredi",
+    "saturday": "Samedi",
+    "sunday": "Dimanche",
+    "closed": "Fermé",
+    "contacts": "Contacts",
+    "email": "YANS.DECO95@GMAIL.COM",
+    "addressTitle": "Adresse",
+    "seeMap": "Voir sur la carte →",
+    "contactForm": "Nous contacter",
+    "name": "Nom",
+    "emailLabel": "Email",
+    "message": "Message",
+    "send": "Envoyer",
+    "sending": "Envoi...",
+    "success": "Message envoyé avec succès !",
+    "viewProduct": "Voir le produit",
+    "addToCart": "Ajouter au panier",
+    "features": "Caractéristiques",
+    "notFound": "Produit non trouvé."
+  },
+  "admin": {
+    "backToSite": "← RETOURNER AU SITE",
+    "backToDashboard": "← RETOUR",
+    "logout": "Déconnexion",
+    "cloudStatus": {
+      "online": "Online",
+      "offline": "Offline",
+      "syncing": "Syncing..."
+    },
+    "sync": "SYNC",
+    "title": "Panneau d'Administration",
+    "subtitle": "Gestion du site",
+    "sections": {
+      "products": {
+        "title": "PRODUITS",
+        "description": "Ajouter, supprimer ou modifier les prix des produits"
+      },
+      "categories": {
+        "title": "CATÉGORIES",
+        "description": "Gestion des catégories et sous-catégories"
+      },
+      "brands": {
+        "title": "MARQUES",
+        "description": "Ajout et modification des marques"
+      },
+      "translations": {
+        "title": "TRADUCTIONS",
+        "description": "Édition des textes et traductions de l'interface"
+      },
+"calculators": {
+        "title": "CALCULATEURS",
+        "description": "Paramètres des formules et calculs",
+        "addNew": "Nouveau Calculateur"
+      },
+      "settings": {
+        "title": "PARAMÈTRES",
+        "description": "Paramètres généraux et Cloud",
+        "general": "Paramètres Généraux",
+        "siteConfig": "Configuration du site",
+        "uploadMedia": "Upload Media",
+        "mediaManagement": "Gestion des images et fichiers",
+        "backup": "Backup & Restore",
+        "backupDesc": "Sauvegarde des données"
+      },
+      "settings": {
+        "title": "PARAMÈTRES",
+        "description": "Paramètres généraux et Cloud"
+      }
+    },
+    "quickActions": {
+      "title": "Actions Rapides",
+      "newProduct": "Nouveau Produit",
+      "importCsv": "Importer CSV",
+      "exportData": "Exporter Données",
+      "syncCloud": "Sync Cloud"
+    },
+    "recentActivity": {
+      "title": "Activité Récente",
+      "items": {
+        "productModified": "Produit modifié",
+        "categoryAdded": "Nouvelle catégorie ajoutée",
+        "syncComplete": "Sync Cloud terminé",
+        "translationUpdated": "Traduction mise à jour"
+      }
+    },
+"footer": {
+        "rights": "Tous droits réservés.",
+        "version": "Version",
+        "copyright": "© 2026 created by Andrey Barsukov"
+      },
+    "products": {
+      "title": "Gestion des Produits",
+      "addNew": "Ajouter un Produit",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "view": "Voir",
+      "price": "Prix",
+      "stock": "Stock",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "search": "Rechercher un produit...",
+      "noProducts": "Aucun produit trouvé",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce produit ?",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "name": "Nom du produit",
+      "description": "Description",
+      "category": "Catégorie",
+      "brand": "Marque",
+      "sku": "Réf. produit",
+      "quantity": "Quantité",
+      "images": "Images",
+      "specifications": "Caractéristiques",
+      "actions": "Actions"
+    },
+    "categories": {
+      "title": "Gestion des Catégories",
+      "addNew": "Ajouter une Catégorie",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "view": "Voir les produits",
+      "parent": "Catégorie parente",
+      "order": "Ordre d'affichage",
+      "icon": "Icône",
+      "noCategories": "Aucune catégorie trouvée"
+    },
+    "brands": {
+      "title": "Gestion des Marques",
+      "addNew": "Ajouter une Marque",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "logo": "Logo",
+      "website": "Site web",
+      "noBrands": "Aucune marque trouvée"
+    },
+    "translations": {
+      "title": "Gestion des Traductions",
+      "addNew": "Ajouter une Traduction",
+      "edit": "Modifier",
+      "sourceLanguage": "Langue source",
+      "targetLanguage": "Langue cible",
+      "key": "Clé de traduction",
+      "value": "Valeur",
+      "syncAll": "Synchroniser toutes les traductions",
+      "noTranslations": "Aucune traduction trouvée"
+    },
+    "cloud": {
+      "title": "Paramètres Cloud",
+      "status": "Statut de la connexion",
+      "connected": "Connecté",
+      "disconnected": "Déconnecté",
+      "lastSync": "Dernière synchronisation",
+      "syncNow": "Synchroniser maintenant",
+      "upload": "Télécharger vers le cloud",
+      "download": "Récupérer du cloud",
+      "autoSync": "Synchronisation automatique",
+      "settings": "Paramètres Cloud"
+    },
+    "theme": {
+      "light": "Mode clair",
+      "dark": "Mode sombre"
+    }
+  }
+}
