@@ -2,6 +2,11 @@
 
 История изменений:
 ==================
+17.01.2026 - Fix mobile burger menu in admin header
+            - AdminHeader.tsx: исправлена инициализация isMobile
+              Добавлена иконка Home для пункта dashboard
+              Скрыт текст "Back to Site" на мобильных для освобождения места
+
 17.01.2026 - Mobile admin: burger menu, camera/gallery upload, CORS fixes
             - AdminHeader.tsx: добавлено адаптивное burger-меню для мобильных (<768px)
               Кнопка-гамбургер в шапке, меню открывается как overlay с крупными элементами
