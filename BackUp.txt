@@ -2,6 +2,17 @@
 
 История изменений:
 ==================
+17.01.2026 - Add D1+R2 storage for categories/products with folder-based upload
+            - Categories.tsx: загрузка фото в R2 в папку 'categories'
+              Добавлен индикатор загрузки при сохранении (isSaving)
+              Поддержка подкатегорий через parent_id
+            - AddProduct.tsx: выбор категории при добавлении товара
+              Загрузка фото в R2 в папку 'products'
+              Индикатор загрузки при сохранении товара
+            - worker/src/index.ts: API поддерживает параметр folder для загрузки
+              Добавлено поле category_id в таблицу products
+              category_id связывает товар с категорией
+
 17.01.2026 - Add file chooser button with camera/gallery support
             - AddProduct.tsx: добавлена видимая кнопка "Выбрать файл" с иконкой камеры
               Использует <input type="file" accept="image/*" capture="environment" />
