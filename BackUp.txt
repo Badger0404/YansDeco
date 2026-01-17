@@ -1,39 +1,177 @@
-Дата и время бэкапа: 17.01.2026
+================================================================================
+                    YANS DECO PROJECT - DOCUMENTATION
+================================================================================
+Дата документа: 17.01.2026
+Версия проекта: 1.0.0
 
-История изменений:
-==================
-17.01.2026 - Fix critical issues: CORS, AI translation logging, error handling
-            - worker/src/index.ts: улучшен CORS для production и workers.dev
-              Добавлен OPTIONS handler для preflight запросов
-              Добавлено подробное логирование [AI Translate] для диагностики
-              Добавлено подробное логирование [Upload] для диагностики
-            - Categories.tsx: добавлен console.error для отладки ошибок перевода
-              Подробные сообщения об ошибках в UI с информацией о сервере
-            - AddProduct.tsx: добавлен console.error для отладки ошибок перевода
-              Подробные сообщения об ошибках в UI с информацией о сервере
+================================================================================
+                           СТРУКТУРА API (BACKEND)
+================================================================================
 
-17.01.2026 - Fix upload errors: better CORS, debug logging
-            - worker/src/index.ts: удалена строгая проверка Content-Type
-              Добавлено подробное логирование для отладки загрузки
-            - Categories.tsx: добавлен console.log для отладки загрузки фото
-              Подробные сообщения об ошибках в UI
-            - AddProduct.tsx: добавлен console.log для отладки загрузки фото
-              Подробные сообщения об ошибках в UI
+Воркер развёрнут по адресу: https://yasndeco-api.andrey-gaffer.workers.dev
 
-17.01.2026 - Add D1+R2 storage for categories/products with folder-based upload
-            - Categories.tsx: загрузка фото в R2 в папку 'categories'
-              Добавлен индикатор загрузки при сохранении (isSaving)
-              Поддержка подкатегорий через parent_id
-            - AddProduct.tsx: выбор категории при добавлении товара
-              Загрузка фото в R2 в папку 'products'
-              Индикатор загрузки при сохранении товара
-            - worker/src/index.ts: API поддерживает параметр folder для загрузки
-              Добавлено поле category_id в таблицу products
-              category_id связывает товар с категорией
+Базовый URL для запросов с фронтенда:
+https://yasndeco-api.andrey-gaffer.workers.dev/api
 
-Короткое описание проекта:
-YansDeco - веб-приложение для интернет-магазина декора и товаров для дома.
+ЭНДПОИНТЫ (все начинаются с /api):
 
-Технологии: React, TypeScript, Vite, i18n, Cloudflare Workers, D1, R2, Workers AI
+1. AI ПЕРЕВОД
+   URL: POST /api/translate
+   Body: { "text": { "name": "...", "description": "..." }, "targetLangs": ["fr", "en"] }
+   Response: { "success": true, "data": { "fr": { "name": "...", "description": "..." }, "en": {...} } }
 
-Ссылка на репозиторий: https://github.com/Badger0404/YansDeco
+2. ЗАГРУЗКА ФОТО (R2)
+   URL: POST /api/upload
+   Body (multipart/form-data):
+     - file: [файл изображения]
+     - folder: "categories" | "products" | "brands"
+   Response: { "success": true, "data": { "url": "...", "path": "...", "filename": "..." } }
+   URL изображения: https://yasndeco-api.andrey-gaffer.workers.dev/images/{path}
+
+3. КАТЕГОРИИ
+   GET    /api/categories          - получить все категории
+   POST   /api/categories           - создать категорию
+   PUT    /api/categories/:id       - обновить категорию
+   DELETE /api/categories/:id       - удалить категорию
+
+4. ТОВАРЫ
+   GET    /api/products             - получить все товары
+   GET    /api/products/:id         - получить товар по ID
+   POST   /api/products             - создать товар
+   PUT    /api/products/:id         - обновить товар
+   DELETE /api/products/:id        - удалить товар
+
+5. БРЕНДЫ
+   GET    /api/brands               - получить все бренды
+   POST   /api/brands               - создать бренд
+
+6. МИГРАЦИЯ БД
+   POST   /api/migrate              - создать/обновить таблицы
+
+7. ПРОВЕРКА РАБОТЫ
+   GET    /api                      - возвращает "API_ALIVE"
+   GET    /                         - возвращает "API_ALIVE"
+
+================================================================================
+                        CLOUDFLARE BINDINGS (КОНФИГУРАЦИЯ)
+================================================================================
+
+Файл конфигурации: worker/wrangler.toml
+
+D1 Database (База данных):
+  Binding: DB
+  Database name: yasndeco
+  Database ID: 9c32735c-132c-4111-a661-097a1a52055d
+  Используется для: хранение категорий, товаров, брендов, переводов
+
+R2 Bucket (Хранилище файлов):
+  Binding: ASSETS
+  Bucket name: yans-deco-assets
+  Используется для: хранение загруженных изображений
+  Public URL через прокси: https://yasndeco-api.andrey-gaffer.workers.dev/images/{path}
+
+AI (Workers AI - перевод):
+  Binding: AI
+  Используется: @cf/meta/llama-3.1-8b-instruct model
+  Для: автоматический перевод текстов на FR/EN
+
+================================================================================
+                        НАСТРОЙКИ ФРОНТЕНДА
+================================================================================
+
+API URL (жестко прописан в коде):
+  Categories.tsx:    const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
+  AddProduct.tsx:    const API_URL = 'https://yasndeco-api.andrey-gaffer.workerserved/api';
+
+CORS настроен на воркере:
+  origin: '*' (разрешены все домены)
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  allowHeaders: ['Content-Type', 'Authorization']
+
+================================================================================
+                            КОМАНДЫ ДЕПЛОЯ
+================================================================================
+
+ВНИМАНИЕ: Все команды выполняются из корневой папки проекта!
+
+1. ДЕПЛОЙ ВСЕГО ОДНОЙ КОМАНДОЙ (рекомендуется):
+   ----------------------------------------------------------------
+   npm run deploy-all
+   ----------------------------------------------------------------
+   Эта команда:
+   - Собирает фронтенд (npm run build)
+   - Деплоит фронтенд на Cloudflare Pages (production)
+   - Деплоит воркер на Cloudflare Workers
+
+2. ДЕПЛОЙ ФРОНТЕНДА ОТДЕЛЬНО:
+   ----------------------------------------------------------------
+   npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=production
+   ----------------------------------------------------------------
+   ИЛИ через npm script:
+   npm run deploy:pages
+
+3. ДЕПЛОЙ ВОРКЕРА ОТДЕЛЬНО:
+   ----------------------------------------------------------------
+   cd worker && npx wrangler deploy
+   ----------------------------------------------------------------
+   ИЛИ через npm script:
+   npm run deploy:worker
+
+4. ЗАПУСК МИГРАЦИИ БД:
+   ----------------------------------------------------------------
+   curl -X POST https://yasndeco-api.andrey-gaffer.workers.dev/api/migrate
+   ----------------------------------------------------------------
+
+================================================================================
+                         ПРОВЕРКА РАБОТОСПОСОБНОСТИ
+================================================================================
+
+1. Проверить что API работает:
+   curl https://yasndeco-api.andrey-gaffer.workers.dev/api
+   Ожидается: API_ALIVE
+
+2. Проверить перевод:
+   curl -X POST https://yasndeco-api.andrey-gaffer.workers.dev/api/translate \
+     -H "Content-Type: application/json" \
+     -d '{"text":{"name":"тест"},"targetLangs":["fr"]}'
+   Ожидается: {"success":true,"data":{"fr":{"name":"..."}}}
+
+3. Проверить загрузку фото:
+   curl -X POST https://yasndeco-api.andrey-gaffer.workers.dev/api/upload \
+     -F "file=@photo.jpg" \
+     -F "folder=categories"
+   Ожидается: {"success":true,"data":{"url":"https://...","path":"...","filename":"..."}}
+
+================================================================================
+                            ТЕКУЩИЕ DEPLOY URLs
+================================================================================
+
+Production:
+  Frontend: https://yans-deco.pages.dev
+  API:       https://yasndeco-api.andrey-gaffer.workers.dev
+
+Preview:
+  Frontend: https://preview.yans-deco.pages.dev
+  API:       https://yasndeco-api.andrey-gaffer.workers.dev (тот же)
+
+================================================================================
+                            ЧТО РАБОТАЕТ
+================================================================================
+
+✓ AI Перевод (ru → fr, ru → en)
+✓ Загрузка фото в R2 bucket
+✓ Превью загруженных фото
+✓ Категории и подкатегории
+✓ Товары с привязкой к категориям
+✓ Бренды
+✓ Мобильная версия админки (burger menu)
+✓ Drag-and-drop загрузка файлов
+✓ Кнопка выбора файла с камерой/галереей (capture="environment")
+
+================================================================================
+                            REPOSITORY
+================================================================================
+
+GitHub: https://github.com/Badger0404/YansDeco
+
+================================================================================
