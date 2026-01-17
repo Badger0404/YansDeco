@@ -2,6 +2,12 @@
 
 История изменений:
 ==================
+17.01.2026 - Add file chooser button with camera/gallery support
+            - AddProduct.tsx: добавлена видимая кнопка "Выбрать файл" с иконкой камеры
+              Использует <input type="file" accept="image/*" capture="environment" />
+              На мобильных при нажатии предлагает выбор: камера или галерея
+              Фото автоматически загружается в R2 хранилище
+
 17.01.2026 - Fix mobile burger menu in admin header
             - AdminHeader.tsx: исправлена инициализация isMobile
               Добавлена иконка Home для пункта dashboard
