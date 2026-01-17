@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Truck, Warehouse, HardHat, FileText, CheckCircle2 } from 'lucide-react';
 
 interface ServicesProps {
@@ -6,9 +7,7 @@ interface ServicesProps {
 }
 
 interface Service {
-  title: string;
-  titleOrange: string;
-  description: string;
+  key: 'livraison' | 'retrait' | 'conseils' | 'devis';
   icon: React.ReactNode;
   tags: string[];
   gradient: string;
@@ -16,33 +15,25 @@ interface Service {
 
 const services: Service[] = [
   {
-    title: 'Livraison',
-    titleOrange: 'Rapide',
-    description: 'Livraison rapide sur Groslay, et toute l\'Île-de-France. Notre flotte de véhicules équipée pour tous types de chantiers.',
+    key: 'livraison',
     icon: <Truck className="w-10 h-10" />,
     tags: ['Livraison 24-48h', 'Camions grues'],
     gradient: 'from-orange-500/20'
   },
   {
-    title: 'Retrait en',
-    titleOrange: 'Magasin',
-    description: 'Preparation sous 2h pour les commandes passées en ligne. Service rapide et efficace pour les professionnels et particuliers.',
+    key: 'retrait',
     icon: <Warehouse className="w-10 h-10" />,
     tags: ['Preparation 2h', 'Aide au chargement'],
     gradient: 'from-blue-500/20'
   },
   {
-    title: 'Conseils',
-    titleOrange: 'Techniques',
-    description: 'Notre équipe vous accompagne dans le choix de vos matériaux. Conseils personnalisés pour tous vos projets.',
+    key: 'conseils',
     icon: <HardHat className="w-10 h-10" />,
     tags: ['Conseillers techniques', 'Conseils chantier'],
     gradient: 'from-green-500/20'
   },
   {
-    title: 'Devis',
-    titleOrange: 'Professionnels',
-    description: 'Devis gratuit et détaillé pour les professionnels du bâtiment. Tarifs compétitifs et conditions flexibles.',
+    key: 'devis',
     icon: <FileText className="w-10 h-10" />,
     tags: ['Tarifs pro', 'Facturation différée'],
     gradient: 'from-purple-500/20'
@@ -50,15 +41,16 @@ const services: Service[] = [
 ];
 
 const Services: React.FC<ServicesProps> = ({ theme }) => {
+  const { t } = useTranslation();
   const isLight = theme === 'light';
 
-  const cardClass = `relative rounded-2xl p-8 transition-all duration-300 cursor-pointer border overflow-hidden ${
+  const cardClass = `relative rounded-2xl p-8 transition-all duration-300 cursor-pointer overflow-hidden ${
     isLight 
-      ? 'bg-white/40 backdrop-blur-md border-white/20 hover:border-[#FF6B00]' 
-      : 'bg-black/40 backdrop-blur-md border-white/10 hover:border-[#FF6B00]'
+      ? 'bg-white/0 hover:bg-white/30' 
+      : 'bg-transparent hover:bg-white/5'
   }`;
 
-  const iconBgClass = isLight ? 'bg-white/60' : 'bg-black/60';
+  const iconBgClass = isLight ? 'bg-white/30' : 'bg-white/5';
   const textClass = isLight ? 'text-black' : 'text-white';
   const descClass = isLight ? 'text-gray-700' : 'text-gray-300';
 
@@ -68,15 +60,13 @@ const Services: React.FC<ServicesProps> = ({ theme }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h1 className="font-black italic text-5xl uppercase tracking-tight mb-4 drop-shadow-lg">
-              <span className={isLight ? 'text-black' : 'text-white'}>NOS</span>{' '}
-              <span className="text-[#FF6B00]">SERVICES</span>
+              <span className={isLight ? 'text-black' : 'text-white'}>{t('services.title').split(' ')[0]}</span>{' '}
+              <span className="text-[#FF6B00]">{t('services.title').split(' ').slice(1).join(' ')}</span>
             </h1>
             <p className={`max-w-2xl mx-auto text-sm leading-relaxed drop-shadow-md ${
               isLight ? 'text-gray-700' : 'text-gray-300'
             }`}>
-              Des services complets pour accompagner tous vos projets de construction et rénovation.
-              <br />
-              L\'expertise YAN\'S DECO à votre service.
+              {t('services.subtitle')}
             </p>
           </div>
 
@@ -94,12 +84,12 @@ const Services: React.FC<ServicesProps> = ({ theme }) => {
                   </div>
                   
                   <h3 className={`font-black italic text-3xl uppercase tracking-tight mb-2 ${textClass}`}>
-                    {service.title}{' '}
-                    <span className="text-[#FF6B00]">{service.titleOrange}</span>
+                    {t(`services.${service.key}.title`)}{' '}
+                    <span className="text-[#FF6B00]">{t(`services.${service.key}.desc`)}</span>
                   </h3>
                   
                   <p className={`text-sm leading-relaxed mb-6 ${descClass}`}>
-                    {service.description}
+                    {t(`services.${service.key}.desc`)}
                   </p>
                   
                   <div className="flex flex-wrap gap-3">

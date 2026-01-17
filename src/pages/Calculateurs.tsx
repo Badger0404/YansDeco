@@ -39,18 +39,22 @@ const Calculateurs: React.FC<CalculateursProps> = ({ theme }) => {
     setResult(Math.ceil(quantity * 10) / 10);
   };
 
-  const cardClass = `relative rounded-2xl p-8 transition-all duration-300 cursor-pointer border overflow-hidden ${
+  const cardClass = `relative rounded-xl overflow-hidden group cursor-pointer transition-all duration-300 ease-out hover:scale-[1.02] ${
     isLight 
-      ? 'bg-white/40 backdrop-blur-md border-white/20 hover:border-[#FF6B00]' 
-      : 'bg-black/40 backdrop-blur-md border-white/10 hover:border-[#FF6B00]'
+      ? 'bg-white/30 hover:bg-white/50' 
+      : 'bg-transparent hover:bg-white/5'
+  } backdrop-blur-sm border border-white/10`;
+
+  const iconBgClass = `w-16 h-16 mb-6 flex items-center justify-center rounded-xl ${
+    isLight ? 'bg-white/30' : 'bg-white/5'
   }`;
 
-  const iconBgClass = isLight ? 'bg-white/60' : 'bg-black/60';
-  const inputClass = `w-full px-4 py-3 transition-colors focus:outline-none ${
+  const inputClass = `w-full px-4 py-3 rounded-lg transition-colors focus:outline-none ${
     isLight 
-      ? 'bg-white border border-gray-300 text-black focus:border-[#FF6B00]' 
-      : 'bg-black/60 border border-white/10 text-white focus:border-[#FF6B00]'
+      ? 'bg-white/40 border border-white/20 text-black focus:border-[#FF6B00]' 
+      : 'bg-black/20 border border-white/10 text-white focus:border-[#FF6B00]'
   }`;
+
   const textClass = isLight ? 'text-black' : 'text-white';
   const descClass = isLight ? 'text-gray-700' : 'text-gray-300';
   const labelClass = isLight ? 'text-gray-600' : 'text-gray-400';
@@ -75,131 +79,134 @@ const Calculateurs: React.FC<CalculateursProps> = ({ theme }) => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className={cardClass}>
-              <div className={`w-16 h-16 mb-6 flex items-center justify-center ${iconBgClass}`}>
-                <svg className={`w-8 h-8 transition-colors ${
-                  isLight ? 'text-gray-600 group-hover:text-[#FF6B00]' : 'text-gray-400 group-hover:text-[#FF6B00]'
-                }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className={`text-xl font-bold mb-3 uppercase tracking-wide transition-colors ${
-                isLight ? 'text-black group-hover:text-[#FF6B00]' : 'text-white group-hover:text-[#FF6B00]'
-              }`}>
-                MiMo-V2
-              </h3>
-              <p className={`text-sm leading-relaxed mb-4 ${descClass}`}>
-                Calculateur de consommation de matériaux pour vos projets de construction et rénovation.
-              </p>
-              <span className="text-green-400 text-sm font-medium uppercase tracking-wide">
-                Fonctionnel
-              </span>
+              <div className="absolute inset-0 bg-gradient-to-br from-zinc-900/10 to-transparent" />
+              <div className="relative p-6">
+                <div className={iconBgClass}>
+                  <svg className={`w-8 h-8 ${
+                    isLight ? 'text-gray-600' : 'text-gray-400'
+                  }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className={`text-xl font-bold mb-3 uppercase tracking-wide ${textClass}`}>
+                  MiMo-V2
+                </h3>
+                <p className={`text-sm leading-relaxed mb-4 ${descClass}`}>
+                  Calculateur de consommation de matériaux pour vos projets de construction et rénovation.
+                </p>
+                <span className="text-green-400 text-sm font-medium uppercase tracking-wide">
+                  Fonctionnel
+                </span>
 
-              <div className="mt-6 pt-6 border-t border-white/10">
-                <div className="space-y-4">
-                  <div>
-                    <label className={`block text-xs uppercase tracking-wide mb-2 ${labelClass}`}>
-                      Matériau
-                    </label>
-                    <select
-                      className={inputClass}
-                      value={selectedMaterial.name}
-                      onChange={(e) => {
-                        const mat = materials.find(m => m.name === e.target.value);
-                        if (mat) setSelectedMaterial(mat);
-                      }}
-                    >
-                      {materials.map((mat) => (
-                        <option key={mat.name} value={mat.name}>
-                          {mat.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className={`block text-xs uppercase tracking-wide mb-2 ${labelClass}`}>
-                      Surface (m²)
-                    </label>
-                    <input
-                      type="number"
-                      className={inputClass}
-                      placeholder="Ex: 25"
-                      value={area}
-                      onChange={(e) => setArea(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && calculate()}
-                    />
-                  </div>
-
-                  <button
-                    onClick={calculate}
-                    className="w-full bg-[#FF6B00] text-black px-6 py-3 text-sm font-bold uppercase tracking-wider hover:opacity-90 transition-opacity"
-                  >
-                    Calculer
-                  </button>
-
-                  {result !== null && (
-                    <div className={`p-4 mt-4 border ${
-                      isLight ? 'bg-white/60 border-white/20' : 'bg-black/60 border-white/10'
-                    }`}>
-                      <p className={`text-xs uppercase tracking-wide mb-1 ${labelClass}`}>
-                        Quantité estimée
-                      </p>
-                      <p className="text-[#FF6B00] text-2xl font-bold">
-                        {result} <span className="text-sm">{selectedMaterial.unit.split('/')[0]}</span>
-                      </p>
-                      <p className={`text-xs mt-2 ${labelClass}`}>
-                        {selectedMaterial.coats > 1 ? `(${selectedMaterial.coats} couches recommandées)` : '(1 couche)'}
-                      </p>
+                <div className="mt-6 pt-6 border-t border-white/10">
+                  <div className="space-y-4">
+                    <div>
+                      <label className={`block text-xs uppercase tracking-wide mb-2 ${labelClass}`}>
+                        Matériau
+                      </label>
+                      <select
+                        className={inputClass}
+                        value={selectedMaterial.name}
+                        onChange={(e) => {
+                          const mat = materials.find(m => m.name === e.target.value);
+                          if (mat) setSelectedMaterial(mat);
+                        }}
+                      >
+                        {materials.map((mat) => (
+                          <option key={mat.name} value={mat.name}>
+                            {mat.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  )}
 
-                  <div className={`text-xs mt-4 ${labelClass}`}>
-                    <p>Consommation: {selectedMaterial.consumption} {selectedMaterial.unit}</p>
+                    <div>
+                      <label className={`block text-xs uppercase tracking-wide mb-2 ${labelClass}`}>
+                        Surface (m²)
+                      </label>
+                      <input
+                        type="number"
+                        className={inputClass}
+                        placeholder="Ex: 25"
+                        value={area}
+                        onChange={(e) => setArea(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && calculate()}
+                      />
+                    </div>
+
+                    <button
+                      onClick={calculate}
+                      className="w-full bg-[#FF6B00] text-black px-6 py-3 text-sm font-bold uppercase tracking-wider hover:bg-[#FF8533] transition-colors duration-200 rounded-lg"
+                    >
+                      Calculer
+                    </button>
+
+                    {result !== null && (
+                      <div className={`p-4 mt-4 rounded-lg ${
+                        isLight ? 'bg-white/40 border border-white/20' : 'bg-black/20 border border-white/10'
+                      }`}>
+                        <p className={`text-xs uppercase tracking-wide mb-1 ${labelClass}`}>
+                          Quantité estimée
+                        </p>
+                        <p className="text-[#FF6B00] text-2xl font-bold">
+                          {result} <span className="text-sm">{selectedMaterial.unit.split('/')[0]}</span>
+                        </p>
+                        <p className={`text-xs mt-2 ${labelClass}`}>
+                          {selectedMaterial.coats > 1 ? `(${selectedMaterial.coats} couches recommandées)` : '(1 couche)'}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className={`text-xs mt-4 ${labelClass}`}>
+                      <p>Consommation: {selectedMaterial.consumption} {selectedMaterial.unit}</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className={cardClass}>
-              <div className={`w-16 h-16 mb-6 flex items-center justify-center ${iconBgClass}`}>
-                <svg className={`w-8 h-8 transition-colors ${
-                  isLight ? 'text-gray-600 group-hover:text-[#FF6B00]' : 'text-gray-400 group-hover:text-[#FF6B00]'
-                }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                </svg>
+              <div className="absolute inset-0 bg-gradient-to-br from-zinc-900/10 to-transparent" />
+              <div className="relative p-6">
+                <div className={iconBgClass}>
+                  <svg className={`w-8 h-8 ${
+                    isLight ? 'text-gray-600' : 'text-gray-400'
+                  }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                </div>
+                <h3 className={`text-xl font-bold mb-3 uppercase tracking-wide ${textClass}`}>
+                  Calculateur de surface
+                </h3>
+                <p className={`text-sm leading-relaxed mb-4 ${descClass}`}>
+                  Estimez la surface à couvrir pour vos revêtements de sol et muraux.
+                </p>
+                <span className="text-[#FF6B00] text-sm font-medium uppercase tracking-wide">
+                  Bientôt disponible
+                </span>
               </div>
-              <h3 className={`text-xl font-bold mb-3 uppercase tracking-wide transition-colors ${
-                isLight ? 'text-black group-hover:text-[#FF6B00]' : 'text-white group-hover:text-[#FF6B00]'
-              }`}>
-                Calculateur de surface
-              </h3>
-              <p className={`text-sm leading-relaxed mb-4 ${descClass}`}>
-                Estimez la surface à couvrir pour vos revêtements de sol et muraux.
-              </p>
-              <span className="text-[#FF6B00] text-sm font-medium uppercase tracking-wide">
-                Bientôt disponible
-              </span>
             </div>
 
             <div className={cardClass}>
-              <div className={`w-16 h-16 mb-6 flex items-center justify-center ${iconBgClass}`}>
-                <svg className={`w-8 h-8 transition-colors ${
-                  isLight ? 'text-gray-600 group-hover:text-[#FF6B00]' : 'text-gray-400 group-hover:text-[#FF6B00]'
-                }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+              <div className="absolute inset-0 bg-gradient-to-br from-zinc-900/10 to-transparent" />
+              <div className="relative p-6">
+                <div className={iconBgClass}>
+                  <svg className={`w-8 h-8 ${
+                    isLight ? 'text-gray-600' : 'text-gray-400'
+                  }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 className={`text-xl font-bold mb-3 uppercase tracking-wide ${textClass}`}>
+                  Calculateur de quantité
+                </h3>
+                <p className={`text-sm leading-relaxed mb-4 ${descClass}`}>
+                  Déterminez la quantité exacte de matériaux nécessaire pour votre chantier.
+                </p>
+                <span className="text-[#FF6B00] text-sm font-medium uppercase tracking-wide">
+                  Bientôt disponible
+                </span>
               </div>
-              <h3 className={`text-xl font-bold mb-3 uppercase tracking-wide transition-colors ${
-                isLight ? 'text-black group-hover:text-[#FF6B00]' : 'text-white group-hover:text-[#FF6B00]'
-              }`}>
-                Calculateur de quantité
-              </h3>
-              <p className={`text-sm leading-relaxed mb-4 ${descClass}`}>
-                Déterminez la quantité exacte de matériaux nécessaire pour votre chantier.
-              </p>
-              <span className="text-[#FF6B00] text-sm font-medium uppercase tracking-wide">
-                Bientôt disponible
-              </span>
             </div>
           </div>
         </div>
