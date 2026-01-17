@@ -2,6 +2,14 @@
 
 История изменений:
 ==================
+17.01.2026 - Fix upload errors: better CORS, debug logging
+            - worker/src/index.ts: удалена строгая проверка Content-Type
+              Добавлено подробное логирование для отладки загрузки
+            - Categories.tsx: добавлен console.log для отладки загрузки фото
+              Подробные сообщения об ошибках в UI
+            - AddProduct.tsx: добавлен console.log для отладки загрузки фото
+              Подробные сообщения об ошибках в UI
+
 17.01.2026 - Add D1+R2 storage for categories/products with folder-based upload
             - Categories.tsx: загрузка фото в R2 в папку 'categories'
               Добавлен индикатор загрузки при сохранении (isSaving)
@@ -32,29 +40,9 @@
               На мобильных предлагает выбор: камера или галерея
             - worker/src/index.ts: обновлён CORS для preview-деплоев (*.pages.dev)
 
-17.01.2026 - Extract AdminHeader component for consistent admin layout
-            - Создан отдельный компонент AdminHeader.tsx с хедером и футером админки
-            - AdminDashboard.tsx теперь содержит только контент (карточки, quick actions, activity)
-            - App.tsx использует AdminHeader для всех страниц /admin
-
 Короткое описание проекта:
 YansDeco - веб-приложение для интернет-магазина декора и товаров для дома.
 
 Технологии: React, TypeScript, Vite, i18n (многоязычность: EN, FR, RU)
-
-Основные страницы:
-- Главная страница (Home)
-- Каталог товаров (Catalogue)
-- Категории (Categories)
-- Бренды (Marques)
-- Калькуляторы (Calculateurs)
-- Контакты (Contact)
-- Услуги (Services)
-
-Админ-панель:
-- Управление товарами, категориями, брендами
-- Переводы (i18n)
-- Калькуляторы
-- Настройки
 
 Ссылка на репозиторий: https://github.com/Badger0404/YansDeco
