@@ -17,7 +17,8 @@ import {
   User,
   Sparkles,
   X,
-  Check
+  Check,
+  Camera
 } from 'lucide-react';
 
 interface Brand {
@@ -513,11 +514,24 @@ const AddProduct: React.FC = () => {
                   <>
                     <Upload className={`w-10 h-10 mx-auto mb-3 ${mutedClass}`} />
                     <p className={`text-sm mb-2 ${mutedClass}`}>
-                      Перетащите файл сюда или нажмите для выбора
+                      Перетащите файл сюда или нажмите кнопку ниже
                     </p>
-                    <p className={`text-xs ${mutedClass} opacity-70`}>
+                    <p className={`text-xs ${mutedClass} opacity-70 mb-4`}>
                       PNG, JPG до 5MB
                     </p>
+                    
+                    <label className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF6B00] text-black text-sm font-bold uppercase tracking-wide rounded-lg hover:bg-[#FF8533] transition-colors cursor-pointer">
+                      <Camera className="w-5 h-5" />
+                      Выбрать файл
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                      />
+                    </label>
+                    
                     <input
                       type="file"
                       accept="image/*"
