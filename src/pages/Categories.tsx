@@ -97,7 +97,7 @@ const Categories: React.FC = () => {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/categories`);
+      const response = await fetch(`${API_URL}/categories`);
       const data = await response.json();
       if (data.success) {
         const tree = buildCategoryTree(data.data);
@@ -169,7 +169,14 @@ const Categories: React.FC = () => {
     const targetLangs = ['fr', 'en'].filter(lang => lang !== sourceLang);
 
     try {
-      const response = await fetch(`${API_URL}/api/ai/translate`, {
+      const url = `${API_URL}/translate`;
+      console.log('[Translate] Sending request to:', url);
+      console.log('[Translate] Request body:', JSON.stringify({
+        text: textObj,
+        targetLangs
+      }));
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -177,6 +184,9 @@ const Categories: React.FC = () => {
           targetLangs
         })
       });
+
+      console.log('[Translate] Response status:', response.status, response.statusText);
+      console.log('[Translate] Response headers:', Object.fromEntries(response.headers.entries()));
 
       const data = await response.json();
 
@@ -249,9 +259,9 @@ const Categories: React.FC = () => {
     uploadFormData.append('folder', 'categories');
 
     try {
-      console.log('[Upload] Sending request to:', `${API_URL}/api/upload`);
+      console.log('[Upload] Sending request to:', `${API_URL}/upload`);
       
-      const response = await fetch(`${API_URL}/api/upload`, {
+      const response = await fetch(`${API_URL}/upload`, {
         method: 'POST',
         body: uploadFormData
       });
@@ -296,7 +306,7 @@ const Categories: React.FC = () => {
     setIsTranslating(true);
     setError('');
 
-    const apiUrl = `${API_URL}/api/ai/translate`;
+    const apiUrl = `${API_URL}/translate`;
     console.log('Отправляю запрос на:', apiUrl);
     console.log('Тело запроса:', {
       text: {
@@ -362,8 +372,8 @@ const Categories: React.FC = () => {
 
     try {
       const url = editingId 
-        ? `${API_URL}/api/categories/${editingId}`
-        : `${API_URL}/api/categories`;
+        ? `${API_URL}/categories/${editingId}`
+        : `${API_URL}/categories`;
       
       const method = editingId ? 'PUT' : 'POST';
 
@@ -396,7 +406,7 @@ const Categories: React.FC = () => {
 
     setError('');
     try {
-      const response = await fetch(`${API_URL}/api/categories/${id}`, {
+      const response = await fetch(`${API_URL}/categories/${id}`, {
         method: 'DELETE'
       });
       const data = await response.json();

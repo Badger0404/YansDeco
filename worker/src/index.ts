@@ -9,15 +9,19 @@ interface Env {
 
 const app = new Hono<{ Bindings: Env }>();
 
-// CORS - Simple configuration for production
+// CORS - Allow production domains
 app.use('*', cors({
-  origin: 'https://yans-deco.pages.dev',
-  allowMethods: ['POST', 'GET', 'OPTIONS'],
-  allowHeaders: ['Content-Type'],
+  origin: ['https://yans-deco.pages.dev', 'https://*.yans-deco.pages.dev'],
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
 }));
+
+// Health check - API_ALIVE
+app.get('/', (c) => c.text('API_ALIVE'));
 
 // Helper function to generate slug
 function generateSlug(text: string): string {
+  if (!text) return '';
   return text
     .toLowerCase()
     .replace(/[а-яё]/g, (char) => {
@@ -36,16 +40,14 @@ function generateSlug(text: string): string {
 
 // ==================== BRANDS API ====================
 
-// Get all brands
-app.get('/api/brands', async (c) => {
+app.get('/brands', async (c) => {
   const { results } = await c.env.DB.prepare(
     `SELECT id, name, logo_url FROM brands ORDER BY name`
   ).all();
   return c.json({ success: true, data: results });
 });
 
-// Create brand
-app.post('/api/brands', async (c) => {
+app.post('/brands', async (c) => {
   const body = await c.req.json();
   const { name, logo_url } = body;
 
@@ -66,8 +68,7 @@ app.post('/api/brands', async (c) => {
 
 // ==================== PRODUCTS API ====================
 
-// Get all products with translations
-app.get('/api/products', async (c) => {
+app.get('/products', async (c) => {
   const { results } = await c.env.DB.prepare(`
     SELECT 
       p.id, p.sku, p.price, p.stock, p.is_popular, p.announcement_date, p.image_url, p.created_at,
@@ -85,8 +86,7 @@ app.get('/api/products', async (c) => {
   return c.json({ success: true, data: results });
 });
 
-// Get single product
-app.get('/api/products/:id', async (c) => {
+app.get('/products/:id', async (c) => {
   const id = c.req.param('id');
   const { results } = await c.env.DB.prepare(`
     SELECT 
@@ -100,16 +100,10 @@ app.get('/api/products/:id', async (c) => {
     LEFT JOIN product_translations pt_en ON p.id = pt_en.product_id AND pt_en.lang = 'en'
     WHERE p.id = ?
   `).bind(id).all();
-
-  if (results.length === 0) {
-    return c.json({ success: false, error: 'Product not found' }, { status: 404 });
-  }
-
   return c.json({ success: true, data: results[0] });
 });
 
-// Create product
-app.post('/api/products', async (c) => {
+app.post('/products', async (c) => {
   const body = await c.req.json();
   const {
     sku, price, stock, brand_id, category_id, is_popular, announcement_date, image_url,
@@ -117,10 +111,8 @@ app.post('/api/products', async (c) => {
   } = body;
 
   try {
-    // Start transaction
     await c.env.DB.prepare(`BEGIN TRANSACTION`).run();
 
-    // Insert product
     const insertResult = await c.env.DB.prepare(`
       INSERT INTO products (sku, price, stock, brand_id, category_id, is_popular, announcement_date, image_url)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -128,7 +120,6 @@ app.post('/api/products', async (c) => {
 
     const productId = (insertResult.meta.last_row_id as number);
 
-    // Insert translations
     const translations = [
       { lang: 'ru', name: name_ru, desc: desc_ru },
       { lang: 'fr', name: name_fr, desc: desc_fr },
@@ -153,8 +144,7 @@ app.post('/api/products', async (c) => {
   }
 });
 
-// Update product
-app.put('/api/products/:id', async (c) => {
+app.put('/products/:id', async (c) => {
   const id = c.req.param('id');
   const body = await c.req.json();
   const {
@@ -165,7 +155,6 @@ app.put('/api/products/:id', async (c) => {
   try {
     await c.env.DB.prepare(`BEGIN TRANSACTION`).run();
 
-    // Update product
     await c.env.DB.prepare(`
       UPDATE products 
       SET sku = ?, price = ?, stock = ?, brand_id = ?, category_id = ?, is_popular = ?, 
@@ -173,7 +162,6 @@ app.put('/api/products/:id', async (c) => {
       WHERE id = ?
     `).bind(sku, price, stock, brand_id || null, category_id || null, is_popular ? 1 : 0, announcement_date || null, image_url || null, id).run();
 
-    // Update translations
     const translations = [
       { lang: 'ru', name: name_ru, desc: desc_ru },
       { lang: 'fr', name: name_fr, desc: desc_fr },
@@ -197,8 +185,7 @@ app.put('/api/products/:id', async (c) => {
   }
 });
 
-// Delete product
-app.delete('/api/products/:id', async (c) => {
+app.delete('/products/:id', async (c) => {
   const id = c.req.param('id');
   const { success } = await c.env.DB.prepare(`DELETE FROM products WHERE id = ?`).bind(id).run();
   return c.json({ success });
@@ -206,62 +193,42 @@ app.delete('/api/products/:id', async (c) => {
 
 // ==================== AI TRANSLATION ====================
 
-app.options('/api/ai/translate', async (c) => {
-  return c.json({ success: true }, {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    }
-  });
+app.options('/translate', async (c) => {
+  return c.json({ success: true });
 });
 
-app.post('/api/ai/translate', async (c) => {
-  console.log('[AI Translate] Request received');
-  console.log('[AI Translate] AI binding available:', !!c.env.AI);
-  
+app.post('/translate', async (c) => {
   const body = await c.req.json();
   const { text, targetLangs } = body;
 
-  console.log('[AI Translate] Text:', text);
-  console.log('[AI Translate] Target languages:', targetLangs);
-
   if (!text || !targetLangs || !Array.isArray(targetLangs)) {
-    console.log('[AI Translate] Missing text or targetLangs');
     return c.json({ success: false, error: 'Missing text or targetLangs' }, { status: 400 });
   }
 
   if (!c.env.AI) {
-    console.error('[AI Translate] AI service is not configured');
     return c.json({ 
       success: false, 
-      error: 'AI service is not configured. Add AI binding in Cloudflare dashboard: Settings > Functions > AI' 
+      error: 'AI service not configured. Add AI binding in Cloudflare dashboard.' 
     }, { status: 500 });
   }
 
   const results: Record<string, { name: string; description: string }> = {};
 
   for (const lang of targetLangs) {
-    const userPrompt = `Переведи следующее название и описание на ${lang === 'fr' ? 'французский' : 'английский'} язык:\n${JSON.stringify(text, null, 2)}`;
+    const langName = lang === 'fr' ? 'французский' : 'английский';
+    const userPrompt = `Переведи на ${langName}:\n${JSON.stringify(text, null, 2)}`;
 
     try {
-      console.log(`[AI Translate] Translating to ${lang}...`);
-      
       const response = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
         messages: [
           {
             role: 'system',
-            content: "Ты — эксперт-переводчик в сфере строительных материалов и премиального декора для магазина Yan's Deco. Твоя задача — технически точный и коммерчески привлекательный перевод. Правила: 1. Используй 'Enduit' для декоративной штукатурки. 2. Используй 'Mélange' для смесей. 3. 'Паропроницаемость' переводи как 'Perméabilité à la vapeur d\\'eau' (FR) и 'Breathability' (EN). 4. 'Мокрый шелк' — 'Effet soie humide'. 5. Возвращай только JSON с переводом, без лишнего текста."
+            content: 'Ты — переводчик магазина декора. Возвращай ТОЛЬКО JSON: {"name": "...", "description": "..."}'
           },
-          {
-            role: 'user',
-            content: userPrompt
-          }
+          { role: 'user', content: userPrompt }
         ],
         max_tokens: 512,
       });
-
-      console.log(`[AI Translate] Response for ${lang}:`, response);
 
       let translated: { name: string; description: string } = { name: '', description: '' };
       
@@ -285,10 +252,7 @@ app.post('/api/ai/translate', async (c) => {
         name: translated.name || '',
         description: (translated.description || '').replace(/\\n/g, '\n')
       };
-      
-      console.log(`[AI Translate] Translation for ${lang}:`, results[lang]);
     } catch (err: any) {
-      console.error(`[AI Translate] Translation error for ${lang}:`, err);
       return c.json({ success: false, error: err.message }, 500);
     }
   }
@@ -298,58 +262,38 @@ app.post('/api/ai/translate', async (c) => {
 
 // ==================== IMAGE UPLOAD (R2) ====================
 
-app.post('/api/upload', async (c) => {
-  console.log('[Upload] Starting upload request...');
-  
+app.post('/upload', async (c) => {
   try {
     const formData = await c.req.formData();
     const file = formData.get('file') as File;
     const folder = formData.get('folder') as string || 'products';
 
-    console.log('[Upload] File received:', file ? file.name : 'null');
-    console.log('[Upload] Folder:', folder);
-
     if (!file) {
-      console.log('[Upload] Error: No file provided');
       return c.json({ success: false, error: 'No file provided' }, { status: 400 });
     }
-
-    console.log('[Upload] File size:', file.size, 'bytes');
-    console.log('[Upload] File type:', file.type);
 
     const arrayBuffer = await file.arrayBuffer();
     const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
     const path = `${folder}/${fileName}`;
 
-    console.log('[Upload] Uploading to R2:', path);
-
     await c.env.ASSETS.put(path, arrayBuffer, {
-      httpMetadata: {
-        contentType: file.type || 'application/octet-stream',
-      },
+      httpMetadata: { contentType: file.type || 'application/octet-stream' },
     });
-
-    console.log('[Upload] Success! URL generated');
 
     const publicUrl = `https://yans-deco-assets.yansdeco.workers.dev/${path}`;
 
     return c.json({ 
       success: true, 
-      data: { 
-        url: publicUrl,
-        path: path,
-        filename: fileName
-      }
+      data: { url: publicUrl, path, filename: fileName }
     });
   } catch (error: any) {
-    console.error('[Upload] Error:', error.message);
     return c.json({ success: false, error: error.message }, { status: 500 });
   }
 });
 
 // ==================== CATEGORIES API ====================
 
-app.get('/api/categories', async (c) => {
+app.get('/categories', async (c) => {
   const { results } = await c.env.DB.prepare(`
     SELECT 
       c.id, c.slug, c.icon, c.image_url, c.parent_id, c.sort_order, c.created_at,
@@ -365,14 +309,9 @@ app.get('/api/categories', async (c) => {
   return c.json({ success: true, data: results });
 });
 
-// Create category
-app.post('/api/categories', async (c) => {
+app.post('/categories', async (c) => {
   const body = await c.req.json();
-  const {
-    slug, icon, image_url, parent_id, sort_order,
-    name_ru, name_fr, name_en,
-    desc_ru, desc_fr, desc_en
-  } = body;
+  const { slug, icon, image_url, parent_id, sort_order, name_ru, desc_ru, name_fr, desc_fr, name_en, desc_en } = body;
 
   try {
     await c.env.DB.prepare(`BEGIN TRANSACTION`).run();
@@ -408,22 +347,16 @@ app.post('/api/categories', async (c) => {
   }
 });
 
-// Update category
-app.put('/api/categories/:id', async (c) => {
+app.put('/categories/:id', async (c) => {
   const id = c.req.param('id');
   const body = await c.req.json();
-  const {
-    slug, icon, image_url, parent_id, sort_order,
-    name_ru, name_fr, name_en,
-    desc_ru, desc_fr, desc_en
-  } = body;
+  const { slug, icon, image_url, parent_id, sort_order, name_ru, desc_ru, name_fr, desc_fr, name_en, desc_en } = body;
 
   try {
     await c.env.DB.prepare(`BEGIN TRANSACTION`).run();
 
     await c.env.DB.prepare(`
-      UPDATE categories 
-      SET slug = ?, icon = ?, image_url = ?, parent_id = ?, sort_order = ?
+      UPDATE categories SET slug = ?, icon = ?, image_url = ?, parent_id = ?, sort_order = ?
       WHERE id = ?
     `).bind(slug, icon || null, image_url || null, parent_id || null, sort_order || 0, id).run();
 
@@ -450,22 +383,14 @@ app.put('/api/categories/:id', async (c) => {
   }
 });
 
-// Delete category
-app.delete('/api/categories/:id', async (c) => {
+app.delete('/categories/:id', async (c) => {
   const id = c.req.param('id');
-  try {
-    const { success } = await c.env.DB.prepare(`DELETE FROM categories WHERE id = ?`).bind(id).run();
-    if (!success) {
-      return c.json({ success: false, error: 'Category not found' }, { status: 404 });
-    }
-    return c.json({ success: true });
-  } catch (error: any) {
-    return c.json({ success: false, error: error.message }, { status: 500 });
-  }
+  const { success } = await c.env.DB.prepare(`DELETE FROM categories WHERE id = ?`).bind(id).run();
+  return c.json({ success });
 });
 
 // ==================== MIGRATION ====================
-app.post('/api/migrate', async (c) => {
+app.post('/migrate', async (c) => {
   const schema = `
 -- Products table
 CREATE TABLE IF NOT EXISTS products (
@@ -522,7 +447,7 @@ CREATE TABLE IF NOT EXISTS category_translations (
 -- Brands table
 CREATE TABLE IF NOT EXISTS brands (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
     logo_url TEXT,
     created_at TEXT DEFAULT (datetime('now'))
 );
@@ -533,46 +458,22 @@ CREATE TABLE IF NOT EXISTS brand_translations (
     brand_id INTEGER NOT NULL,
     lang TEXT NOT NULL CHECK (lang IN ('ru', 'fr', 'en')),
     name TEXT NOT NULL,
+    description TEXT,
     FOREIGN KEY (brand_id) REFERENCES brands(id) ON DELETE CASCADE,
     UNIQUE(brand_id, lang)
 );
 
--- Create indexes
-CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand_id);
-CREATE INDEX IF NOT EXISTS idx_products_popular ON products(is_popular);
-CREATE INDEX IF NOT EXISTS idx_products_announcement ON products(announcement_date);
 CREATE INDEX IF NOT EXISTS idx_product_translations_product ON product_translations(product_id);
-CREATE INDEX IF NOT EXISTS idx_categories_parent ON categories(parent_id);
-
--- Insert default brands
-INSERT INTO brands (name, logo_url) VALUES 
-    ('BOSTIK', NULL),
-    ('SIKA', NULL),
-    ('TOUPRET', NULL),
-    ('PAREXLANKO', NULL),
-    ("L'OUTIL PARFAIT", NULL)
-ON CONFLICT(name) DO NOTHING;
-
--- Insert default categories
-INSERT INTO categories (slug, icon, sort_order) VALUES 
-    ('peinture-finition', '🎨', 1),
-    ('colles-mastics', '🧱', 2),
-    ('outillage-peintre', '🖌️', 3),
-    ('outillage-carreleur', '🔧', 4),
-    ('preparation-sols', '🧱', 5),
-    ('fixation-visserie', '🔩', 6)
-ON CONFLICT(slug) DO NOTHING;
-`;
+CREATE INDEX IF NOT EXISTS idx_category_translations_category ON category_translations(category_id);
+  `;
 
   try {
     const statements = schema.split(';').filter(s => s.trim());
-    
     for (const statement of statements) {
       if (statement.trim()) {
         await c.env.DB.prepare(statement).run();
       }
     }
-    
     return c.json({ success: true, message: 'Migration completed' });
   } catch (error: any) {
     return c.json({ success: false, error: error.message }, { status: 500 });

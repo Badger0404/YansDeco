@@ -94,7 +94,7 @@ const AddProduct: React.FC = () => {
 
   const fetchBrands = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/brands`);
+      const response = await fetch(`${API_URL}/brands`);
       const data = await response.json();
       if (data.success) {
         setBrands(data.data);
@@ -106,7 +106,7 @@ const AddProduct: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/categories`);
+      const response = await fetch(`${API_URL}/categories`);
       const data = await response.json();
       if (data.success) {
         setCategories(data.data);
@@ -153,9 +153,9 @@ const AddProduct: React.FC = () => {
     formData.append('folder', 'products');
 
     try {
-      console.log('[Upload] Sending request to:', `${API_URL}/api/upload`);
+      console.log('[Upload] Sending request to:', `${API_URL}/upload`);
       
-      const response = await fetch(`${API_URL}/api/upload`, {
+      const response = await fetch(`${API_URL}/upload`, {
         method: 'POST',
         body: formData
       });
@@ -199,7 +199,7 @@ const AddProduct: React.FC = () => {
     const targetLangs = ['ru', 'fr', 'en'].filter(lang => lang !== sourceLang);
 
     try {
-      const response = await fetch(`${API_URL}/api/ai/translate`, {
+      const response = await fetch(`${API_URL}/translate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -250,7 +250,7 @@ const AddProduct: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/brands`, {
+      const response = await fetch(`${API_URL}/brands`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newBrandName, logo_url: newBrandLogo })
@@ -293,7 +293,7 @@ const AddProduct: React.FC = () => {
     setError('');
 
     try {
-      const response = await fetch(`${API_URL}/api/products`, {
+      const response = await fetch(`${API_URL}/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
