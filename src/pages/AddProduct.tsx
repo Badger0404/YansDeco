@@ -27,6 +27,15 @@ interface Brand {
   logo_url: string | null;
 }
 
+interface Category {
+  id: number;
+  name_ru: string | null;
+  name_fr: string | null;
+  name_en: string | null;
+  parent_id: number | null;
+  children?: Category[];
+}
+
 const AddProduct: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -50,7 +59,9 @@ const AddProduct: React.FC = () => {
   const [announcementDate, setAnnouncementDate] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [brandId, setBrandId] = useState<number | null>(null);
+  const [categoryId, setCategoryId] = useState<number | null>(null);
   const [brands, setBrands] = useState<Brand[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -78,6 +89,7 @@ const AddProduct: React.FC = () => {
   // Load brands
   useEffect(() => {
     fetchBrands();
+    fetchCategories();
   }, []);
 
   const fetchBrands = async () => {
@@ -89,6 +101,18 @@ const AddProduct: React.FC = () => {
       }
     } catch (err) {
       console.error('Failed to load brands:', err);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/categories`);
+      const data = await response.json();
+      if (data.success) {
+        setCategories(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to load categories:', err);
     }
   };
 
@@ -124,6 +148,7 @@ const AddProduct: React.FC = () => {
     
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('folder', 'products');
 
     try {
       const response = await fetch(`${API_URL}/api/upload`, {
@@ -254,6 +279,7 @@ const AddProduct: React.FC = () => {
           price: parseFloat(price),
           stock: parseInt(stock) || 0,
           brand_id: brandId,
+          category_id: categoryId,
           is_popular: isPopular,
           announcement_date: announcementDate || null,
           image_url: imageUrl || null,
@@ -472,6 +498,25 @@ const AddProduct: React.FC = () => {
                     Новый
                   </button>
                 </div>
+              </div>
+
+              {/* Category Selector */}
+              <div className="mt-4">
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
+                  Категория
+                </label>
+                <select
+                  value={categoryId || ''}
+                  onChange={(e) => setCategoryId(e.target.value ? parseInt(e.target.value) : null)}
+                  className={`w-full px-4 py-2.5 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                >
+                  <option value="">Выберите категорию...</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name_ru || cat.name_fr || 'Category ' + cat.id}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 

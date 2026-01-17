@@ -113,7 +113,7 @@ app.get('/api/products/:id', async (c) => {
 app.post('/api/products', async (c) => {
   const body = await c.req.json();
   const {
-    sku, price, stock, brand_id, is_popular, announcement_date, image_url,
+    sku, price, stock, brand_id, category_id, is_popular, announcement_date, image_url,
     name_ru, desc_ru, name_fr, desc_fr, name_en, desc_en
   } = body;
 
@@ -123,9 +123,9 @@ app.post('/api/products', async (c) => {
 
     // Insert product
     const insertResult = await c.env.DB.prepare(`
-      INSERT INTO products (sku, price, stock, brand_id, is_popular, announcement_date, image_url)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).bind(sku, price, stock || 0, brand_id || null, is_popular ? 1 : 0, announcement_date || null, image_url || null).run();
+      INSERT INTO products (sku, price, stock, brand_id, category_id, is_popular, announcement_date, image_url)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(sku, price, stock || 0, brand_id || null, category_id || null, is_popular ? 1 : 0, announcement_date || null, image_url || null).run();
 
     const productId = (insertResult.meta.last_row_id as number);
 
@@ -159,7 +159,7 @@ app.put('/api/products/:id', async (c) => {
   const id = c.req.param('id');
   const body = await c.req.json();
   const {
-    sku, price, stock, brand_id, is_popular, announcement_date, image_url,
+    sku, price, stock, brand_id, category_id, is_popular, announcement_date, image_url,
     name_ru, desc_ru, name_fr, desc_fr, name_en, desc_en
   } = body;
 
@@ -169,10 +169,10 @@ app.put('/api/products/:id', async (c) => {
     // Update product
     await c.env.DB.prepare(`
       UPDATE products 
-      SET sku = ?, price = ?, stock = ?, brand_id = ?, is_popular = ?, 
+      SET sku = ?, price = ?, stock = ?, brand_id = ?, category_id = ?, is_popular = ?, 
           announcement_date = ?, image_url = ?, updated_at = datetime('now')
       WHERE id = ?
-    `).bind(sku, price, stock, brand_id || null, is_popular ? 1 : 0, announcement_date || null, image_url || null, id).run();
+    `).bind(sku, price, stock, brand_id || null, category_id || null, is_popular ? 1 : 0, announcement_date || null, image_url || null, id).run();
 
     // Update translations
     const translations = [
@@ -287,6 +287,7 @@ app.post('/api/upload', async (c) => {
   try {
     const formData = await c.req.formData();
     const file = formData.get('file') as File;
+    const folder = formData.get('folder') as string || 'products';
 
     if (!file) {
       return c.json({ success: false, error: 'No file provided' }, { status: 400 });
@@ -294,7 +295,7 @@ app.post('/api/upload', async (c) => {
 
     const arrayBuffer = await file.arrayBuffer();
     const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-    const path = `products/${fileName}`;
+    const path = `${folder}/${fileName}`;
 
     await c.env.ASSETS.put(path, arrayBuffer, {
       httpMetadata: {
@@ -445,12 +446,14 @@ CREATE TABLE IF NOT EXISTS products (
     price DECIMAL(10, 2) NOT NULL DEFAULT 0,
     stock INTEGER DEFAULT 0,
     brand_id INTEGER,
+    category_id INTEGER,
     is_popular INTEGER DEFAULT 0,
     announcement_date TEXT,
     image_url TEXT,
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now')),
-    FOREIGN KEY (brand_id) REFERENCES brands(id)
+    FOREIGN KEY (brand_id) REFERENCES brands(id),
+    FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
 -- Product translations

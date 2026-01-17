@@ -68,6 +68,7 @@ const Categories: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
@@ -237,6 +238,7 @@ const Categories: React.FC = () => {
     
     const uploadFormData = new FormData();
     uploadFormData.append('file', file);
+    uploadFormData.append('folder', 'categories');
 
     try {
       const response = await fetch(`${API_URL}/api/upload`, {
@@ -334,6 +336,8 @@ const Categories: React.FC = () => {
       return;
     }
 
+    setIsSaving(true);
+
     try {
       const url = editingId 
         ? `${API_URL}/api/categories/${editingId}`
@@ -360,6 +364,8 @@ const Categories: React.FC = () => {
       }
     } catch (err) {
       setError('Ошибка при сохранении категории');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -978,10 +984,20 @@ const Categories: React.FC = () => {
                   </button>
                   <button
                     onClick={handleSave}
-                    className="px-8 py-3 bg-[#FF6B00] text-black rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-[#FF8533] transition-colors flex items-center gap-2"
+                    disabled={isSaving}
+                    className="px-8 py-3 bg-[#FF6B00] text-black rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-[#FF8533] transition-colors disabled:opacity-50 flex items-center gap-2"
                   >
-                    <Check className="w-4 h-4" />
-                    {editingId ? 'Сохранить' : 'Создать'}
+                    {isSaving ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        Сохранение...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4" />
+                        {editingId ? 'Сохранить' : 'Создать'}
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
