@@ -197,10 +197,12 @@ const Categories: React.FC = () => {
         setSuccess('Перевод выполнен успешно');
         setTimeout(() => setSuccess(''), 3000);
       } else {
-        setError(data.error || 'Translation failed');
+        console.error('[Translate] Server error:', data.error);
+        setError(`Ошибка перевода: ${data.error || 'Неизвестная ошибка'}`);
       }
     } catch (err) {
-      setError('Failed to translate');
+      console.error('[Translate] Network error:', err);
+      setError(`Ошибка перевода: ${err instanceof Error ? err.message : 'Network error'}`);
     } finally {
       setIsTranslating(false);
     }

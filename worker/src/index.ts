@@ -9,12 +9,14 @@ interface Env {
 
 const app = new Hono<{ Bindings: Env }>();
 
-// CORS
+// CORS - More permissive for production
 app.use('/*', cors({
-  origin: ['http://localhost:5173', 'https://yans-deco.pages.dev', 'https://preview.yans-deco.pages.dev', 'https://*.pages.dev', 'https://yansdeco.com'],
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  origin: ['http://localhost:5173', 'https://yans-deco.pages.dev', 'https://preview.yans-deco.pages.dev', 'https://*.workers.dev'],
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin'],
+  exposeHeaders: ['Content-Length', 'Content-Type'],
   credentials: true,
+  maxAge: 86400,
 }));
 
 // Helper function to generate slug
@@ -207,19 +209,38 @@ app.delete('/api/products/:id', async (c) => {
 
 // ==================== AI TRANSLATION ====================
 
+app.options('/api/ai/translate', async (c) => {
+  return c.json({ success: true }, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    }
+  });
+});
+
 app.post('/api/ai/translate', async (c) => {
+  console.log('[AI Translate] Request received');
+  console.log('[AI Translate] AI binding available:', !!c.env.AI);
+  
   const body = await c.req.json();
   const { text, targetLangs } = body;
 
+  console.log('[AI Translate] Text:', text);
+  console.log('[AI Translate] Target languages:', targetLangs);
+
   if (!text || !targetLangs || !Array.isArray(targetLangs)) {
+    console.log('[AI Translate] Missing text or targetLangs');
     return c.json({ success: false, error: 'Missing text or targetLangs' }, { status: 400 });
   }
 
   if (!c.env.AI) {
-    return c.json({ success: false, error: 'AI service is not configured. Please add AI binding in Cloudflare dashboard.' }, 500);
+    console.error('[AI Translate] AI service is not configured');
+    return c.json({ 
+      success: false, 
+      error: 'AI service is not configured. Add AI binding in Cloudflare dashboard: Settings > Functions > AI' 
+    }, { status: 500 });
   }
-
-  console.log('AI Request:', text, 'Target langs:', targetLangs);
 
   const results: Record<string, { name: string; description: string }> = {};
 
@@ -227,6 +248,8 @@ app.post('/api/ai/translate', async (c) => {
     const userPrompt = `Переведи следующее название и описание на ${lang === 'fr' ? 'французский' : 'английский'} язык:\n${JSON.stringify(text, null, 2)}`;
 
     try {
+      console.log(`[AI Translate] Translating to ${lang}...`);
+      
       const response = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
         messages: [
           {
@@ -238,15 +261,14 @@ app.post('/api/ai/translate', async (c) => {
             content: userPrompt
           }
         ],
-        max_tokens: 500
+        max_tokens: 512,
       });
 
-      console.log('AI Response for', lang, ':', response);
+      console.log(`[AI Translate] Response for ${lang}:`, response);
 
-      let translated;
-      if (typeof response === 'string') {
-        translated = JSON.parse(response);
-      } else if ('response' in response) {
+      let translated: { name: string; description: string } = { name: '', description: '' };
+      
+      if (typeof response === 'object' && response.response) {
         try {
           translated = JSON.parse(response.response);
         } catch {
@@ -266,8 +288,10 @@ app.post('/api/ai/translate', async (c) => {
         name: translated.name || '',
         description: (translated.description || '').replace(/\\n/g, '\n')
       };
+      
+      console.log(`[AI Translate] Translation for ${lang}:`, results[lang]);
     } catch (err: any) {
-      console.error(`Translation error for ${lang}:`, err);
+      console.error(`[AI Translate] Translation error for ${lang}:`, err);
       return c.json({ success: false, error: err.message }, 500);
     }
   }
