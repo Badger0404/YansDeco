@@ -172,11 +172,15 @@ const AddProduct: React.FC = () => {
         setImagePreview(data.data.url);
       } else {
         console.error('[Upload] Error from server:', data.error);
-        setError(`Ошибка загрузки: ${data.error || 'Неизвестная ошибка'}`);
+        const errorMsg = `Ошибка загрузки: ${data.error || 'Неизвестная ошибка'}`;
+        setError(errorMsg);
+        window.alert(errorMsg);
       }
     } catch (err) {
+      const errorMsg = `Ошибка загрузки изображения: ${err instanceof Error ? err.message : 'Network error'}`;
       console.error('[Upload] Network error:', err);
-      setError(`Ошибка загрузки изображения: ${err instanceof Error ? err.message : 'Network error'}`);
+      setError(errorMsg);
+      window.alert(errorMsg);
     } finally {
       setIsUploading(false);
     }
@@ -225,11 +229,15 @@ const AddProduct: React.FC = () => {
         setTimeout(() => setSuccess(''), 3000);
       } else {
         console.error('[Translate] Server error:', data.error);
-        setError(`Ошибка перевода: ${data.error || 'Неизвестная ошибка'}`);
+        const errorMsg = `Ошибка перевода: ${data.error || 'Неизвестная ошибка'}`;
+        setError(errorMsg);
+        window.alert(errorMsg);
       }
     } catch (err) {
+      const errorMsg = `Ошибка перевода: ${err instanceof Error ? err.message : 'Network error'}`;
       console.error('[Translate] Network error:', err);
-      setError(`Ошибка перевода: ${err instanceof Error ? err.message : 'Network error'}`);
+      setError(errorMsg);
+      window.alert(errorMsg);
     } finally {
       setTranslatingField(null);
     }

@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy:all": "npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=production && cd worker && npx wrangler deploy",
+    "deploy:worker": "cd worker && npx wrangler deploy",
+    "deploy:pages": "npx wrangler pages deploy dist --project-name=yans-deco --branch=production"
   },
   "type": "module",
   "keywords": [],

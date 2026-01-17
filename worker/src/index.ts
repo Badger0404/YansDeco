@@ -9,14 +9,11 @@ interface Env {
 
 const app = new Hono<{ Bindings: Env }>();
 
-// CORS - More permissive for production
-app.use('/*', cors({
-  origin: ['http://localhost:5173', 'https://yans-deco.pages.dev', 'https://preview.yans-deco.pages.dev', 'https://*.workers.dev'],
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin'],
-  exposeHeaders: ['Content-Length', 'Content-Type'],
-  credentials: true,
-  maxAge: 86400,
+// CORS - Simple configuration for production
+app.use('*', cors({
+  origin: 'https://yans-deco.pages.dev',
+  allowMethods: ['POST', 'GET', 'OPTIONS'],
+  allowHeaders: ['Content-Type'],
 }));
 
 // Helper function to generate slug
