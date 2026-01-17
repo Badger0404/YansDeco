@@ -2,6 +2,16 @@
 
 История изменений:
 ==================
+17.01.2026 - Fix critical issues: CORS, AI translation logging, error handling
+            - worker/src/index.ts: улучшен CORS для production и workers.dev
+              Добавлен OPTIONS handler для preflight запросов
+              Добавлено подробное логирование [AI Translate] для диагностики
+              Добавлено подробное логирование [Upload] для диагностики
+            - Categories.tsx: добавлен console.error для отладки ошибок перевода
+              Подробные сообщения об ошибках в UI с информацией о сервере
+            - AddProduct.tsx: добавлен console.error для отладки ошибок перевода
+              Подробные сообщения об ошибках в UI с информацией о сервере
+
 17.01.2026 - Fix upload errors: better CORS, debug logging
             - worker/src/index.ts: удалена строгая проверка Content-Type
               Добавлено подробное логирование для отладки загрузки
@@ -21,28 +31,9 @@
               Добавлено поле category_id в таблицу products
               category_id связывает товар с категорией
 
-17.01.2026 - Add file chooser button with camera/gallery support
-            - AddProduct.tsx: добавлена видимая кнопка "Выбрать файл" с иконкой камеры
-              Использует <input type="file" accept="image/*" capture="environment" />
-              На мобильных при нажатии предлагает выбор: камера или галерея
-              Фото автоматически загружается в R2 хранилище
-
-17.01.2026 - Fix mobile burger menu in admin header
-            - AdminHeader.tsx: исправлена инициализация isMobile
-              Добавлена иконка Home для пункта dashboard
-              Скрыт текст "Back to Site" на мобильных для освобождения места
-
-17.01.2026 - Mobile admin: burger menu, camera/gallery upload, CORS fixes
-            - AdminHeader.tsx: добавлено адаптивное burger-меню для мобильных (<768px)
-              Кнопка-гамбургер в шапке, меню открывается как overlay с крупными элементами
-            - Categories.tsx: добавлена кнопка "Загрузить фото" с иконкой камеры
-              Использует <input type="file" accept="image/*" capture="environment" />
-              На мобильных предлагает выбор: камера или галерея
-            - worker/src/index.ts: обновлён CORS для preview-деплоев (*.pages.dev)
-
 Короткое описание проекта:
 YansDeco - веб-приложение для интернет-магазина декора и товаров для дома.
 
-Технологии: React, TypeScript, Vite, i18n (многоязычность: EN, FR, RU)
+Технологии: React, TypeScript, Vite, i18n, Cloudflare Workers, D1, R2, Workers AI
 
 Ссылка на репозиторий: https://github.com/Badger0404/YansDeco
