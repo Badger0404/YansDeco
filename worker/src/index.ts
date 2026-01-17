@@ -20,6 +20,36 @@ app.use('*', cors({
 app.get('/api', (c) => c.text('API_ALIVE'));
 app.get('/', (c) => c.text('API_ALIVE'));
 
+// Serve images from R2
+app.get('/images/*', async (c) => {
+  const path = c.req.path.replace('/images/', '');
+  console.log('[Images] Requested path:', path);
+  
+  if (!path) {
+    return c.json({ success: false, error: 'Path required' }, { status: 400 });
+  }
+  
+  try {
+    const object = await c.env.ASSETS.get(path);
+    console.log('[Images] Found object:', object ? 'yes' : 'no');
+    
+    if (!object) {
+      return c.json({ success: false, error: 'Image not found', path }, { status: 404 });
+    }
+    
+    const headers = new Headers();
+    object.writeHttpMetadata(headers);
+    headers.set('Cache-Control', 'public, max-age=31536000');
+    
+    return new Response(object.body, {
+      headers,
+    });
+  } catch (error: any) {
+    console.error('[Images] Error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
 // Helper function to generate slug
 function generateSlug(text: string): string {
   if (!text) return '';
@@ -281,7 +311,7 @@ app.post('/api/upload', async (c) => {
       httpMetadata: { contentType: file.type || 'application/octet-stream' },
     });
 
-    const publicUrl = `https://yans-deco-assets.yansdeco.workers.dev/${path}`;
+    const publicUrl = `https://yasndeco-api.andrey-gaffer.workers.dev/images/${path}`;
 
     return c.json({ 
       success: true, 
