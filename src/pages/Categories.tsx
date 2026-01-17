@@ -88,7 +88,7 @@ const Categories: React.FC = () => {
     desc_en: ''
   });
 
-  const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev';
+  const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
   useEffect(() => {
     fetchCategories();

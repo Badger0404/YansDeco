@@ -9,14 +9,15 @@ interface Env {
 
 const app = new Hono<{ Bindings: Env }>();
 
-// CORS - Allow production domains
+// CORS - Allow all origins for testing
 app.use('*', cors({
-  origin: ['https://yans-deco.pages.dev', 'https://*.yans-deco.pages.dev'],
+  origin: '*',
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Health check - API_ALIVE
+app.get('/api', (c) => c.text('API_ALIVE'));
 app.get('/', (c) => c.text('API_ALIVE'));
 
 // Helper function to generate slug
@@ -40,14 +41,14 @@ function generateSlug(text: string): string {
 
 // ==================== BRANDS API ====================
 
-app.get('/brands', async (c) => {
+app.get('/api/brands', async (c) => {
   const { results } = await c.env.DB.prepare(
     `SELECT id, name, logo_url FROM brands ORDER BY name`
   ).all();
   return c.json({ success: true, data: results });
 });
 
-app.post('/brands', async (c) => {
+app.post('/api/brands', async (c) => {
   const body = await c.req.json();
   const { name, logo_url } = body;
 
@@ -68,7 +69,7 @@ app.post('/brands', async (c) => {
 
 // ==================== PRODUCTS API ====================
 
-app.get('/products', async (c) => {
+app.get('/api/products', async (c) => {
   const { results } = await c.env.DB.prepare(`
     SELECT 
       p.id, p.sku, p.price, p.stock, p.is_popular, p.announcement_date, p.image_url, p.created_at,
@@ -86,7 +87,7 @@ app.get('/products', async (c) => {
   return c.json({ success: true, data: results });
 });
 
-app.get('/products/:id', async (c) => {
+app.get('/api/products/:id', async (c) => {
   const id = c.req.param('id');
   const { results } = await c.env.DB.prepare(`
     SELECT 
@@ -103,7 +104,7 @@ app.get('/products/:id', async (c) => {
   return c.json({ success: true, data: results[0] });
 });
 
-app.post('/products', async (c) => {
+app.post('/api/products', async (c) => {
   const body = await c.req.json();
   const {
     sku, price, stock, brand_id, category_id, is_popular, announcement_date, image_url,
@@ -144,7 +145,7 @@ app.post('/products', async (c) => {
   }
 });
 
-app.put('/products/:id', async (c) => {
+app.put('/api/products/:id', async (c) => {
   const id = c.req.param('id');
   const body = await c.req.json();
   const {
@@ -185,7 +186,7 @@ app.put('/products/:id', async (c) => {
   }
 });
 
-app.delete('/products/:id', async (c) => {
+app.delete('/api/products/:id', async (c) => {
   const id = c.req.param('id');
   const { success } = await c.env.DB.prepare(`DELETE FROM products WHERE id = ?`).bind(id).run();
   return c.json({ success });
@@ -193,11 +194,11 @@ app.delete('/products/:id', async (c) => {
 
 // ==================== AI TRANSLATION ====================
 
-app.options('/translate', async (c) => {
+app.options('/api/translate', async (c) => {
   return c.json({ success: true });
 });
 
-app.post('/translate', async (c) => {
+app.post('/api/translate', async (c) => {
   const body = await c.req.json();
   const { text, targetLangs } = body;
 
@@ -262,7 +263,7 @@ app.post('/translate', async (c) => {
 
 // ==================== IMAGE UPLOAD (R2) ====================
 
-app.post('/upload', async (c) => {
+app.post('/api/upload', async (c) => {
   try {
     const formData = await c.req.formData();
     const file = formData.get('file') as File;
@@ -293,7 +294,7 @@ app.post('/upload', async (c) => {
 
 // ==================== CATEGORIES API ====================
 
-app.get('/categories', async (c) => {
+app.get('/api/categories', async (c) => {
   const { results } = await c.env.DB.prepare(`
     SELECT 
       c.id, c.slug, c.icon, c.image_url, c.parent_id, c.sort_order, c.created_at,
@@ -309,7 +310,7 @@ app.get('/categories', async (c) => {
   return c.json({ success: true, data: results });
 });
 
-app.post('/categories', async (c) => {
+app.post('/api/categories', async (c) => {
   const body = await c.req.json();
   const { slug, icon, image_url, parent_id, sort_order, name_ru, desc_ru, name_fr, desc_fr, name_en, desc_en } = body;
 
@@ -347,7 +348,7 @@ app.post('/categories', async (c) => {
   }
 });
 
-app.put('/categories/:id', async (c) => {
+app.put('/api/categories/:id', async (c) => {
   const id = c.req.param('id');
   const body = await c.req.json();
   const { slug, icon, image_url, parent_id, sort_order, name_ru, desc_ru, name_fr, desc_fr, name_en, desc_en } = body;
@@ -383,14 +384,14 @@ app.put('/categories/:id', async (c) => {
   }
 });
 
-app.delete('/categories/:id', async (c) => {
+app.delete('/api/categories/:id', async (c) => {
   const id = c.req.param('id');
   const { success } = await c.env.DB.prepare(`DELETE FROM categories WHERE id = ?`).bind(id).run();
   return c.json({ success });
 });
 
 // ==================== MIGRATION ====================
-app.post('/migrate', async (c) => {
+app.post('/api/migrate', async (c) => {
   const schema = `
 -- Products table
 CREATE TABLE IF NOT EXISTS products (

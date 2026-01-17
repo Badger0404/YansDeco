@@ -81,7 +81,7 @@ const AddProduct: React.FC = () => {
   const [newBrandName, setNewBrandName] = useState('');
   const [newBrandLogo, setNewBrandLogo] = useState<string | null>(null);
 
-  const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev';
+  const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
   const [focusedField, setFocusedField] = useState<{ lang: string; field: 'name' | 'description' } | null>(null);
   const [translatingField, setTranslatingField] = useState<{ lang: string; field: 'name' | 'description' } | null>(null);
