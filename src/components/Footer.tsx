@@ -70,23 +70,23 @@ const Footer: React.FC<FooterProps> = ({ theme }) => {
   ];
 
   return (
-    <footer className="relative z-10 border-t pt-16 pb-8 bg-transparent group">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+    <footer className="relative z-10 border-t pt-8 pb-6 sm:pt-16 sm:pb-8 bg-transparent group">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
           <div>
             <Link
               to="/"
-              className="text-2xl font-bold tracking-wider mb-4 hover:opacity-80 transition-opacity inline-block"
+              className="text-xl sm:text-2xl font-bold tracking-wider mb-3 sm:mb-4 hover:opacity-80 transition-opacity inline-block"
             >
               <span className="text-[#FF6B00]">YAN'S</span>
               <span className={isLight ? 'text-zinc-900' : 'text-white'}>DECO</span>
             </Link>
-            <p className={`mb-4 font-light text-sm leading-relaxed ${
+            <p className={`mb-3 sm:mb-4 font-light text-xs sm:text-sm leading-relaxed ${
               isLight ? 'text-zinc-700' : 'text-white'
             }`}>
               {t('footer.tagline')}
             </p>
-            <div className="space-y-2 text-sm">
+            <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
               <p className={isLight ? 'text-zinc-700' : 'text-white'}>
                 {getConfigValue('phone1') || '+33 1 23 45 67 89'}
               </p>
@@ -94,38 +94,38 @@ const Footer: React.FC<FooterProps> = ({ theme }) => {
                 {getConfigValue('email') || 'contact@yansdeco.fr'}
               </p>
             </div>
-            <div className="flex gap-3 mt-4">
+            <div className="flex gap-2 sm:gap-3 mt-3 sm:mt-4">
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`p-2 rounded-full transition-all duration-300 ${
+                  className={`p-1.5 sm:p-2 rounded-full transition-all duration-300 ${
                     isLight 
                       ? 'bg-gray-100 text-gray-600 hover:bg-[#FF6B00] hover:text-black' 
                       : 'bg-white/10 text-gray-400 hover:bg-[#FF6B00] hover:text-black'
                   }`}
                   aria-label={social.label}
                 >
-                  <social.icon className="w-4 h-4" />
+                  <social.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </a>
               ))}
             </div>
           </div>
 
           <div>
-            <h4 className={`font-bold uppercase tracking-wider text-xs mb-4 ${
+            <h4 className={`font-bold uppercase tracking-wider text-[10px] sm:text-xs mb-3 sm:mb-4 ${
               isLight ? 'text-zinc-900' : 'text-white'
             }`}>
               {t('footer.quickLinks')}
             </h4>
-            <ul className="space-y-2">
+            <ul className="space-y-1.5 sm:space-y-2">
               {footerLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     to={link.path}
-                    className={`text-sm transition-colors ${
+                    className={`text-xs sm:text-sm transition-colors ${
                       isLight 
                         ? 'text-zinc-700 hover:text-[#FF6B00]' 
                         : 'text-white hover:text-[#FF6B00]'
@@ -138,25 +138,26 @@ const Footer: React.FC<FooterProps> = ({ theme }) => {
             </ul>
           </div>
 
-          <div>
-            <h4 className={`font-bold uppercase tracking-wider text-xs mb-4 ${
+          <div className="sm:col-span-2 lg:col-span-1">
+            <h4 className={`font-bold uppercase tracking-wider text-[10px] sm:text-xs mb-2 sm:mb-4 ${
               isLight ? 'text-zinc-900' : 'text-white'
             }`}>
               Yan's Deco
             </h4>
-            <p className={isLight ? 'text-zinc-700' : 'text-white'}>{t('footer.copyright')}</p>
-            <p className="text-[#FF6B00] font-semibold text-sm mt-2">
+            <p className={`text-xs sm:text-sm ${isLight ? 'text-zinc-700' : 'text-white'}`}>
+              {t('footer.copyright')}
+            </p>
+            <p className="text-[#FF6B00] font-semibold text-xs sm:text-sm mt-1.5 sm:mt-2">
               {t('footer.location')}
             </p>
             
-            {/* Hidden Admin Button - Shows ONLY on hover over the button itself, ONLY on Contact page */}
             {isContactPage && (
-              <div className="relative inline-block mt-3">
+              <div className="relative inline-block mt-3 sm:mt-4">
                 <Link
                   to="/admin"
-                  className="inline-flex items-center gap-2 text-[10px] uppercase tracking-wider text-gray-500 hover:text-[#FF6B00] opacity-0 hover:opacity-100 transition-all duration-300"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] uppercase tracking-wider text-gray-500 hover:text-[#FF6B00] opacity-0 hover:opacity-100 transition-all duration-300"
                 >
-                  <Shield className="w-3 h-3" />
+                  <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
                   {t('admin.title').split(' ').slice(1).join(' ') || 'Admin'}
                 </Link>
               </div>
@@ -164,7 +165,7 @@ const Footer: React.FC<FooterProps> = ({ theme }) => {
           </div>
         </div>
 
-        <div className={`mt-12 pt-8 text-center text-xs border-t ${
+        <div className={`mt-8 pt-6 sm:mt-12 sm:pt-8 text-center text-[10px] sm:text-xs border-t ${
           isLight ? 'text-zinc-600 border-zinc-300' : 'text-gray-400 border-gray-700'
         }`}>
           <p>{t('footer.rights')}</p>

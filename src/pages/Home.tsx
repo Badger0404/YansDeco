@@ -102,12 +102,12 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
   }, [popularProducts.length]);
 
   return (
-    <div className="h-screen overflow-hidden">
-      <main className="h-full flex items-center">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
+    <div className="min-h-screen">
+      <main className="pt-20 sm:pt-24 pb-8 sm:pb-12">
+        <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
             <div>
-              <div className="min-h-[200px]">
+              <div className="min-h-[120px] sm:min-h-[180px]">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={`${currentSlide}-${i18n.language}`}
@@ -117,29 +117,29 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
                     exit="exit"
                     transition={{ duration: 0.8, ease: 'easeInOut' }}
                   >
-                    <span className={`text-xs font-bold uppercase tracking-widest ${accentClass} block mb-3`}>
+                    <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-widest ${accentClass} block mb-2 sm:mb-3`}>
                       {currentSlideData.label}
                     </span>
-                    <h1 className={`font-black italic text-5xl lg:text-6xl uppercase leading-none tracking-tight ${textClass}`}>
+                    <h1 className={`font-black italic text-3xl sm:text-4xl md:text-5xl lg:text-6xl uppercase leading-none tracking-tight ${textClass}`}>
                       {currentSlideData.title}
                     </h1>
-                    <p className={`mt-4 text-sm leading-relaxed max-w-lg ${mutedClass}`}>
+                    <p className={`mt-2 sm:mt-4 text-xs sm:text-sm leading-relaxed max-w-lg ${mutedClass}`}>
                       {currentSlideData.description}
                     </p>
                   </motion.div>
                 </AnimatePresence>
               </div>
 
-              <div className="flex flex-wrap gap-4 mt-8">
+              <div className="flex flex-wrap gap-2 sm:gap-4 mt-6 sm:mt-8">
                 <button 
                   onClick={() => navigate('/calculateurs')}
-                  className="bg-[#FF6B00] text-black px-8 py-4 text-sm font-bold uppercase tracking-wider rounded-xl hover:bg-[#FF8533] transition-all duration-200"
+                  className="bg-[#FF6B00] text-black px-6 sm:px-8 py-2.5 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-lg sm:rounded-xl hover:bg-[#FF8533] transition-all duration-200"
                 >
                   {t('home.cta.calculate')}
                 </button>
                 <button 
                   onClick={() => navigate('/contact')}
-                  className={`border-2 px-8 py-4 text-sm font-bold uppercase tracking-wider rounded-xl transition-all duration-200 ${
+                  className={`border-2 px-6 sm:px-8 py-2.5 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-lg sm:rounded-xl transition-all duration-200 ${
                     isLight 
                       ? 'border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white' 
                       : 'border-white/30 text-white hover:bg-white hover:text-black'
@@ -149,12 +149,12 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
                 </button>
               </div>
 
-              <div className="flex gap-2 mt-6">
+              <div className="flex gap-1.5 sm:gap-2 mt-4 sm:mt-6">
                 {Array.from({ length: slidesCount }).map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentSlide(index)}
-                    className={`w-3 h-3 rounded-full transition-all duration-500 ${
+                    className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-500 ${
                       index === currentSlide 
                         ? 'bg-[#FF6B00]' 
                         : 'bg-white/30 hover:bg-white/50'
@@ -165,16 +165,16 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
               </div>
             </div>
 
-            <div className="flex flex-col justify-center">
-              <div className="text-center mb-6">
-                <span className={`text-sm font-medium uppercase tracking-widest ${accentClass}`}>
+            <div className="flex flex-col justify-center mt-4 lg:mt-0">
+              <div className="text-center mb-4 sm:mb-6">
+                <span className={`text-[10px] sm:text-sm font-medium uppercase tracking-widest ${accentClass}`}>
                   {t('home.popular')}
                 </span>
               </div>
               
               {loadingPopular ? (
-                <div className={`p-8 rounded-2xl backdrop-blur-sm flex items-center justify-center ${isLight ? 'bg-white/20' : 'bg-black/20'}`}>
-                  <RefreshCw className={`w-8 h-8 text-[#FF6B00] animate-spin`} />
+                <div className={`p-6 sm:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm flex items-center justify-center ${isLight ? 'bg-white/20' : 'bg-black/20'}`}>
+                  <RefreshCw className={`w-6 h-6 sm:w-8 sm:h-8 text-[#FF6B00] animate-spin`} />
                 </div>
               ) : popularProducts.length > 0 ? (
                 <div className="relative">
@@ -185,10 +185,10 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.4 }}
-                      className={`p-6 rounded-2xl cursor-pointer ${isLight ? 'bg-white/40' : 'bg-black/40'} hover:bg-[#FF6B00]/20 transition-all duration-300`}
+                      className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl cursor-pointer ${isLight ? 'bg-white/40' : 'bg-black/40'} hover:bg-[#FF6B00]/20 transition-all duration-300`}
                       onClick={() => navigate(`/product/${popularProducts[popularSlide].id}`)}
                     >
-                      <div className="aspect-square flex items-center justify-center mb-4">
+                      <div className="aspect-square flex items-center justify-center mb-3 sm:mb-4">
                         {popularProducts[popularSlide].image_url ? (
                           <img
                             src={popularProducts[popularSlide].image_url}
@@ -196,16 +196,16 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
                             className="max-w-full max-h-full object-contain"
                           />
                         ) : (
-                          <Package className={`w-20 h-20 ${mutedClass}`} />
+                          <Package className={`w-16 h-16 sm:w-20 sm:h-20 ${mutedClass}`} />
                         )}
                       </div>
-                      <h4 className={`font-black italic text-xl uppercase tracking-tight mb-2 ${textClass}`}>
+                      <h4 className={`font-black italic text-base sm:text-xl uppercase tracking-tight mb-1.5 sm:mb-2 ${textClass}`}>
                         {getProductName(popularProducts[popularSlide])}
                       </h4>
-                      <p className={`text-sm ${mutedClass} line-clamp-2 mb-3`}>
+                      <p className={`text-[10px] sm:text-sm ${mutedClass} line-clamp-2 mb-2 sm:mb-3`}>
                         {popularProducts[popularSlide].brand_name && `Marque: ${popularProducts[popularSlide].brand_name}`}
                       </p>
-                      <p className={`text-2xl font-bold ${accentClass}`}>
+                      <p className={`text-lg sm:text-2xl font-bold ${accentClass}`}>
                         {popularProducts[popularSlide].price.toFixed(2)} €
                       </p>
                     </motion.div>
@@ -215,25 +215,25 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
                     <>
                       <button
                         onClick={() => setPopularSlide((prev) => (prev - 1 + popularProducts.length) % popularProducts.length)}
-                        className={`absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full transition-colors ${isLight ? 'bg-white/80 text-black' : 'bg-black/50 text-white'} hover:bg-[#FF6B00] hover:text-black`}
+                        className={`absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 rounded-full transition-colors ${isLight ? 'bg-white/80 text-black' : 'bg-black/50 text-white'} hover:bg-[#FF6B00] hover:text-black z-10`}
                         aria-label="Produit précédent"
                       >
-                        <ChevronRight className="w-5 h-5 rotate-180" />
+                        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 rotate-180" />
                       </button>
                       <button
                         onClick={() => setPopularSlide((prev) => (prev + 1) % popularProducts.length)}
-                        className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full transition-colors ${isLight ? 'bg-white/80 text-black' : 'bg-black/50 text-white'} hover:bg-[#FF6B00] hover:text-black`}
+                        className={`absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 rounded-full transition-colors ${isLight ? 'bg-white/80 text-black' : 'bg-black/50 text-white'} hover:bg-[#FF6B00] hover:text-black z-10`}
                         aria-label="Produit suivant"
                       >
-                        <ChevronRight className="w-5 h-5" />
+                        <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                       </button>
                       
-                      <div className="flex justify-center gap-2 mt-4">
+                      <div className="flex justify-center gap-1.5 sm:gap-2 mt-3 sm:mt-4">
                         {popularProducts.map((_, index) => (
                           <button
                             key={index}
                             onClick={() => setPopularSlide(index)}
-                            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                            className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
                               index === popularSlide 
                                 ? 'bg-[#FF6B00]' 
                                 : 'bg-white/30 hover:bg-white/50'
@@ -246,16 +246,16 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
                   )}
                 </div>
               ) : (
-                <div className={`p-8 rounded-2xl backdrop-blur-sm ${isLight ? 'bg-white/20' : 'bg-black/20'}`}>
-                  <p className={`text-center text-lg italic ${textClass}`}>
+                <div className={`p-6 sm:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm ${isLight ? 'bg-white/20' : 'bg-black/20'}`}>
+                  <p className={`text-center text-base sm:text-lg italic ${textClass}`}>
                     {t('home.comingSoon')}
                   </p>
                   <button
                     onClick={() => navigate('/catalogue')}
-                    className={`mt-4 mx-auto flex items-center gap-2 text-sm font-bold uppercase tracking-wide ${accentClass} hover:underline`}
+                    className={`mt-3 sm:mt-4 mx-auto flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold uppercase tracking-wide ${accentClass} hover:underline`}
                   >
                     {t('catalogue.products')}
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </button>
                 </div>
               )}
