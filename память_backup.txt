@@ -26,7 +26,7 @@ Yan's Deco - строительный магазин декоративных м
 
 YansDeco/
 ├── src/
-│   ├── pages/                      # Страницы приложения (32 файла)
+│   ├── pages/                      # Страницы приложения (34 файла)
 │   │   ├── Home.tsx                # Главная страница с популярными товарами
 │   │   ├── Catalogue.tsx           # Каталог (категории + подкатегории)
 │   │   ├── Marques.tsx             # Бренды (публичная)
@@ -35,6 +35,8 @@ YansDeco/
 │   │   ├── Calculateurs.tsx        # Калькуляторы
 │   │   ├── Contact.tsx             # Контакты
 │   │   ├── ProductPage.tsx         # Страница товара (покупка + корзина)
+│   │   ├── Profile.tsx             # Профиль клиента (НОВОЕ - 2026-01-18)
+│   │   ├── Checkout.tsx            # Оформление заказа (НОВОЕ - 2026-01-18)
 │   │   ├── AddProduct.tsx          # Добавление товара (admin)
 │   │   ├── EditProduct.tsx         # Редактирование товара (admin)
 │   │   ├── AdminDashboard.tsx      # Дашборд админки
@@ -45,13 +47,15 @@ YansDeco/
 │   │   ├── CategoryDetail.tsx      # Категория детально (admin)
 │   │   ├── CategoryEdit.tsx        # Редактирование категории (admin)
 │   │   ├── AddCategory.tsx         # Добавление категории (admin)
-│   │   ├── AdminClients.tsx        # Клиенты (admin) - НОВОЕ
-│   │   ├── AdminClientDetail.tsx   # История клиента (admin) - НОВОЕ
+│   │   ├── AdminClients.tsx        # Клиенты (admin)
+│   │   ├── AdminClientDetail.tsx   # История клиента (admin)
 │   │   ├── AdminTranslations.tsx   # Переводы (admin)
 │   │   ├── AdminCalculators.tsx    # Калькуляторы (admin)
 │   │   ├── AdminSettings.tsx       # Настройки (admin)
 │   │   ├── AdminServices.tsx       # Услуги (admin)
-│   │   └── AdminContent.tsx        # Контент (admin)
+│   │   ├── AdminContent.tsx        # Контент (admin)
+│   │   ├── ProductDetail.tsx       # Детали подкатегории
+│   │   └── ProductDetailAdmin.tsx  # Товар детально (admin)
 │   │
 │   ├── components/                 # Компоненты
 │   │   ├── Header.tsx              # Шапка с корзиной и авторизацией
@@ -60,13 +64,13 @@ YansDeco/
 │   │   ├── Hero.tsx                # Hero секция
 │   │   ├── ScrollToTop.tsx         # Скролл наверх
 │   │   ├── cart/                   # Компоненты корзины
-│   │   │   └── CartDrawer.tsx      # Выдвижная корзина - НОВОЕ
+│   │   │   └── CartDrawer.tsx      # Выдвижная корзина
 │   │   └── auth/                   # Компоненты авторизации
-│   │       └── AuthModal.tsx       # Модалка логин/регистрация - НОВОЕ
+│   │       └── AuthModal.tsx       # Модалка логин/регистрация
 │   │
 │   ├── context/                    # React Context
-│   │   ├── CartContext.tsx         # Контекст корзины - НОВОЕ
-│   │   └── AuthContext.tsx         # Контекст авторизации - НОВОЕ
+│   │   ├── CartContext.tsx         # Контекст корзины
+│   │   └── AuthContext.tsx         # Контекст авторизации
 │   │
 │   ├── services/
 │   │   └── api.ts                  # API URL константы
@@ -74,20 +78,18 @@ YansDeco/
 │   │   └── useLocalized.tsx
 │   ├── types/
 │   │   └── localization.ts
-│   ├── i18n.ts                     # Конфигурация i18n
+│   ├── i18n.ts                     # Конфигурация i18n (RU, FR, EN)
 │   └── App.tsx                     # Роутинг + провайдеры
 │
 ├── worker/
 │   └── src/
 │       └── index.ts                # Cloudflare Worker (API сервер)
 │
-├── schema/
-│   └── schema.sql                  # D1 Database schema
-│
-├── wrangler.toml                  # Cloudflare Workers конфигурация
+├── wrangler.toml                   # Cloudflare Workers конфигурация
 ├── package.json
 ├── tsconfig.json
-└── vite.config.ts
+├── vite.config.ts
+└── память_backup.txt               # Этот файл
 
 ================================================================================
 API ENDPOINTS (Cloudflare Worker)
@@ -131,6 +133,7 @@ DELETE /api/services/:id             # Удалить услугу
 HERO SLIDES (Слайды):
 ---------------------
 GET    /api/hero-slides              # Список слайдов
+GET    /api/admin/hero-slides        # Все слайды (admin)
 POST   /api/hero-slides              # Создать слайд
 PUT    /api/hero-slides/:id          # Обновить слайд
 DELETE /api/hero-slides/:id          # Удалить слайд
@@ -138,6 +141,7 @@ DELETE /api/hero-slides/:id          # Удалить слайд
 CALCULATOR MATERIALS:
 ---------------------
 GET    /api/calculator-materials     # Материалы калькулятора
+GET    /api/admin/calculator-materials  # Все материалы (admin)
 POST   /api/calculator-materials     # Создать материал
 PUT    /api/calculator-materials/:id
 DELETE /api/calculator-materials/:id
@@ -154,13 +158,15 @@ POST   /api/translate                # AI перевод текста
 UPLOAD (Загрузка изображений):
 ------------------------------
 POST   /api/upload                   # Загрузка изображения в R2
+Пример: curl -X POST -F "file=@image.png" -F "folder=products" https://.../api/upload
+Ответ: { success: true, data: { url: "...", path: "...", filename: "..." } }
 
 MIGRATION (Миграция БД):
 ------------------------
 POST   /api/migrate                  # Создать/обновить таблицы БД
 
 ================================================================================
-CLIENTS API (НОВОЕ - 2026-01-18)
+CLIENTS API (Клиенты)
 ================================================================================
 
 Регистрация:
@@ -168,6 +174,10 @@ CLIENTS API (НОВОЕ - 2026-01-18)
 POST   /api/clients/register
 Body: { "name": string, "phone": string, "email": string, "password": string }
 Response: { success: true, data: { client: {...}, token: string } }
+Пример:
+curl -X POST https://.../api/clients/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"John Doe","phone":"+33 6 12 34 56 78","email":"john@example.com","password":"secret123"}'
 
 Авторизация:
 ------------
@@ -190,45 +200,91 @@ PUT    /api/clients/me               # Обновить профиль
 Headers: Authorization: Bearer {token}
 Body: { "name": string, "phone": string }
 
+Адреса клиента:
+---------------
+GET    /api/clients/me/addresses     # Получить адреса
+Headers: Authorization: Bearer {token}
+
+POST   /api/clients/me/addresses     # Добавить адрес
+Headers: Authorization: Bearer {token}
+Body: { "type": "shipping"|"billing", "name": string, "address": string, 
+        "city": string, "postal_code": string, "country": string, 
+        "phone": string, "is_default": boolean }
+
+PUT    /api/clients/me/addresses/:id # Обновить адрес
+Headers: Authorization: Bearer {token}
+
+DELETE /api/clients/me/addresses/:id # Удалить адрес
+Headers: Authorization: Bearer {token}
+
+Смена пароля:
+-------------
+PUT    /api/clients/me/password      # Изменить пароль
+Headers: Authorization: Bearer {token}
+Body: { "currentPassword": string, "newPassword": string }
+
 Заказы клиента:
 ---------------
 GET    /api/clients/me/orders        # История заказов
 Headers: Authorization: Bearer {token}
 
-ADMIN Clients API:
-------------------
-GET    /api/admin/clients            # Список всех клиентов
-Response: { success: true, data: { clients: [{ id, name, email, phone, created_at, last_login, order_count, total_spent }] } }
+================================================================================
+ADMIN Clients API (Админка клиентов)
+================================================================================
 
-GET    /api/admin/clients/:id        # Детали клиента + заказы
+GET    /api/admin/clients            # Список всех клиентов
+Response: { success: true, data: { clients: [{ id, name, email, phone, 
+             created_at, last_login, order_count, total_spent }] } }
+
+GET    /api/admin/clients/:id        # Детали клиента + заказы + адреса
 Response: { success: true, data: { client: {...}, orders: [...], addresses: [...] } }
 
 ================================================================================
-CART API (НОВОЕ - 2026-01-18)
+CART API (Корзина)
 ================================================================================
 
 GET    /api/cart                     # Получить корзину
 Headers: X-Session-ID: {sessionId}
-Response: { success: true, data: { sessionId, items: [], totalItems: 0, totalPrice: 0 } }
+Response: { success: true, data: { sessionId, items: [...], totalItems: 0, totalPrice: 0 } }
 
 POST   /api/cart                     # Сохранить корзину
 Headers: X-Session-ID: {sessionId}
 Body: { "items": [...] }
-Session ID генерируется на клиенте и хранится в localStorage
+
+Session ID генерируется на клиенте (localStorage cart_session) и используется для 
+идентификации корзины. При каждом изменении корзины данные синхронизируются с D1.
 
 DELETE /api/cart                     # Очистить корзину
 Headers: X-Session-ID: {sessionId}
 
 ================================================================================
-ORDERS API (НОВОЕ - 2026-01-18)
+ORDERS API (Заказы)
 ================================================================================
 
 Создание заказа (требует авторизации):
 --------------------------------------
 POST   /api/orders
 Headers: Authorization: Bearer {token}
-Body: { "items": [...], "totalPrice": number, "shippingAddress": {...}, "notes": string }
-Response: { success: true, data: { order: {...} } }
+Body: { 
+  "items": [{ "id": number, "name": string, "sku": string, "price": number, 
+              "quantity": number, "image_url": string|null }],
+  "totalPrice": number,
+  "shippingAddress": {
+    "firstName": string,
+    "lastName": string,
+    "address": string,
+    "apartment": string,
+    "city": string,
+    "postalCode": string,
+    "country": string,
+    "phone": string,
+    "notes": string,
+    "fullName": string,
+    "method": "delivery"|"pickup"
+  },
+  "notes": string
+}
+Response: { success: true, data: { order: { id, items, total_price, status, created_at } } }
 
 ================================================================================
 БАЗА ДАННЫХ (Cloudflare D1)
@@ -242,9 +298,7 @@ Response: { success: true, data: { order: {...} } }
    - id (INTEGER PRIMARY KEY AUTOINCREMENT)
    - name (TEXT UNIQUE NOT NULL)
    - logo_url (TEXT)
-   - description_ru (TEXT)
-   - description_fr (TEXT)
-   - description_en (TEXT)
+   - description_ru, description_fr, description_en (TEXT)
    - created_at (TEXT DEFAULT datetime('now'))
 
 2. categories
@@ -254,12 +308,8 @@ Response: { success: true, data: { order: {...} } }
    - image_url (TEXT)
    - parent_id (INTEGER, FK -> categories.id)
    - sort_order (INTEGER DEFAULT 0)
-   - name_ru (TEXT)
-   - name_fr (TEXT)
-   - name_en (TEXT)
-   - desc_ru (TEXT)
-   - desc_fr (TEXT)
-   - desc_en (TEXT)
+   - name_ru, name_fr, name_en (TEXT)
+   - desc_ru, desc_fr, desc_en (TEXT)
    - created_at (TEXT DEFAULT datetime('now'))
 
 3. products
@@ -272,22 +322,15 @@ Response: { success: true, data: { order: {...} } }
    - is_popular (INTEGER DEFAULT 0)
    - announcement_date (TEXT)
    - image_url (TEXT)
-   - name_ru (TEXT)
-   - name_fr (TEXT)
-   - name_en (TEXT)
-   - desc_ru (TEXT)
-   - desc_fr (TEXT)
-   - desc_en (TEXT)
-   - created_at (TEXT DEFAULT datetime('now'))
-   - updated_at (TEXT DEFAULT datetime('now'))
+   - name_ru, name_fr, name_en (TEXT)
+   - desc_ru, desc_fr, desc_en (TEXT)
+   - created_at, updated_at (TEXT DEFAULT datetime('now'))
 
-4. services (NEW)
+4. services
    - id (INTEGER PRIMARY KEY AUTOINCREMENT)
    - key (TEXT UNIQUE NOT NULL)
-   - icon (TEXT)
-   - icon_emoji (TEXT)
-   - gradient_from (TEXT)
-   - gradient_to (TEXT)
+   - icon, icon_emoji (TEXT)
+   - gradient_from, gradient_to (TEXT)
    - tags_ru, tags_fr, tags_en (TEXT)
    - title_ru, title_fr, title_en (TEXT)
    - subtitle_ru, subtitle_fr, subtitle_en (TEXT)
@@ -322,7 +365,15 @@ Response: { success: true, data: { order: {...} } }
    - type (TEXT DEFAULT 'text')
    - created_at, updated_at (TEXT DEFAULT datetime('now'))
 
-8. clients (NEW)
+8. carts
+   - id (TEXT PRIMARY KEY) - session ID
+   - user_session (TEXT NOT NULL)
+   - items (TEXT NOT NULL DEFAULT '[]') - JSON массив
+   - total_items (INTEGER DEFAULT 0)
+   - total_price (DECIMAL(10,2) DEFAULT 0)
+   - created_at, updated_at (TEXT DEFAULT datetime('now'))
+
+9. clients
    - id (INTEGER PRIMARY KEY AUTOINCREMENT)
    - name (TEXT NOT NULL)
    - phone (TEXT)
@@ -334,23 +385,22 @@ Response: { success: true, data: { order: {...} } }
    - last_login (TEXT)
    - is_active (INTEGER DEFAULT 1)
 
-9. orders (NEW)
-   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
-   - client_id (INTEGER NOT NULL, FK -> clients.id)
-   - items (TEXT NOT NULL DEFAULT '[]') - JSON массив товаров
-   - total_price (DECIMAL(10,2) DEFAULT 0)
-   - status (TEXT DEFAULT 'pending')
-   - shipping_address (TEXT) - JSON объект
-   - notes (TEXT)
-   - created_at (TEXT DEFAULT datetime('now'))
-   - updated_at (TEXT DEFAULT datetime('now'))
-   - FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
-
-10. client_addresses (NEW)
+10. orders
     - id (INTEGER PRIMARY KEY AUTOINCREMENT)
-    - client_id (INTEGER NOT NULL, FK -> clients.id)
+    - client_id (INTEGER NOT NULL, FK -> clients.id ON DELETE CASCADE)
+    - items (TEXT NOT NULL DEFAULT '[]') - JSON массив товаров
+    - total_price (DECIMAL(10,2) DEFAULT 0)
+    - status (TEXT DEFAULT 'pending')
+    - shipping_address (TEXT) - JSON объект адреса
+    - notes (TEXT)
+    - created_at (TEXT DEFAULT datetime('now'))
+    - updated_at (TEXT DEFAULT datetime('now'))
+
+11. client_addresses
+    - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+    - client_id (INTEGER NOT NULL, FK -> clients.id ON DELETE CASCADE)
     - type (TEXT DEFAULT 'shipping')
-    - name (TEXT)
+    - name (TEXT) - метка адреса (например "Дом", "Работа")
     - address (TEXT)
     - city (TEXT)
     - postal_code (TEXT)
@@ -358,32 +408,27 @@ Response: { success: true, data: { order: {...} } }
     - phone (TEXT)
     - is_default (INTEGER DEFAULT 0)
     - created_at (TEXT DEFAULT datetime('now'))
-    - FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
-
-11. carts (NEW - для сессионной корзины)
-    - id (TEXT PRIMARY KEY) - session ID
-    - user_session (TEXT NOT NULL)
-    - items (TEXT NOT NULL DEFAULT '[]')
-    - total_items (INTEGER DEFAULT 0)
-    - total_price (DECIMAL(10,2) DEFAULT 0)
-    - created_at (TEXT DEFAULT datetime('now'))
-    - updated_at (TEXT DEFAULT datetime('now'))
 
 Индексы:
 - idx_products_sku ON products(sku)
 - idx_products_category ON products(category_id)
 - idx_products_brand ON products(brand_id)
 - idx_services_key ON services(key)
+- idx_services_sort ON services(sort_order)
 - idx_hero_slides_sort ON hero_slides(sort_order)
+- idx_calculator_materials_sort ON calculator_materials(sort_order)
+- idx_site_config_key ON site_config(key)
+- idx_carts_session ON carts(user_session)
 - idx_clients_email ON clients(email)
 - idx_orders_client ON orders(client_id)
-- idx_carts_session ON carts(user_session)
+- idx_client_addresses_client ON client_addresses(client_id)
 
 ================================================================================
 CLOUDFLARE R2 (ХРАНИЛИЩЕ ИЗОБРАЖЕНИЙ)
 ================================================================================
 
 Bucket: yans-deco-assets
+Binding: ASSETS
 
 Структура папок:
 - products/          # Изображения товаров
@@ -392,6 +437,10 @@ Bucket: yans-deco-assets
 
 Публичный URL изображений:
 https://yasndeco-api.andrey-gaffer.workers.dev/images/{path}
+
+Примеры:
+https://yasndeco-api.andrey-gaffer.workers.dev/images/products/123-image.jpg
+https://yasndeco-api.andrey-gaffer.workers.dev/images/brands/logo.png
 
 ================================================================================
 РОУТИНГ (Frontend)
@@ -409,6 +458,8 @@ https://yasndeco-api.andrey-gaffer.workers.dev/images/{path}
 - /services                   # Услуги
 - /calculateurs               # Калькуляторы
 - /contact                    # Контакты
+- /profile                    # Профиль клиента (НОВОЕ - 2026-01-18)
+- /checkout                   # Оформление заказа (НОВОЕ - 2026-01-18)
 
 Admin маршруты:
 - /admin                      # Dashboard
@@ -422,8 +473,8 @@ Admin маршруты:
 - /admin/add-category         # Добавить категорию
 - /admin/brands               # Бренды
 - /admin/brands/:id           # Страница бренда (admin)
-- /admin/clients              # Клиенты (NEW)
-- /admin/clients/:id          # История клиента (NEW)
+- /admin/clients              # Клиенты
+- /admin/clients/:id          # История клиента
 - /admin/translations         # Переводы
 - /admin/services             # Услуги
 - /admin/calculators          # Калькуляторы
@@ -434,56 +485,46 @@ Admin маршруты:
 НОВЫЕ ФУНКЦИИ (2026-01-18)
 ================================================================================
 
-1. КОРЗИНА (CartContext + CartDrawer)
-   - Контекст: src/context/CartContext.tsx
-   - Компонент: src/components/cart/CartDrawer.tsx
-   - Хранение: D1 таблица carts + localStorage для sessionId
-   - Функции:
-     * addItem(item) - добавить товар
-     * removeItem(id) - удалить товар
-     * updateQuantity(id, quantity) - изменить количество
-     * clearCart() - очистить корзину
-     * totalItems - общее количество
-     * totalPrice - общая сумма
-   - UI: Выдвижная панель справа с анимацией
-   - Сохранение в D1 при каждом изменении
+1. ПРОФИЛЬ КЛИЕНТА (Profile.tsx)
+   - Маршрут: /profile
+   - Три вкладки: Профиль / Адреса / Заказы
+   - Редактирование имени и телефона
+   - Управление адресами (добавить, удалить)
+   - Просмотр истории заказов
+   - Смена пароля
+   - Выход из аккаунта
+   - Стилистика: карточки с оранжевыми акцентами, как в админке
 
-2. АВТОРИЗАЦИЯ (AuthContext + AuthModal)
-   - Контекст: src/context/AuthContext.tsx
-   - Компонент: src/components/auth/AuthModal.tsx
-   - Регистрация: POST /api/clients/register
-   - Логин: POST /api/clients/login
-   - Google OAuth: POST /api/clients/google (требует настройки Google Cloud)
-   - Токен хранится в localStorage
-   - Профиль: GET/PUT /api/clients/me
-   - История заказов: GET /api/clients/me/orders
-   - Модалка с вкладками Логин/Регистрация
+2. ОФОРМЛЕНИЕ ЗАКАЗА (Checkout.tsx)
+   - Маршрут: /checkout
+   - Многошаговый интерфейс:
+     * Шаг 1: Контактные данные (адрес доставки)
+     * Шаг 2: Способ доставки (доставка / самовывоз)
+     * Шаг 3: Итог заказа и подтверждение
+   - Для авторизованных: выбор сохранённых адресов
+   - Сводка заказа с товарами справа (sticky)
+   - Создание заказа через POST /api/orders
+   - Экран успешного заказа с номером
 
-3. КЛИЕНТСКАЯ БАЗА (Admin)
-   - Страница списка: /admin/clients (AdminClients.tsx)
-   - Поиск по имени/email
-   - Карточка клиента: имя, email, телефон
-   - Статистика: количество заказов, сумма
-   - Даты: регистрация, последний вход
-   - Страница детали: /admin/clients/:id (AdminClientDetail.tsx)
-   - История всех заказов с составом
+3. УЛУЧШЕНИЯ ИНТЕРФЕЙСА (Header.tsx)
+   - При авторизации: показ имени клиента вместо "Connexion"
+   - Выпадающее меню при наведении: профиль + выход
+   - В мобильном меню: информация о клиенте + кнопки
+   - Стилистика оранжевого бейджа с первой буквой имени
 
-4. ЗАКАЗЫ (Orders)
-   - Создание: POST /api/orders (требует авторизации)
-   - Сохранение товаров, суммы, адреса, заметок
-   - Статус по умолчанию: 'completed'
-   - Отображаются в истории клиента
+4. КОРЗИНА (CartDrawer.tsx)
+   - Кнопка "Commander" ведёт на /checkout
+   - Анимация Framer Motion при открытии/закрытии
+   - Отображение товаров с изображениями
+   - Управление количеством +/-
+   - Итоговая сумма
 
-5. ПОПУЛЯРНЫЕ ТОВАРЫ (Home.tsx)
-   - Слайдер популярных товаров на главной
-   - GET /api/products + фильтр is_popular = 1
-   - Автопереключение каждые 5 секунд
-   - Ручная навигация стрелками и точками
-
-6. СЧЁТЧИКИ
-   - Бренды: количество товаров бренда (Marques.tsx)
-   - Категории: количество подкатегорий (Catalogue.tsx)
-   - Корзина: badge на иконке (Header.tsx)
+5. API АДРЕСОВ (worker/src/index.ts)
+   - GET /api/clients/me/addresses
+   - POST /api/clients/me/addresses
+   - PUT /api/clients/me/addresses/:id
+   - DELETE /api/clients/me/addresses/:id
+   - PUT /api/clients/me/password
 
 ================================================================================
 КОНФИГУРАЦИЯ CLOUDFLARE
@@ -491,41 +532,73 @@ Admin маршруты:
 
 Workers:
 - yasndeco-api (Cloudflare Workers)
-  - D1: yasndeco (DB)
-  - R2: yans-deco-assets (ASSETS)
-  - AI: AI binding
+  - D1: yasndeco (DB) - database_id: 9c32735c-132c-4111-a661-097a1a52055d
+  - R2: yans-deco-assets (ASSETS) - bucket_name: yans-deco-assets
+  - AI: AI binding - для AI переводов
 
 Pages:
 - yans-deco (Cloudflare Pages)
   - Production: https://yans-deco.pages.dev
   - Preview: https://preview.yans-deco.pages.dev
 
-Bindings:
-- DB: D1Database
-- ASSETS: R2Bucket
-- AI: Ai
+Account ID: a6f65be7d970b82c7844bea3eb1134b7
+
+wrangler.toml (worker/):
+-------------------------
+name = "yasndeco-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[vars]
+ENV = "production"
+
+account_id = "a6f65be7d970b82c7844bea3eb1134b7"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "yasndeco"
+database_id = "9c32735c-132c-4111-a661-097a1a52055d"
+
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "yans-deco-assets"
+
+[ai]
+binding = "AI"
 
 ================================================================================
 КОМАНДЫ DEPLOYMENT
 ================================================================================
 
 # Полный деплой
-npm run deploy:all
-
-# Деплой только frontend
-npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=production
-
-# Деплой frontend preview
 npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=preview
 
+# Деплой frontend preview
+cd YansDeco
+npm run build
+npx wrangler pages deploy dist --project-name=yans-deco --branch=preview
+
+# Деплой frontend production
+npm run build
+npx wrangler pages deploy dist --project-name=yans-deco --branch=production
+
 # Деплой только worker
-cd worker && npx wrangler deploy
+cd worker
+npx wrangler deploy --minify
 
 # Запуск миграции БД
 curl -X POST https://yasndeco-api.andrey-gaffer.workers.dev/api/migrate
 
 # Проверка API
 curl https://yasndeco-api.andrey-gaffer.workers.dev/api
+
+# Тестовый логин
+curl -X POST https://yasndeco-api.andrey-gaffer.workers.dev/api/clients/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"test123"}'
+
+# Проверка заказов
+curl -H "Authorization: Bearer <token>" https://yasndeco-api.andrey-gaffer.workers.dev/api/clients/me/orders
 
 ================================================================================
 ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
@@ -534,7 +607,7 @@ curl https://yasndeco-api.andrey-gaffer.workers.dev/api
 Frontend -> Backend API:
 https://yasndeco-api.andrey-gaffer.workers.dev/api
 
-Google OAuth (требует настройки):
+Google OAuth (требует настройки в Google Cloud Console):
 В файле src/components/auth/AuthModal.tsx:
 const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'
 
@@ -548,59 +621,123 @@ const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'
 4. Nullable поля всегда проверять перед использованием
 5. AI перевод работает через Cloudflare Workers AI binding
 6. Изображения загружаются в R2, публичный доступ через /images/ path
-7. Корзина сохраняется в D1 по sessionId (localStorage)
+7. Корзина сохраняется в D1 по sessionId (localStorage cart_session)
 8. Авторизация использует простой JWT токен (base64 payload)
-9. Пароли хешируются через SHA-256 + соль
+9. Пароли хешируются через SHA-256 + соль 'yans-deco-salt-2024'
 10. Google OAuth требует настройки в Google Cloud Console
+11. Worker нужно передеплоить после изменения API эндпоинтов
+12. Frontend и Worker деплоятся отдельно
+13. При проблемах: Cloudflare Dashboard -> Workers & Pages -> Logs
 
 ================================================================================
 ТЕКУЩЕЕ СОСТОЯНИЕ (на 2026-01-18)
 ================================================================================
 
-Работает ПОЛНОСТЬЮ:
-- Админка брендов (CRUD + загрузка лого + AI перевод)
-- Админка товаров (CRUD + категории + подкатегории)
-- Админка категорий (CRUD + вложенные подкатегории)
-- Админка клиентов (список + история заказов) - НОВОЕ
-- Публичные страницы брендов и товаров
-- Корзина с сохранением в D1 - НОВОЕ
-- Авторизация клиентов - НОВОЕ
-- Создание заказов - НОВОЕ
-- Популярные товары на главной - НОВОЕ
-- AI перевод в админке
-- Загрузка изображений в R2
-- Калькуляторы материалов
-- Услуги компании
-- Мультиязычность (RU, FR, EN)
+Проверено и работает ПОЛНОСТЬЮ:
+
+✓ База данных D1
+  - Все 11 таблиц созданы
+  - Связи между таблицами (FOREIGN KEY)
+  - Индексы для оптимизации запросов
+  - Миграция запущена успешно
+
+✓ API эндпоинты
+  - Товары, категории, бренды, услуги
+  - Клиенты (регистрация, логин, профиль)
+  - Адреса клиентов (CRUD)
+  - Заказы (создание, история)
+  - Корзина (сессионная)
+  - Загрузка изображений в R2
+  - AI перевод
+  - Конфигурация сайта
+
+✓ Frontend страницы
+  - Главная, каталог, бренды, услуги
+  - Калькуляторы, контакты
+  - Страница товара с добавлением в корзину
+  - Админка полностью функциональна
+  - Профиль клиента (NEW)
+  - Checkout с оформлением заказа (NEW)
+
+✓ Интерфейс
+  - Мультиязычность (RU, FR, EN)
+  - Тёмная/светлая тема
+  - Корзина с анимацией
+  - Авторизация (логин/регистрация)
+  - Отображение имени клиента в шапке
+  - Мобильное меню с учётом авторизации
+
+✓ Интеграции
+  - Cloudflare D1 - база данных
+  - Cloudflare R2 - хранение изображений
+  - Cloudflare Workers - API
+  - Cloudflare Pages - фронтенд
+  - Cloudflare Workers AI - переводы
+
+Требует настройки:
+- Google OAuth (нужен Google Cloud Console проект)
 
 ================================================================================
-РЕКОМЕНДАЦИИ ДЛЯ ПРОДОЛЖЕНИЯ
+ТЕСТОВЫЕ ДАННЫЕ
 ================================================================================
 
-1. Настроить Google OAuth в Google Cloud Console
-2. Добавить страницу профиля клиента (/account или /profile)
-3. Добавить оформление заказа (checkout)
-4. Добавить email уведомления о заказах
-5. Добавить восстановление пароля
-6. Мониторинг и аналитика заказов
+Тестовый клиент:
+- Email: test@example.com
+- Password: test123
+- Token: (получается через POST /api/clients/login)
 
-При проблемах проверять:
-- Cloudflare Dashboard -> Workers & Pages -> Deployments
-- Cloudflare Dashboard -> D1 -> Query для проверки данных
-- Cloudflare Dashboard -> R2 для изображений
-- Cloudflare Dashboard -> Logs для просмотра логов worker
+Тестовый заказ:
+- ID: 1, 2
+- Статус: completed
+- Сумма: 51 €
+
+Тестовый адрес:
+- ID: 1
+- Адрес: 123 Rue de la Paix, Paris, 75001
 
 ================================================================================
-КОНТАКТНАЯ ИНФОРМАЦИЯ
+ССЫЛКИ
 ================================================================================
 
-URL проекта: https://yans-deco.pages.dev
-Admin: https://yans-deco.pages.dev/admin
-Preview: https://preview.yans-deco.pages.dev
-API: https://yasndeco-api.andrey-gaffer.workers.dev
+Production (Main):
+- Сайт: https://yans-deco.pages.dev
+- Admin: https://yans-deco.pages.dev/admin
 
-Account ID: a6f65be7d970b82c7844bea3eb1134b7
-D1 Database ID: 9c32735c-132c-4111-a661-097a1a52055d
+Preview (Staging):
+- Сайт: https://preview.yans-deco.pages.dev
+- Admin: https://preview.yans-deco.pages.dev/admin
+
+API:
+- Worker: https://yasndeco-api.andrey-gaffer.workers.dev
+- API Base: https://yasndeco-api.andrey-gaffer.workers.dev/api
+
+Cloudflare Dashboard:
+- Account: a6f65be7d970b82c7844bea3eb1134b7
+- D1 DB: yasndeco (9c32735c-132c-4111-a661-097a1a52055d)
+- R2 Bucket: yans-deco-assets
+
+GitHub:
+- Repository: https://github.com/Badger0404/YansDeco
+- Branch: main
+
+================================================================================
+ПРОВЕРКА СОЕДИНЕНИЙ (Test Results - 2026-01-18)
+================================================================================
+
+✓ API Health: OK (API_ALIVE)
+✓ Categories: OK (6 categories returned)
+✓ Products: OK (empty array, but endpoint works)
+✓ Client Login: OK (token received)
+✓ Client Profile: OK (profile data returned)
+✓ Client Addresses: OK (addresses CRUD works)
+✓ Client Orders: OK (orders history works)
+✓ Create Order: OK (order created with ID)
+✓ Cart API: OK (session management works)
+✓ Image Upload: OK (uploaded to R2, URL returned)
+✓ Image Access: OK (HTTP 200, content served)
+✓ Worker Deploy: OK (Version ID: cd52b96c-ec6a-4774-a717-f3c4b1ea1e73)
+✓ Frontend Deploy: OK (22 files uploaded)
+✓ Git Push: OK (commit db58a84)
 
 ================================================================================
 END OF FILE
