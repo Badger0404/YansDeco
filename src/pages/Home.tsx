@@ -106,7 +106,7 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
       <main className="pt-24 pb-16">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <div>
+            <div className="flex flex-col justify-between h-full">
               <div className="h-[220px] flex flex-col justify-center">
                 <AnimatePresence mode="wait">
                   <motion.div
