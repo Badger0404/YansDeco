@@ -103,7 +103,7 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
 
   return (
     <div className="min-h-screen">
-      <main className="py-36">
+      <main className="min-h-[90vh] flex items-center py-36">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="flex flex-col justify-between h-full">
