@@ -1517,6 +1517,210 @@ app.get('/api/clients/me/orders', async (c) => {
   }
 });
 
+app.get('/api/clients/me/addresses', async (c) => {
+  const authHeader = c.req.header('Authorization');
+  const token = authHeader?.replace('Bearer ', '');
+  
+  if (!token) {
+    return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  try {
+    const clientId = verifyToken(token);
+    if (!clientId) {
+      return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
+    }
+    
+    const { results } = await c.env.DB.prepare(`
+      SELECT * FROM client_addresses WHERE client_id = ? ORDER BY is_default DESC, created_at DESC
+    `).bind(parseInt(clientId)).all();
+    
+    return c.json({ success: true, data: { addresses: results } });
+  } catch (error: any) {
+    console.error('[Client] Get addresses error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+app.post('/api/clients/me/addresses', async (c) => {
+  const authHeader = c.req.header('Authorization');
+  const token = authHeader?.replace('Bearer ', '');
+  
+  if (!token) {
+    return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  try {
+    const clientId = verifyToken(token);
+    if (!clientId) {
+      return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
+    }
+    
+    const body = await c.req.json();
+    const { type, name, address, city, postal_code, country, phone, is_default } = body;
+    
+    if (is_default) {
+      await c.env.DB.prepare(`
+        UPDATE client_addresses SET is_default = 0 WHERE client_id = ?
+      `).bind(parseInt(clientId)).run();
+    }
+    
+    const result = await c.env.DB.prepare(`
+      INSERT INTO client_addresses (client_id, type, name, address, city, postal_code, country, phone, is_default, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+    `).bind(parseInt(clientId), type || 'shipping', name, address, city, postal_code, country, phone || null, is_default ? 1 : 0).run();
+    
+    return c.json({ 
+      success: true, 
+      data: { 
+        address: {
+          id: result.meta?.last_row_id,
+          client_id: parseInt(clientId),
+          type: type || 'shipping',
+          name,
+          address,
+          city,
+          postal_code,
+          country,
+          phone,
+          is_default: is_default ? 1 : 0
+        }
+      } 
+    });
+  } catch (error: any) {
+    console.error('[Client] Add address error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+app.put('/api/clients/me/addresses/:id', async (c) => {
+  const authHeader = c.req.header('Authorization');
+  const token = authHeader?.replace('Bearer ', '');
+  const addressId = c.req.param('id');
+  
+  if (!token) {
+    return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  try {
+    const clientId = verifyToken(token);
+    if (!clientId) {
+      return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
+    }
+    
+    const body = await c.req.json();
+    const { type, name, address, city, postal_code, country, phone, is_default } = body;
+    
+    const existing = await c.env.DB.prepare(`
+      SELECT id FROM client_addresses WHERE id = ? AND client_id = ?
+    `).bind(parseInt(addressId), parseInt(clientId)).first();
+    
+    if (!existing) {
+      return c.json({ success: false, error: 'Address not found' }, { status: 404 });
+    }
+    
+    if (is_default) {
+      await c.env.DB.prepare(`
+        UPDATE client_addresses SET is_default = 0 WHERE client_id = ?
+      `).bind(parseInt(clientId)).run();
+    }
+    
+    await c.env.DB.prepare(`
+      UPDATE client_addresses 
+      SET type = ?, name = ?, address = ?, city = ?, postal_code = ?, country = ?, phone = ?, is_default = ?
+      WHERE id = ? AND client_id = ?
+    `).bind(
+      type || 'shipping',
+      name,
+      address,
+      city,
+      postal_code,
+      country,
+      phone || null,
+      is_default ? 1 : 0,
+      parseInt(addressId),
+      parseInt(clientId)
+    ).run();
+    
+    return c.json({ success: true, message: 'Address updated' });
+  } catch (error: any) {
+    console.error('[Client] Update address error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+app.delete('/api/clients/me/addresses/:id', async (c) => {
+  const authHeader = c.req.header('Authorization');
+  const token = authHeader?.replace('Bearer ', '');
+  const addressId = c.req.param('id');
+  
+  if (!token) {
+    return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  try {
+    const clientId = verifyToken(token);
+    if (!clientId) {
+      return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
+    }
+    
+    await c.env.DB.prepare(`
+      DELETE FROM client_addresses WHERE id = ? AND client_id = ?
+    `).bind(parseInt(addressId), parseInt(clientId)).run();
+    
+    return c.json({ success: true, message: 'Address deleted' });
+  } catch (error: any) {
+    console.error('[Client] Delete address error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+app.put('/api/clients/me/password', async (c) => {
+  const authHeader = c.req.header('Authorization');
+  const token = authHeader?.replace('Bearer ', '');
+  
+  if (!token) {
+    return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  try {
+    const clientId = verifyToken(token);
+    if (!clientId) {
+      return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
+    }
+    
+    const body = await c.req.json();
+    const { currentPassword, newPassword } = body;
+    
+    if (!currentPassword || !newPassword || newPassword.length < 6) {
+      return c.json({ success: false, error: 'Invalid password data' }, { status: 400 });
+    }
+    
+    const client = await c.env.DB.prepare(`
+      SELECT password_hash FROM clients WHERE id = ?
+    `).bind(parseInt(clientId)).first();
+    
+    if (!client) {
+      return c.json({ success: false, error: 'Client not found' }, { status: 404 });
+    }
+    
+    const isValid = await verifyPassword(currentPassword, client.password_hash);
+    if (!isValid) {
+      return c.json({ success: false, error: 'Current password is incorrect' }, { status: 400 });
+    }
+    
+    const newHash = await hashPassword(newPassword);
+    await c.env.DB.prepare(`
+      UPDATE clients SET password_hash = ? WHERE id = ?
+    `).bind(newHash, parseInt(clientId)).run();
+    
+    return c.json({ success: true, message: 'Password updated' });
+  } catch (error: any) {
+    console.error('[Client] Update password error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
 // ============ ADMIN CLIENTS API ============
 
 app.get('/api/admin/clients', async (c) => {

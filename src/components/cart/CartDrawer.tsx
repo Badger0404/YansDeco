@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { X, Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react';
 import { useCart, CartItem } from '../../context/CartContext';
 
@@ -10,6 +11,7 @@ interface CartDrawerProps {
 
 const CartDrawer: React.FC<CartDrawerProps> = ({ theme }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const isLight = theme === 'light';
   const { items, isCartOpen, setIsCartOpen, updateQuantity, removeItem, totalItems, totalPrice } = useCart();
 
@@ -145,6 +147,10 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ theme }) => {
                   </span>
                 </div>
                 <button
+                  onClick={() => {
+                    setIsCartOpen(false);
+                    navigate('/checkout');
+                  }}
                   className="w-full bg-[#FF6B00] text-black py-4 text-sm font-bold uppercase tracking-wider rounded-xl hover:bg-[#FF8533] transition-all duration-200 flex items-center justify-center gap-2"
                 >
                   <ShoppingCart className="w-5 h-5" />

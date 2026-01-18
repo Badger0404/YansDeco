@@ -165,18 +165,36 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
           </button>
 
           {isAuthenticated && client ? (
-            <div className="hidden sm:flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#FF6B00] flex items-center justify-center">
-                <span className="text-black text-xs font-bold">
-                  {client.name.charAt(0).toUpperCase()}
+            <div className="hidden sm:flex items-center gap-2 relative group">
+              <button className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide hover:text-[#FF6B00] transition-colors">
+                <div className="w-8 h-8 rounded-full bg-[#FF6B00] flex items-center justify-center">
+                  <span className="text-black text-xs font-bold">
+                    {client.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <span className={isLight ? 'text-black' : 'text-white'}>
+                  {client.name.split(' ')[0]}
                 </span>
-              </div>
-              <button
-                onClick={logout}
-                className="text-xs font-bold uppercase tracking-wide hover:text-[#FF6B00] transition-colors"
-              >
-                {t('auth.logout')}
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </button>
+              <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="p-2">
+                  <button
+                    onClick={() => navigate('/profile')}
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    {t('auth.profile')}
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    {t('auth.logout')}
+                  </button>
+                </div>
+              </div>
             </div>
           ) : (
             <button 
@@ -285,15 +303,47 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
 
               <div className="mt-8 pt-6 border-t border-white/10 space-y-3">
                 {isAuthenticated && client ? (
-                  <button
-                    onClick={logout}
-                    className="w-full flex items-center justify-center gap-2 border border-red-500 text-red-500 px-4 py-3 text-sm font-bold uppercase tracking-wider rounded-lg hover:bg-red-500 hover:text-white transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
-                    </svg>
-                    {t('auth.logout')}
-                  </button>
+                  <>
+                    <div className={`flex items-center gap-3 px-4 py-3 rounded-lg ${isLight ? 'bg-gray-100' : 'bg-white/10'}`}>
+                      <div className="w-10 h-10 rounded-full bg-[#FF6B00] flex items-center justify-center">
+                        <span className="text-black font-bold">
+                          {client.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <p className={`font-bold text-sm ${isLight ? 'text-black' : 'text-white'}`}>
+                          {client.name}
+                        </p>
+                        <p className={`text-xs ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
+                          {client.email}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        navigate('/profile');
+                      }}
+                      className="w-full flex items-center justify-center gap-2 border border-[#FF6B00] text-[#FF6B00] px-4 py-3 text-sm font-bold uppercase tracking-wider rounded-lg hover:bg-[#FF6B00] hover:text-black transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                      </svg>
+                      {t('auth.profile')}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        logout();
+                      }}
+                      className="w-full flex items-center justify-center gap-2 border border-red-500 text-red-500 px-4 py-3 text-sm font-bold uppercase tracking-wider rounded-lg hover:bg-red-500 hover:text-white transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
+                      </svg>
+                      {t('auth.logout')}
+                    </button>
+                  </>
                 ) : (
                   <button
                     onClick={() => {

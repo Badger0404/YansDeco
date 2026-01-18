@@ -14,6 +14,8 @@ import Calculateurs from './pages/Calculateurs';
 import Contact from './pages/Contact';
 import ProductDetail from './pages/ProductDetail';
 import ProductPage from './pages/ProductPage';
+import Profile from './pages/Profile';
+import Checkout from './pages/Checkout';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProducts from './pages/AdminProducts';
 import AddProduct from './pages/AddProduct';
@@ -68,6 +70,8 @@ const AnimatedRoutes: React.FC<{ theme: Theme }> = ({ theme }) => {
           <Route path="/services" element={<Services theme={theme} />} />
           <Route path="/calculateurs" element={<Calculateurs theme={theme} />} />
           <Route path="/contact" element={<Contact theme={theme} />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<AdminDashboard />} />
             <Route path="products" element={<AdminProducts />} />
