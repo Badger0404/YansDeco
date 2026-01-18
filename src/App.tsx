@@ -19,10 +19,25 @@ import AdminProducts from './pages/AdminProducts';
 import AddProduct from './pages/AddProduct';
 import Categories from './pages/Categories';
 import AdminBrands from './pages/AdminBrands';
+import BrandDetail from './pages/BrandDetail';
+import BrandPublic from './pages/BrandPublic';
 import AdminTranslations from './pages/AdminTranslations';
 import AdminCalculators from './pages/AdminCalculators';
 import AdminSettings from './pages/AdminSettings';
+import ProductDetailAdmin from './pages/ProductDetailAdmin';
+import EditProduct from './pages/EditProduct';
+import AdminServices from './pages/AdminServices';
+import AdminContent from './pages/AdminContent';
+import CategoryDetail from './pages/CategoryDetail';
+import CategoryEdit from './pages/CategoryEdit';
+import AddCategory from './pages/AddCategory';
 import i18n from './i18n';
+import { CartProvider } from './context/CartContext';
+import { AuthProvider } from './context/AuthContext';
+import CartDrawer from './components/cart/CartDrawer';
+import AuthModal from './components/auth/AuthModal';
+import AdminClients from './pages/AdminClients';
+import AdminClientDetail from './pages/AdminClientDetail';
 
 type Theme = 'dark' | 'light';
 
@@ -47,27 +62,47 @@ const AnimatedRoutes: React.FC<{ theme: Theme }> = ({ theme }) => {
           <Route path="/catalogue/:categoryId" element={<Catalogue theme={theme} />} />
           <Route path="/catalogue/:categoryId/:subcategoryId" element={<ProductDetail theme={theme} />} />
           <Route path="/catalogue/:categoryId/:subcategoryId/:productId" element={<ProductPage theme={theme} />} />
+          <Route path="/product/:id" element={<ProductPage theme={theme} />} />
           <Route path="/marques" element={<Marques theme={theme} />} />
+          <Route path="/marques/:id" element={<BrandPublic theme={theme} />} />
           <Route path="/services" element={<Services theme={theme} />} />
           <Route path="/calculateurs" element={<Calculateurs theme={theme} />} />
           <Route path="/contact" element={<Contact theme={theme} />} />
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<AdminDashboard />} />
             <Route path="products" element={<AdminProducts />} />
+            <Route path="products/:id" element={<ProductDetailAdmin />} />
+            <Route path="products/:id/edit" element={<EditProduct />} />
             <Route path="add-product" element={<AddProduct />} />
             <Route path="categories" element={<Categories />} />
+            <Route path="categories/:id" element={<CategoryDetail />} />
+            <Route path="categories/:id/edit" element={<CategoryEdit />} />
+            <Route path="add-category" element={<AddCategory />} />
             <Route path="brands" element={<AdminBrands />} />
+            <Route path="brands/:id" element={<BrandDetail />} />
             <Route path="translations" element={<AdminTranslations />} />
+            <Route path="clients" element={<AdminClients />} />
+            <Route path="clients/:id" element={<AdminClientDetail />} />
+            <Route path="services" element={<AdminServices />} />
             <Route path="calculators" element={<AdminCalculators />} />
             <Route path="settings" element={<AdminSettings />} />
+            <Route path="content" element={<AdminContent />} />
           </Route>
           <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/products/:id" element={<ProductDetailAdmin />} />
+          <Route path="/admin/products/:id/edit" element={<EditProduct />} />
           <Route path="/admin/add-product" element={<AddProduct />} />
-          <Route path="/admin/categories" element={<Categories />} />
-          <Route path="/admin/brands" element={<AdminBrands />} />
+            <Route path="/admin/categories" element={<Categories />} />
+            <Route path="/admin/categories/:id" element={<CategoryDetail />} />
+            <Route path="/admin/categories/:id/edit" element={<CategoryEdit />} />
+            <Route path="/admin/add-category" element={<AddCategory />} />
+            <Route path="/admin/brands" element={<AdminBrands />} />
+          <Route path="/admin/brands/:id" element={<BrandDetail />} />
           <Route path="/admin/translations" element={<AdminTranslations />} />
+          <Route path="/admin/services" element={<AdminServices />} />
           <Route path="/admin/calculators" element={<AdminCalculators />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/content" element={<AdminContent />} />
         </Routes>
       </motion.div>
     </AnimatePresence>
@@ -98,27 +133,33 @@ const App: React.FC = () => {
 
   return (
     <I18nextProvider i18n={i18n}>
-      <div className="relative min-h-screen">
-        <div
-          className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700"
-          style={{
-            backgroundImage: `url(${currentBg})`
-          }}
-        />
-        
-        {!isAdmin && <Header theme={theme} onToggleTheme={() => {
-          const newTheme = theme === 'dark' ? 'light' : 'dark';
-          localStorage.setItem('site-theme', newTheme);
-          setTheme(newTheme);
-          window.dispatchEvent(new Event('themechange'));
-        }} />}
-        {isAdmin && <AdminHeader />}
-        <ScrollToTop />
-        <main className="relative z-10">
-          <AnimatedRoutes theme={theme} />
-        </main>
-        {!isAdmin && <Footer theme={theme} />}
-      </div>
+      <CartProvider>
+        <AuthProvider>
+          <div className="relative min-h-screen">
+            <div
+              className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700"
+              style={{
+                backgroundImage: `url(${currentBg})`
+              }}
+            />
+            
+            {!isAdmin && <Header theme={theme} onToggleTheme={() => {
+              const newTheme = theme === 'dark' ? 'light' : 'dark';
+              localStorage.setItem('site-theme', newTheme);
+              setTheme(newTheme);
+              window.dispatchEvent(new Event('themechange'));
+            }} />}
+            {isAdmin && <AdminHeader />}
+            <ScrollToTop />
+            <main className="relative z-10">
+              <AnimatedRoutes theme={theme} />
+            </main>
+            {!isAdmin && <Footer theme={theme} />}
+            <CartDrawer theme={theme} />
+            <AuthModal isOpen={false} onClose={() => {}} theme={theme} />
+          </div>
+        </AuthProvider>
+      </CartProvider>
     </I18nextProvider>
   );
 };

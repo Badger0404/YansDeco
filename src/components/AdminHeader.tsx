@@ -16,7 +16,8 @@ import {
   ChevronRight,
   Menu,
   X,
-  Home
+  Home,
+  Users
 } from 'lucide-react';
 
 const AdminHeader: React.FC = () => {
@@ -73,6 +74,7 @@ const AdminHeader: React.FC = () => {
     { id: 'products', key: 'admin.sections.products', label: t('admin.sections.products.title'), icon: <Package className="w-5 h-5" />, path: '/admin/products' },
     { id: 'categories', key: 'admin.sections.categories', label: t('admin.sections.categories.title'), icon: <Tag className="w-5 h-5" />, path: '/admin/categories' },
     { id: 'brands', key: 'admin.sections.brands', label: t('admin.sections.brands.title'), icon: <Award className="w-5 h-5" />, path: '/admin/brands' },
+    { id: 'clients', key: 'admin.sections.clients', label: 'CLIENTS', icon: <Users className="w-5 h-5" />, path: '/admin/clients' },
     { id: 'translations', key: 'admin.sections.translations', label: t('admin.sections.translations.title'), icon: <Globe className="w-5 h-5" />, path: '/admin/translations' },
     { id: 'calculators', key: 'admin.sections.calculators', label: t('admin.sections.calculators.title'), icon: <Calculator className="w-5 h-5" />, path: '/admin/calculators' },
     { id: 'settings', key: 'admin.sections.settings', label: t('admin.sections.settings.title'), icon: <Settings className="w-5 h-5" />, path: '/admin/settings' },
@@ -214,7 +216,7 @@ const AdminHeader: React.FC = () => {
             <div className="p-4 border-b border-white/10">
               <div className="flex items-center justify-between mb-4">
                 <h2 className={`font-bold text-lg ${isLight ? 'text-black' : 'text-white'}`}>
-                  MENU
+                  {t('admin.menu')}
                 </h2>
                 <button
                   onClick={closeMobileMenu}

@@ -13,7 +13,9 @@ import {
   ChevronRight,
   Upload,
   Download,
-  RefreshCw
+  RefreshCw,
+  Edit3,
+  Users
 } from 'lucide-react';
 
 interface AdminSection {
@@ -64,6 +66,14 @@ const AdminDashboard: React.FC = () => {
       label: t('admin.sections.brands.title')
     },
     {
+      id: 'clients',
+      key: 'admin.sections.clients',
+      icon: <Users className="w-12 h-12" />,
+      path: '/admin/clients',
+      color: 'from-pink-500/10 to-pink-600/5',
+      label: 'CLIENTS'
+    },
+    {
       id: 'translations',
       key: 'admin.sections.translations',
       icon: <Globe className="w-12 h-12" />,
@@ -86,6 +96,14 @@ const AdminDashboard: React.FC = () => {
       path: '/admin/settings',
       color: 'from-gray-500/10 to-gray-600/5',
       label: t('admin.sections.settings.title')
+    },
+    {
+      id: 'content',
+      key: 'admin.sections.content',
+      icon: <Edit3 className="w-12 h-12" />,
+      path: '/admin/content',
+      color: 'from-red-500/10 to-red-600/5',
+      label: t('admin.sections.content.title')
     }
   ];
 

@@ -104,7 +104,45 @@ const fr = {
     viewProduct: "Voir le produit",
     addToCart: "Ajouter au panier",
     features: "Caractéristiques",
-    notFound: "Produit non trouvé."
+    notFound: "Produit non trouvé.",
+    stock: "en stock"
+  },
+  cart: {
+    title: "Panier",
+    empty: "Votre panier est vide",
+    addItems: "Ajoutez des produits pour continuer",
+    total: "Total",
+    checkout: "Commander",
+    remove: "Supprimer",
+    quantity: "Quantité",
+    unitPrice: "Prix unitaire",
+    subtotal: "Sous-total",
+    added: "Ajouté !"
+  },
+  auth: {
+    login: "Connexion",
+    register: "Inscription",
+    welcomeBack: "Ravis de vous revoir",
+    createAccount: "Créez votre compte",
+    name: "Nom complet",
+    phone: "Téléphone",
+    email: "Email",
+    password: "Mot de passe",
+    confirmPassword: "Confirmer le mot de passe",
+    noAccount: "Pas encore de compte ?",
+    haveAccount: "Vous avez déjà un compte ?",
+    or: "ou",
+    google: "Continuer avec Google",
+    forgotPassword: "Mot de passe oublié ?",
+    invalidEmail: "Email invalide",
+    passwordTooShort: "Le mot de passe doit contenir au moins 6 caractères",
+    passwordsNotMatch: "Les mots de passe ne correspondent pas",
+    emailAlreadyExists: "Cet email est déjà utilisé",
+    invalidCredentials: "Email ou mot de passe incorrect",
+    accountCreated: "Compte créé avec succès !",
+    logout: "Déconnexion",
+    myOrders: "Mes commandes",
+    profile: "Mon profil"
   },
   admin: {
     backToSite: "← RETOURNER AU SITE",
@@ -125,6 +163,10 @@ const fr = {
       brands: {
         title: "MARQUES",
         description: "Ajout et modification des marques"
+      },
+      clients: {
+        title: "CLIENTS",
+        description: "Gestion de la base de données clients"
       },
       translations: {
         title: "TRADUCTIONS",
@@ -344,7 +386,45 @@ const en = {
     viewProduct: "View product",
     addToCart: "Add to cart",
     features: "Features",
-    notFound: "Product not found."
+    notFound: "Product not found.",
+    stock: "in stock"
+  },
+  cart: {
+    title: "Cart",
+    empty: "Your cart is empty",
+    addItems: "Add products to continue",
+    total: "Total",
+    checkout: "Checkout",
+    remove: "Remove",
+    quantity: "Quantity",
+    unitPrice: "Unit price",
+    subtotal: "Subtotal",
+    added: "Added!"
+  },
+  auth: {
+    login: "Sign In",
+    register: "Sign Up",
+    welcomeBack: "Welcome back!",
+    createAccount: "Create your account",
+    name: "Full Name",
+    phone: "Phone",
+    email: "Email",
+    password: "Password",
+    confirmPassword: "Confirm Password",
+    noAccount: "Don't have an account?",
+    haveAccount: "Already have an account?",
+    or: "or",
+    google: "Continue with Google",
+    forgotPassword: "Forgot password?",
+    invalidEmail: "Invalid email",
+    passwordTooShort: "Password must be at least 6 characters",
+    passwordsNotMatch: "Passwords do not match",
+    emailAlreadyExists: "Email already registered",
+    invalidCredentials: "Invalid email or password",
+    accountCreated: "Account created successfully!",
+    logout: "Logout",
+    myOrders: "My Orders",
+    profile: "My Profile"
   },
   admin: {
     backToSite: "← RETURN TO SITE",
@@ -365,6 +445,10 @@ const en = {
       brands: {
         title: "BRANDS",
         description: "Add and modify brands"
+      },
+      clients: {
+        title: "CLIENTS",
+        description: "Customer database management"
       },
       translations: {
         title: "TRANSLATIONS",
@@ -584,7 +668,45 @@ const ru = {
     viewProduct: "Смотреть товар",
     addToCart: "В корзину",
     features: "Характеристики",
-    notFound: "Товар не найден."
+    notFound: "Товар не найден.",
+    stock: "в наличии"
+  },
+  cart: {
+    title: "Корзина",
+    empty: "Ваша корзина пуста",
+    addItems: "Добавьте товары для продолжения",
+    total: "Итого",
+    checkout: "Оформить заказ",
+    remove: "Удалить",
+    quantity: "Количество",
+    unitPrice: "Цена за штуку",
+    subtotal: "Сумма",
+    added: "Добавлено!"
+  },
+  auth: {
+    login: "Войти",
+    register: "Регистрация",
+    welcomeBack: "Рады видеть вас снова",
+    createAccount: "Создайте свой аккаунт",
+    name: "Полное имя",
+    phone: "Телефон",
+    email: "Email",
+    password: "Пароль",
+    confirmPassword: "Подтвердите пароль",
+    noAccount: "Еще нет аккаунта?",
+    haveAccount: "Уже есть аккаунт?",
+    или: "или",
+    google: "Войти через Google",
+    forgotPassword: "Забыли пароль?",
+    invalidEmail: "Некорректный email",
+    passwordTooShort: "Пароль должен содержать минимум 6 символов",
+    passwordsNotMatch: "Пароли не совпадают",
+    emailAlreadyExists: "Этот email уже зарегистрирован",
+    invalidCredentials: "Неверный email или пароль",
+    accountCreated: "Аккаунт успешно создан!",
+    logout: "Выйти",
+    myOrders: "Мои заказы",
+    profile: "Мой профиль"
   },
   admin: {
     backToSite: "← ВЕРНУТЬСЯ НА САЙТ",
@@ -605,6 +727,10 @@ const ru = {
       brands: {
         title: "БРЕНДЫ",
         description: "Добавление и изменение брендов"
+      },
+      clients: {
+        title: "КЛИЕНТЫ",
+        description: "Управление базой клиентов"
       },
       translations: {
         title: "ПЕРЕВОДЫ",

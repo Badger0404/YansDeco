@@ -74,20 +74,33 @@ CREATE INDEX IF NOT EXISTS idx_product_translations_product ON product_translati
 CREATE INDEX IF NOT EXISTS idx_categories_parent ON categories(parent_id);
 
 -- Insert default brands
-INSERT INTO brands (name, logo_url) VALUES 
+INSERT OR IGNORE INTO brands (name, logo_url) VALUES 
     ('BOSTIK', NULL),
     ('SIKA', NULL),
     ('TOUPRET', NULL),
     ('PAREXLANKO', NULL),
-    ("L'OUTIL PARFAIT", NULL)
-ON CONFLICT(name) DO NOTHING;
+    ("L'OUTIL PARFAIT", NULL);
 
 -- Insert default categories with French names
-INSERT INTO categories (slug, icon, sort_order) VALUES 
+INSERT OR IGNORE INTO categories (slug, icon, sort_order) VALUES 
     ('peinture-finition', '🎨', 1),
     ('colles-mastics', '🧱', 2),
     ('outillage-peintre', '🖌️', 3),
     ('outillage-carreleur', '🔧', 4),
     ('preparation-sols', '🧱', 5),
-    ('fixation-visserie', '🔩', 6)
-ON CONFLICT(slug) DO NOTHING;
+    ('fixation-visserie', '🔩', 6);
+
+-- Cart table for storing user carts
+CREATE TABLE IF NOT EXISTS carts (
+    id TEXT PRIMARY KEY,
+    user_session TEXT NOT NULL,
+    items TEXT NOT NULL DEFAULT '[]',
+    total_items INTEGER DEFAULT 0,
+    total_price DECIMAL(10, 2) DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+);
+
+-- Index for cart sessions
+CREATE INDEX IF NOT EXISTS idx_carts_session ON carts(user_session);
+CREATE INDEX IF NOT EXISTS idx_carts_updated ON carts(updated_at);

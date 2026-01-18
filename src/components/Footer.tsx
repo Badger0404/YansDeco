@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { Instagram, Facebook, Video, Shield } from 'lucide-react';
@@ -7,11 +7,43 @@ interface FooterProps {
   theme: 'dark' | 'light';
 }
 
+interface SiteConfig {
+  phone1: { ru: string; fr: string; en: string };
+  phone2: { ru: string; fr: string; en: string };
+  email: { ru: string; fr: string; en: string };
+  address: { ru: string; fr: string; en: string };
+}
+
 const Footer: React.FC<FooterProps> = ({ theme }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const location = useLocation();
+  const [siteConfig, setSiteConfig] = useState<SiteConfig | null>(null);
   const isLight = theme === 'light';
   const isContactPage = location.pathname === '/contact';
+
+  useEffect(() => {
+    fetchSiteConfig();
+  }, []);
+
+  const fetchSiteConfig = async () => {
+    try {
+      const response = await fetch('https://yasndeco-api.andrey-gaffer.workers.dev/api/site-config');
+      const data = await response.json();
+      if (data.success) {
+        setSiteConfig(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching site config:', error);
+    }
+  };
+
+  const getConfigValue = (key: string) => {
+    if (!siteConfig || !(key in siteConfig)) return '';
+    const lang = i18n.language;
+    const configValue = siteConfig[key as keyof SiteConfig];
+    if (!configValue) return '';
+    return configValue[lang as keyof typeof configValue] || configValue.fr || '';
+  };
   
   const footerLinks = [
     { label: t('nav.home'), path: '/' },
@@ -55,8 +87,12 @@ const Footer: React.FC<FooterProps> = ({ theme }) => {
               {t('footer.tagline')}
             </p>
             <div className="space-y-2 text-sm">
-              <p className={isLight ? 'text-zinc-700' : 'text-white'}>+33 1 23 45 67 89</p>
-              <p className={isLight ? 'text-zinc-700' : 'text-white'}>contact@yansdeco.fr</p>
+              <p className={isLight ? 'text-zinc-700' : 'text-white'}>
+                {getConfigValue('phone1') || '+33 1 23 45 67 89'}
+              </p>
+              <p className={isLight ? 'text-zinc-700' : 'text-white'}>
+                {getConfigValue('email') || 'contact@yansdeco.fr'}
+              </p>
             </div>
             <div className="flex gap-3 mt-4">
               {socialLinks.map((social) => (

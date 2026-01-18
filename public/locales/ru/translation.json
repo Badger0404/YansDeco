@@ -101,7 +101,10 @@
   "brands": {
     "title": "НАШИ БРЕНДЫ",
     "subtitle": "Мы работаем с ведущими брендами отрасли, чтобы гарантировать вам качество и надёжность.",
-    "viewAll": "Смотреть всю продукцию"
+    "viewAll": "Смотреть всю продукцию",
+    "back": "← К брендам",
+    "productsTitle": "ПРОДУКЦИЯ",
+    "noProducts": "Товары этого бренда скоро появятся"
   },
   "services": {
     "title": "НАШИ УСЛУГИ",
@@ -122,6 +125,9 @@
       "title": "Бесплатная смета",
       "desc": "Смета бесплатно в течение 24 часов"
     }
+  },
+  "accueil": {
+    "popular": "Популярные"
   },
   "contact": {
     "title": "ГДЕ МЫ НАХОДИМСЯ",
@@ -151,9 +157,12 @@
     "notFound": "Товар не найден."
   },
   "admin": {
+    "menu": "МЕНЮ",
     "backToSite": "← ВЕРНУТЬСЯ НА САЙТ",
     "backToDashboard": "← НАЗАД",
-    "logout": "Выход",
+    "backToProducts": "← К ТОВАРАМ",
+    "backToBrands": "← К БРЕНДАМ",
+    "back": "Назад",
     "cloudStatus": {
       "online": "Online",
       "offline": "Offline",
@@ -197,6 +206,57 @@
       "settings": {
         "title": "НАСТРОЙКИ",
         "description": "Общие настройки и Клауд"
+      },
+      "content": {
+        "title": "КОНТЕНТ САЙТА",
+        "description": "Управление контентом сайта",
+        "backToDashboard": "Вернуться в дашборд",
+        "slidesHero": "Слайды Hero",
+        "materialsCalculator": "Материалы калькулятора",
+        "siteConfig": "Конфигурация сайта",
+        "addSlide": "Добавить слайд",
+        "addMaterial": "Добавить материал",
+        "saveConfig": "Сохранить конфигурацию",
+        "badge": "Бейдж",
+        "title": "Заголовок", 
+        "subtitle": "Подзаголовок",
+        "name": "Название",
+        "consumption": "Расход",
+        "unit": "Единица",
+        "coats": "Слои",
+        "order": "Порядок",
+        "active": "Активен",
+        "inactive": "Неактивен",
+        "actions": "Действия",
+        "yes": "Да",
+        "no": "Нет",
+        "loading": "Загрузка...",
+        "editSlide": "Редактировать слайд",
+        "newSlide": "Новый слайд",
+        "editMaterial": "Редактировать материал",
+        "newMaterial": "Новый материал",
+        "confirmDeleteSlide": "Вы уверены, что хотите удалить этот слайд?",
+        "confirmDeleteMaterial": "Вы уверены, что хотите удалить этот материал?",
+        "configSaved": "Конфигурация успешно сохранена",
+"cancel": "Отмена",
+    "save": "Сохранить",
+    "popularProduct": "Показать на главной странице (популярный товар)"
+      },
+      "services": {
+        "title": "Услуги",
+        "manageServices": "Управление услугами, отображаемыми на странице Услуг",
+        "addService": "Добавить услугу",
+        "editService": "Редактировать",
+        "noServices": "Нет доступных услуг",
+        "key": "Ключ",
+        "emoji": "Эмодзи",
+        "gradient": "Градиент",
+        "serviceLabels": {
+          "delivery": "Доставка",
+          "pickup": "Самовывоз", 
+          "advice": "Консультации",
+          "quote": "Расчет стоимости"
+        }
       }
     },
     "quickActions": {
@@ -205,6 +265,29 @@
       "importCsv": "Импорт CSV",
       "exportData": "Экспорт Данных",
       "syncCloud": "Синхронизация"
+    },
+    "categories": {
+      "title": "Управление категориями",
+      "description": "Управляйте категориями товаров и их организацией",
+      "import": "Импортировать",
+      "newCategory": "Новая категория",
+      "filters": "Фильтры",
+      "order": "Порядок",
+      "noCategoriesFound": "Категории не найдены",
+      "tryAnotherSearch": "Попробуйте другой поиск",
+      "startByAdding": "Начните с добавления вашей первой категории",
+      "cloudOnline": "Облако онлайн",
+      "cloudOffline": "Облако офлайн",
+      "manageCategories": "Управление категориями"
+    },
+    "brands": {
+      "searchPlaceholder": "Поиск бренда...",
+      "brandLogo": "Логотип бренда",
+      "multilingualDescription": "Многоязычное описание",
+      "translateHint": "Введите текст на любом языке и нажмите ✨ для перевода",
+      "dragDropFile": "Перетащите файл сюда или нажмите для выбора",
+      "fileInfo": "PNG, JPG до 5МБ",
+      "chooseFile": "Выбрать файл"
     },
     "recentActivity": {
       "title": "Последняя Активность",
@@ -263,7 +346,9 @@
       "delete": "Удалить",
       "logo": "Логотип",
       "website": "Сайт",
-      "noBrands": "Бренды не найдены"
+      "noBrands": "Бренды не найдены",
+      "noProducts": "Товары этого бренда скоро появятся",
+      "name": "Название бренда"
     },
     "translations": {
       "title": "Управление Переводами",

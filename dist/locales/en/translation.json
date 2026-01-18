@@ -101,7 +101,10 @@
   "brands": {
     "title": "OUR BRANDS",
     "subtitle": "We work with the leading brands in the industry to guarantee you quality and reliability.",
-    "viewAll": "View all products"
+    "viewAll": "View all products",
+    "back": "← To brands",
+    "productsTitle": "PRODUCTS",
+    "noProducts": "Products from this brand will be available soon"
   },
   "services": {
     "title": "OUR SERVICES",
@@ -122,6 +125,9 @@
       "title": "Professional Quotes",
       "desc": "Free quote within 24 hours"
     }
+  },
+  "accueil": {
+    "popular": "Popular"
   },
   "contact": {
     "title": "WHERE TO FIND US",
@@ -151,9 +157,12 @@
     "notFound": "Product not found."
   },
   "admin": {
+    "menu": "MENU",
     "backToSite": "← RETURN TO SITE",
     "backToDashboard": "← BACK",
-    "logout": "Logout",
+    "backToProducts": "← BACK TO PRODUCTS",
+    "backToBrands": "← TO BRANDS",
+    "back": "Back",
     "cloudStatus": {
       "online": "Online",
       "offline": "Offline",
@@ -197,6 +206,57 @@
       "settings": {
         "title": "SETTINGS",
         "description": "General settings and Cloud"
+      },
+      "content": {
+        "title": "SITE CONTENT",
+        "description": "Site content management",
+        "backToDashboard": "Back to dashboard",
+        "slidesHero": "Hero Slides",
+        "materialsCalculator": "Calculator Materials",
+        "siteConfig": "Site Configuration",
+        "addSlide": "Add slide",
+        "addMaterial": "Add material",
+        "saveConfig": "Save configuration",
+        "badge": "Badge",
+        "title": "Title", 
+        "subtitle": "Subtitle",
+        "name": "Name",
+        "consumption": "Consumption",
+        "unit": "Unit",
+        "coats": "Coats",
+        "order": "Order",
+        "active": "Active",
+        "inactive": "Inactive",
+        "actions": "Actions",
+        "yes": "Yes",
+        "no": "No",
+        "loading": "Loading...",
+        "editSlide": "Edit slide",
+        "newSlide": "New slide",
+        "editMaterial": "Edit material",
+        "newMaterial": "New material",
+        "confirmDeleteSlide": "Are you sure you want to delete this slide?",
+        "confirmDeleteMaterial": "Are you sure you want to delete this material?",
+        "configSaved": "Configuration saved successfully",
+"cancel": "Cancel",
+    "save": "Save",
+    "popularProduct": "Show on homepage (popular product)"
+      },
+      "services": {
+        "title": "Services",
+        "manageServices": "Manage services displayed on the Services page",
+        "addService": "Add service",
+        "editService": "Edit",
+        "noServices": "No services available",
+        "key": "Key",
+        "emoji": "Emoji",
+        "gradient": "Gradient",
+        "serviceLabels": {
+          "delivery": "Delivery",
+          "pickup": "Pickup", 
+          "advice": "Advice",
+          "quote": "Quote"
+        }
       }
     },
     "quickActions": {
@@ -205,6 +265,29 @@
       "importCsv": "Import CSV",
       "exportData": "Export Data",
       "syncCloud": "Sync Cloud"
+    },
+    "categories": {
+      "title": "Category Management",
+      "description": "Manage product categories and their organization",
+      "import": "Import",
+      "newCategory": "New category",
+      "filters": "Filters",
+      "order": "Order",
+      "noCategoriesFound": "No categories found",
+      "tryAnotherSearch": "Try another search",
+      "startByAdding": "Start by adding your first category",
+      "cloudOnline": "Cloud Online",
+      "cloudOffline": "Cloud Offline",
+      "manageCategories": "Category Management"
+    },
+    "brands": {
+      "searchPlaceholder": "Search for a brand...",
+      "brandLogo": "Brand logo",
+      "multilingualDescription": "Multilingual description",
+      "translateHint": "Enter text in any language and press ✨ to translate",
+      "dragDropFile": "Drag file here or click to select",
+      "fileInfo": "PNG, JPG up to 5MB",
+      "chooseFile": "Choose file"
     },
     "recentActivity": {
       "title": "Recent Activity",
@@ -263,7 +346,9 @@
       "delete": "Delete",
       "logo": "Logo",
       "website": "Website",
-      "noBrands": "No brands found"
+      "noBrands": "No brands found",
+      "noProducts": "Products from this brand will be available soon",
+      "name": "Brand name"
     },
     "translations": {
       "title": "Translation Management",

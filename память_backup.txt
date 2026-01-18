@@ -1,0 +1,607 @@
+================================================================================
+                    YAN'S DECO PROJECT - COMPREHENSIVE MEMORY FILE
+================================================================================
+Дата создания: 2026-01-17
+Последнее обновление: 2026-01-18
+================================================================================
+
+О ПРОЕКТЕ
+================================================================================
+Yan's Deco - строительный магазин декоративных материалов (Краски, клеи, 
+инструменты) с полной админ-панелью для управления контентом и клиентской базой.
+
+Технологический стек:
+- Frontend: React 19 + TypeScript + Vite + Framer Motion + Tailwind CSS 4
+- Backend: Cloudflare Workers (Hono.js framework)
+- Database: Cloudflare D1 (SQLite)
+- Storage: Cloudflare R2 (images)
+- AI: Cloudflare Workers AI (Llama 3.1 for translations)
+- Deployment: Cloudflare Pages + Workers
+- i18n: react-i18next (RU, FR, EN)
+- Auth: Custom JWT + Google OAuth ready
+
+================================================================================
+СТРУКТУРА ПРОЕКТА
+================================================================================
+
+YansDeco/
+├── src/
+│   ├── pages/                      # Страницы приложения (32 файла)
+│   │   ├── Home.tsx                # Главная страница с популярными товарами
+│   │   ├── Catalogue.tsx           # Каталог (категории + подкатегории)
+│   │   ├── Marques.tsx             # Бренды (публичная)
+│   │   ├── BrandPublic.tsx         # Страница одного бренда (публичная)
+│   │   ├── Services.tsx            # Услуги
+│   │   ├── Calculateurs.tsx        # Калькуляторы
+│   │   ├── Contact.tsx             # Контакты
+│   │   ├── ProductPage.tsx         # Страница товара (покупка + корзина)
+│   │   ├── AddProduct.tsx          # Добавление товара (admin)
+│   │   ├── EditProduct.tsx         # Редактирование товара (admin)
+│   │   ├── AdminDashboard.tsx      # Дашборд админки
+│   │   ├── AdminProducts.tsx       # Список товаров (admin)
+│   │   ├── AdminBrands.tsx         # Управление брендами (admin)
+│   │   ├── BrandDetail.tsx         # Страница бренда (admin)
+│   │   ├── AdminCategories.tsx     # Категории (admin)
+│   │   ├── CategoryDetail.tsx      # Категория детально (admin)
+│   │   ├── CategoryEdit.tsx        # Редактирование категории (admin)
+│   │   ├── AddCategory.tsx         # Добавление категории (admin)
+│   │   ├── AdminClients.tsx        # Клиенты (admin) - НОВОЕ
+│   │   ├── AdminClientDetail.tsx   # История клиента (admin) - НОВОЕ
+│   │   ├── AdminTranslations.tsx   # Переводы (admin)
+│   │   ├── AdminCalculators.tsx    # Калькуляторы (admin)
+│   │   ├── AdminSettings.tsx       # Настройки (admin)
+│   │   ├── AdminServices.tsx       # Услуги (admin)
+│   │   └── AdminContent.tsx        # Контент (admin)
+│   │
+│   ├── components/                 # Компоненты
+│   │   ├── Header.tsx              # Шапка с корзиной и авторизацией
+│   │   ├── Footer.tsx              # Подвал
+│   │   ├── AdminHeader.tsx         # Шапка админки
+│   │   ├── Hero.tsx                # Hero секция
+│   │   ├── ScrollToTop.tsx         # Скролл наверх
+│   │   ├── cart/                   # Компоненты корзины
+│   │   │   └── CartDrawer.tsx      # Выдвижная корзина - НОВОЕ
+│   │   └── auth/                   # Компоненты авторизации
+│   │       └── AuthModal.tsx       # Модалка логин/регистрация - НОВОЕ
+│   │
+│   ├── context/                    # React Context
+│   │   ├── CartContext.tsx         # Контекст корзины - НОВОЕ
+│   │   └── AuthContext.tsx         # Контекст авторизации - НОВОЕ
+│   │
+│   ├── services/
+│   │   └── api.ts                  # API URL константы
+│   ├── hooks/
+│   │   └── useLocalized.tsx
+│   ├── types/
+│   │   └── localization.ts
+│   ├── i18n.ts                     # Конфигурация i18n
+│   └── App.tsx                     # Роутинг + провайдеры
+│
+├── worker/
+│   └── src/
+│       └── index.ts                # Cloudflare Worker (API сервер)
+│
+├── schema/
+│   └── schema.sql                  # D1 Database schema
+│
+├── wrangler.toml                  # Cloudflare Workers конфигурация
+├── package.json
+├── tsconfig.json
+└── vite.config.ts
+
+================================================================================
+API ENDPOINTS (Cloudflare Worker)
+================================================================================
+
+Базовый URL: https://yasndeco-api.andrey-gaffer.workers.dev/api
+
+BRANDS (Бренды):
+----------------
+GET    /api/brands                   # Список всех брендов
+GET    /api/brands/:id               # Один бренд по ID
+GET    /api/brands/:id/products      # Товары бренда
+POST   /api/brands                   # Создать бренд
+PUT    /api/brands/:id               # Обновить бренд
+DELETE /api/brands/:id               # Удалить бренд
+
+CATEGORIES (Категории):
+-----------------------
+GET    /api/categories               # Список категорий (плоский)
+GET    /api/categories/:id           # Категория по ID
+POST   /api/categories               # Создать категорию
+PUT    /api/categories/:id           # Обновить категорию
+DELETE /api/categories/:id           # Удалить категорию
+
+PRODUCTS (Товары):
+------------------
+GET    /api/products                 # Список товаров
+GET    /api/products/:id             # Товар по ID
+POST   /api/products                 # Создать товар
+PUT    /api/products/:id             # Обновить товар
+DELETE /api/products/:id             # Удалить товар
+
+SERVICES (Услуги):
+------------------
+GET    /api/services                 # Список услуг
+GET    /api/admin/services           # Все услуги (admin)
+POST   /api/services                 # Создать услугу
+PUT    /api/services/:id             # Обновить услугу
+DELETE /api/services/:id             # Удалить услугу
+
+HERO SLIDES (Слайды):
+---------------------
+GET    /api/hero-slides              # Список слайдов
+POST   /api/hero-slides              # Создать слайд
+PUT    /api/hero-slides/:id          # Обновить слайд
+DELETE /api/hero-slides/:id          # Удалить слайд
+
+CALCULATOR MATERIALS:
+---------------------
+GET    /api/calculator-materials     # Материалы калькулятора
+POST   /api/calculator-materials     # Создать материал
+PUT    /api/calculator-materials/:id
+DELETE /api/calculator-materials/:id
+
+SITE CONFIG:
+------------
+GET    /api/site-config              # Конфигурация сайта
+POST   /api/site-config              # Создать/обновить конфиг
+
+TRANSLATION (AI перевод):
+-------------------------
+POST   /api/translate                # AI перевод текста
+
+UPLOAD (Загрузка изображений):
+------------------------------
+POST   /api/upload                   # Загрузка изображения в R2
+
+MIGRATION (Миграция БД):
+------------------------
+POST   /api/migrate                  # Создать/обновить таблицы БД
+
+================================================================================
+CLIENTS API (НОВОЕ - 2026-01-18)
+================================================================================
+
+Регистрация:
+------------
+POST   /api/clients/register
+Body: { "name": string, "phone": string, "email": string, "password": string }
+Response: { success: true, data: { client: {...}, token: string } }
+
+Авторизация:
+------------
+POST   /api/clients/login
+Body: { "email": string, "password": string }
+Response: { success: true, data: { client: {...}, token: string } }
+
+Google OAuth:
+-------------
+POST   /api/clients/google
+Body: { "googleId": string, "name": string, "email": string, "avatarUrl": string }
+Response: { success: true, data: { client: {...}, token: string } }
+
+Профиль клиента:
+----------------
+GET    /api/clients/me               # Получить профиль
+Headers: Authorization: Bearer {token}
+
+PUT    /api/clients/me               # Обновить профиль
+Headers: Authorization: Bearer {token}
+Body: { "name": string, "phone": string }
+
+Заказы клиента:
+---------------
+GET    /api/clients/me/orders        # История заказов
+Headers: Authorization: Bearer {token}
+
+ADMIN Clients API:
+------------------
+GET    /api/admin/clients            # Список всех клиентов
+Response: { success: true, data: { clients: [{ id, name, email, phone, created_at, last_login, order_count, total_spent }] } }
+
+GET    /api/admin/clients/:id        # Детали клиента + заказы
+Response: { success: true, data: { client: {...}, orders: [...], addresses: [...] } }
+
+================================================================================
+CART API (НОВОЕ - 2026-01-18)
+================================================================================
+
+GET    /api/cart                     # Получить корзину
+Headers: X-Session-ID: {sessionId}
+Response: { success: true, data: { sessionId, items: [], totalItems: 0, totalPrice: 0 } }
+
+POST   /api/cart                     # Сохранить корзину
+Headers: X-Session-ID: {sessionId}
+Body: { "items": [...] }
+Session ID генерируется на клиенте и хранится в localStorage
+
+DELETE /api/cart                     # Очистить корзину
+Headers: X-Session-ID: {sessionId}
+
+================================================================================
+ORDERS API (НОВОЕ - 2026-01-18)
+================================================================================
+
+Создание заказа (требует авторизации):
+--------------------------------------
+POST   /api/orders
+Headers: Authorization: Bearer {token}
+Body: { "items": [...], "totalPrice": number, "shippingAddress": {...}, "notes": string }
+Response: { success: true, data: { order: {...} } }
+
+================================================================================
+БАЗА ДАННЫХ (Cloudflare D1)
+================================================================================
+
+База: yasndeco (9c32735c-132c-4111-a661-097a1a52055d)
+
+Таблицы:
+
+1. brands
+   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+   - name (TEXT UNIQUE NOT NULL)
+   - logo_url (TEXT)
+   - description_ru (TEXT)
+   - description_fr (TEXT)
+   - description_en (TEXT)
+   - created_at (TEXT DEFAULT datetime('now'))
+
+2. categories
+   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+   - slug (TEXT UNIQUE NOT NULL)
+   - icon (TEXT)
+   - image_url (TEXT)
+   - parent_id (INTEGER, FK -> categories.id)
+   - sort_order (INTEGER DEFAULT 0)
+   - name_ru (TEXT)
+   - name_fr (TEXT)
+   - name_en (TEXT)
+   - desc_ru (TEXT)
+   - desc_fr (TEXT)
+   - desc_en (TEXT)
+   - created_at (TEXT DEFAULT datetime('now'))
+
+3. products
+   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+   - sku (TEXT UNIQUE NOT NULL)
+   - price (DECIMAL(10,2) NOT NULL DEFAULT 0)
+   - stock (INTEGER DEFAULT 0)
+   - brand_id (INTEGER, FK -> brands.id)
+   - category_id (INTEGER, FK -> categories.id)
+   - is_popular (INTEGER DEFAULT 0)
+   - announcement_date (TEXT)
+   - image_url (TEXT)
+   - name_ru (TEXT)
+   - name_fr (TEXT)
+   - name_en (TEXT)
+   - desc_ru (TEXT)
+   - desc_fr (TEXT)
+   - desc_en (TEXT)
+   - created_at (TEXT DEFAULT datetime('now'))
+   - updated_at (TEXT DEFAULT datetime('now'))
+
+4. services (NEW)
+   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+   - key (TEXT UNIQUE NOT NULL)
+   - icon (TEXT)
+   - icon_emoji (TEXT)
+   - gradient_from (TEXT)
+   - gradient_to (TEXT)
+   - tags_ru, tags_fr, tags_en (TEXT)
+   - title_ru, title_fr, title_en (TEXT)
+   - subtitle_ru, subtitle_fr, subtitle_en (TEXT)
+   - description_ru, description_fr, description_en (TEXT)
+   - sort_order (INTEGER DEFAULT 0)
+   - is_active (INTEGER DEFAULT 1)
+   - created_at, updated_at (TEXT DEFAULT datetime('now'))
+
+5. hero_slides
+   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+   - badge_ru, badge_fr, badge_en (TEXT)
+   - title_ru, title_fr, title_en (TEXT)
+   - subtitle_ru, subtitle_fr, subtitle_en (TEXT)
+   - sort_order (INTEGER DEFAULT 0)
+   - is_active (INTEGER DEFAULT 1)
+   - created_at (TEXT DEFAULT datetime('now'))
+
+6. calculator_materials
+   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+   - name_ru, name_fr, name_en (TEXT NOT NULL)
+   - consumption (REAL NOT NULL)
+   - unit (TEXT NOT NULL)
+   - coats (INTEGER DEFAULT 1)
+   - sort_order (INTEGER DEFAULT 0)
+   - is_active (INTEGER DEFAULT 1)
+   - created_at (TEXT DEFAULT datetime('now'))
+
+7. site_config
+   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+   - key (TEXT UNIQUE NOT NULL)
+   - value_ru, value_fr, value_en (TEXT)
+   - type (TEXT DEFAULT 'text')
+   - created_at, updated_at (TEXT DEFAULT datetime('now'))
+
+8. clients (NEW)
+   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+   - name (TEXT NOT NULL)
+   - phone (TEXT)
+   - email (TEXT UNIQUE NOT NULL)
+   - password_hash (TEXT)
+   - google_id (TEXT)
+   - avatar_url (TEXT)
+   - created_at (TEXT DEFAULT datetime('now'))
+   - last_login (TEXT)
+   - is_active (INTEGER DEFAULT 1)
+
+9. orders (NEW)
+   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+   - client_id (INTEGER NOT NULL, FK -> clients.id)
+   - items (TEXT NOT NULL DEFAULT '[]') - JSON массив товаров
+   - total_price (DECIMAL(10,2) DEFAULT 0)
+   - status (TEXT DEFAULT 'pending')
+   - shipping_address (TEXT) - JSON объект
+   - notes (TEXT)
+   - created_at (TEXT DEFAULT datetime('now'))
+   - updated_at (TEXT DEFAULT datetime('now'))
+   - FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
+
+10. client_addresses (NEW)
+    - id (INTEGER PRIMARY KEY AUTOINCREMENT)
+    - client_id (INTEGER NOT NULL, FK -> clients.id)
+    - type (TEXT DEFAULT 'shipping')
+    - name (TEXT)
+    - address (TEXT)
+    - city (TEXT)
+    - postal_code (TEXT)
+    - country (TEXT)
+    - phone (TEXT)
+    - is_default (INTEGER DEFAULT 0)
+    - created_at (TEXT DEFAULT datetime('now'))
+    - FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
+
+11. carts (NEW - для сессионной корзины)
+    - id (TEXT PRIMARY KEY) - session ID
+    - user_session (TEXT NOT NULL)
+    - items (TEXT NOT NULL DEFAULT '[]')
+    - total_items (INTEGER DEFAULT 0)
+    - total_price (DECIMAL(10,2) DEFAULT 0)
+    - created_at (TEXT DEFAULT datetime('now'))
+    - updated_at (TEXT DEFAULT datetime('now'))
+
+Индексы:
+- idx_products_sku ON products(sku)
+- idx_products_category ON products(category_id)
+- idx_products_brand ON products(brand_id)
+- idx_services_key ON services(key)
+- idx_hero_slides_sort ON hero_slides(sort_order)
+- idx_clients_email ON clients(email)
+- idx_orders_client ON orders(client_id)
+- idx_carts_session ON carts(user_session)
+
+================================================================================
+CLOUDFLARE R2 (ХРАНИЛИЩЕ ИЗОБРАЖЕНИЙ)
+================================================================================
+
+Bucket: yans-deco-assets
+
+Структура папок:
+- products/          # Изображения товаров
+- brands/            # Логотипы брендов
+- categories/        # Изображения категорий
+
+Публичный URL изображений:
+https://yasndeco-api.andrey-gaffer.workers.dev/images/{path}
+
+================================================================================
+РОУТИНГ (Frontend)
+================================================================================
+
+Публичные маршруты:
+- /                           # Главная (Hero + Популярные товары)
+- /catalogue                  # Каталог (категории)
+- /catalogue/:categoryId      # Категория
+- /catalogue/:categoryId/:subcategoryId  # Подкатегория
+- /catalogue/:categoryId/:subcategoryId/:productId  # Товар
+- /product/:id                # Страница товара (альтернативный роут)
+- /marques                    # Бренды
+- /marques/:id                # Страница бренда
+- /services                   # Услуги
+- /calculateurs               # Калькуляторы
+- /contact                    # Контакты
+
+Admin маршруты:
+- /admin                      # Dashboard
+- /admin/products             # Товары
+- /admin/products/:id         # Товар детально (admin)
+- /admin/products/:id/edit    # Редактировать товар
+- /admin/add-product          # Добавить товар
+- /admin/categories           # Категории
+- /admin/categories/:id       # Категория детально
+- /admin/categories/:id/edit  # Редактировать категорию
+- /admin/add-category         # Добавить категорию
+- /admin/brands               # Бренды
+- /admin/brands/:id           # Страница бренда (admin)
+- /admin/clients              # Клиенты (NEW)
+- /admin/clients/:id          # История клиента (NEW)
+- /admin/translations         # Переводы
+- /admin/services             # Услуги
+- /admin/calculators          # Калькуляторы
+- /admin/settings             # Настройки
+- /admin/content              # Контент
+
+================================================================================
+НОВЫЕ ФУНКЦИИ (2026-01-18)
+================================================================================
+
+1. КОРЗИНА (CartContext + CartDrawer)
+   - Контекст: src/context/CartContext.tsx
+   - Компонент: src/components/cart/CartDrawer.tsx
+   - Хранение: D1 таблица carts + localStorage для sessionId
+   - Функции:
+     * addItem(item) - добавить товар
+     * removeItem(id) - удалить товар
+     * updateQuantity(id, quantity) - изменить количество
+     * clearCart() - очистить корзину
+     * totalItems - общее количество
+     * totalPrice - общая сумма
+   - UI: Выдвижная панель справа с анимацией
+   - Сохранение в D1 при каждом изменении
+
+2. АВТОРИЗАЦИЯ (AuthContext + AuthModal)
+   - Контекст: src/context/AuthContext.tsx
+   - Компонент: src/components/auth/AuthModal.tsx
+   - Регистрация: POST /api/clients/register
+   - Логин: POST /api/clients/login
+   - Google OAuth: POST /api/clients/google (требует настройки Google Cloud)
+   - Токен хранится в localStorage
+   - Профиль: GET/PUT /api/clients/me
+   - История заказов: GET /api/clients/me/orders
+   - Модалка с вкладками Логин/Регистрация
+
+3. КЛИЕНТСКАЯ БАЗА (Admin)
+   - Страница списка: /admin/clients (AdminClients.tsx)
+   - Поиск по имени/email
+   - Карточка клиента: имя, email, телефон
+   - Статистика: количество заказов, сумма
+   - Даты: регистрация, последний вход
+   - Страница детали: /admin/clients/:id (AdminClientDetail.tsx)
+   - История всех заказов с составом
+
+4. ЗАКАЗЫ (Orders)
+   - Создание: POST /api/orders (требует авторизации)
+   - Сохранение товаров, суммы, адреса, заметок
+   - Статус по умолчанию: 'completed'
+   - Отображаются в истории клиента
+
+5. ПОПУЛЯРНЫЕ ТОВАРЫ (Home.tsx)
+   - Слайдер популярных товаров на главной
+   - GET /api/products + фильтр is_popular = 1
+   - Автопереключение каждые 5 секунд
+   - Ручная навигация стрелками и точками
+
+6. СЧЁТЧИКИ
+   - Бренды: количество товаров бренда (Marques.tsx)
+   - Категории: количество подкатегорий (Catalogue.tsx)
+   - Корзина: badge на иконке (Header.tsx)
+
+================================================================================
+КОНФИГУРАЦИЯ CLOUDFLARE
+================================================================================
+
+Workers:
+- yasndeco-api (Cloudflare Workers)
+  - D1: yasndeco (DB)
+  - R2: yans-deco-assets (ASSETS)
+  - AI: AI binding
+
+Pages:
+- yans-deco (Cloudflare Pages)
+  - Production: https://yans-deco.pages.dev
+  - Preview: https://preview.yans-deco.pages.dev
+
+Bindings:
+- DB: D1Database
+- ASSETS: R2Bucket
+- AI: Ai
+
+================================================================================
+КОМАНДЫ DEPLOYMENT
+================================================================================
+
+# Полный деплой
+npm run deploy:all
+
+# Деплой только frontend
+npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=production
+
+# Деплой frontend preview
+npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=preview
+
+# Деплой только worker
+cd worker && npx wrangler deploy
+
+# Запуск миграции БД
+curl -X POST https://yasndeco-api.andrey-gaffer.workers.dev/api/migrate
+
+# Проверка API
+curl https://yasndeco-api.andrey-gaffer.workers.dev/api
+
+================================================================================
+ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
+================================================================================
+
+Frontend -> Backend API:
+https://yasndeco-api.andrey-gaffer.workers.dev/api
+
+Google OAuth (требует настройки):
+В файле src/components/auth/AuthModal.tsx:
+const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'
+
+================================================================================
+ВАЖНЫЕ ЗАМЕТКИ
+================================================================================
+
+1. D1 Database использует SQLite синтаксис
+2. При изменении схемы БД -> POST /api/migrate
+3. Все ID в БД - INTEGER, в API response - number
+4. Nullable поля всегда проверять перед использованием
+5. AI перевод работает через Cloudflare Workers AI binding
+6. Изображения загружаются в R2, публичный доступ через /images/ path
+7. Корзина сохраняется в D1 по sessionId (localStorage)
+8. Авторизация использует простой JWT токен (base64 payload)
+9. Пароли хешируются через SHA-256 + соль
+10. Google OAuth требует настройки в Google Cloud Console
+
+================================================================================
+ТЕКУЩЕЕ СОСТОЯНИЕ (на 2026-01-18)
+================================================================================
+
+Работает ПОЛНОСТЬЮ:
+- Админка брендов (CRUD + загрузка лого + AI перевод)
+- Админка товаров (CRUD + категории + подкатегории)
+- Админка категорий (CRUD + вложенные подкатегории)
+- Админка клиентов (список + история заказов) - НОВОЕ
+- Публичные страницы брендов и товаров
+- Корзина с сохранением в D1 - НОВОЕ
+- Авторизация клиентов - НОВОЕ
+- Создание заказов - НОВОЕ
+- Популярные товары на главной - НОВОЕ
+- AI перевод в админке
+- Загрузка изображений в R2
+- Калькуляторы материалов
+- Услуги компании
+- Мультиязычность (RU, FR, EN)
+
+================================================================================
+РЕКОМЕНДАЦИИ ДЛЯ ПРОДОЛЖЕНИЯ
+================================================================================
+
+1. Настроить Google OAuth в Google Cloud Console
+2. Добавить страницу профиля клиента (/account или /profile)
+3. Добавить оформление заказа (checkout)
+4. Добавить email уведомления о заказах
+5. Добавить восстановление пароля
+6. Мониторинг и аналитика заказов
+
+При проблемах проверять:
+- Cloudflare Dashboard -> Workers & Pages -> Deployments
+- Cloudflare Dashboard -> D1 -> Query для проверки данных
+- Cloudflare Dashboard -> R2 для изображений
+- Cloudflare Dashboard -> Logs для просмотра логов worker
+
+================================================================================
+КОНТАКТНАЯ ИНФОРМАЦИЯ
+================================================================================
+
+URL проекта: https://yans-deco.pages.dev
+Admin: https://yans-deco.pages.dev/admin
+Preview: https://preview.yans-deco.pages.dev
+API: https://yasndeco-api.andrey-gaffer.workers.dev
+
+Account ID: a6f65be7d970b82c7844bea3eb1134b7
+D1 Database ID: 9c32735c-132c-4111-a661-097a1a52055d
+
+================================================================================
+END OF FILE
+================================================================================

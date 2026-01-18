@@ -26,12 +26,17 @@ import {
 } from 'lucide-react';
 
 const AdminProducts: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [cloudStatus, setCloudStatus] = useState<'online' | 'offline' | 'syncing'>('online');
   const [isLight, setIsLight] = useState(() => localStorage.getItem('site-theme') === 'light');
+
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
   useEffect(() => {
     const handleThemeChange = () => {
@@ -41,7 +46,49 @@ const AdminProducts: React.FC = () => {
     window.addEventListener('themechange', handleThemeChange);
     return () => window.removeEventListener('themechange', handleThemeChange);
   }, []);
-  
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch(`${API_URL}/products`);
+      const data = await response.json();
+      if (data.success) {
+        setProducts(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to load products:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteProduct = async (id: number) => {
+    if (!confirm(t('admin.products.confirmDelete'))) return;
+    
+    try {
+      const response = await fetch(`${API_URL}/products/${id}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setProducts(products.filter(p => p.id !== id));
+      }
+    } catch (err) {
+      console.error('Failed to delete product:', err);
+    }
+  };
+
+  const getProductName = (product: any) => {
+    const lang = i18n.language;
+    if (lang === 'ru') return product.name_ru || product.name_fr || product.name_en;
+    if (lang === 'fr') return product.name_fr || product.name_ru || product.name_en;
+    if (lang === 'en') return product.name_en || product.name_ru || product.name_fr;
+    return product.name_fr || '';
+  };
+
   const themeToggle = () => {
     const newTheme = isLight ? 'dark' : 'light';
     localStorage.setItem('site-theme', newTheme);
@@ -66,14 +113,18 @@ const AdminProducts: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
   const isCloudOnline = cloudStatus === 'online';
 
-  const products = [
-    { id: '1', name: 'Peinture Acrylique Blanche', brand: 'BOSTIK', price: '24.90 €', stock: 150, status: 'active' },
-    { id: '2', name: 'Primaire Universel', brand: 'BOSTIK', price: '18.90 €', stock: 89, status: 'active' },
-    { id: '3', name: 'Colle C1', brand: 'SIKA', price: '22.90 €', stock: 45, status: 'active' },
-    { id: '4', name: 'Enduit Lissage', brand: 'TOUPRET', price: '14.90 €', stock: 200, status: 'active' },
-    { id: '5', name: 'Bande Joint Standard', brand: 'TOUPRET', price: '8.50 €', stock: 320, status: 'inactive' },
-    { id: '6', name: 'Mastic Acrylique', brand: 'BOSTIK', price: '7.50 €', stock: 175, status: 'active' },
-  ];
+  const filteredProducts = products.filter(product => 
+    getProductName(product).toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (product.sku && product.sku.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  if (loading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${isLight ? 'bg-gray-50' : 'bg-black'}`}>
+        <RefreshCw className={`w-8 h-8 text-[#FF6B00] animate-spin`} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -225,7 +276,7 @@ const AdminProducts: React.FC = () => {
 
           {/* Products Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {products.map((product, index) => (
+            {filteredProducts.map((product, index) => (
               <motion.div
                 key={product.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -236,12 +287,12 @@ const AdminProducts: React.FC = () => {
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h3 className={`font-bold italic text-lg uppercase tracking-wide mb-1 ${textClass}`}>
-                      {product.name}
+                      {getProductName(product)}
                     </h3>
-                    <p className="text-xs text-zinc-400">{product.brand}</p>
+                    <p className="text-xs text-zinc-400">{product.brand_name || 'Sans marque'}</p>
                   </div>
                   <span className={`text-lg font-bold ${textClass}`}>
-                    {product.price}
+                    {product.price?.toFixed(2)} €
                   </span>
                 </div>
 
@@ -253,25 +304,34 @@ const AdminProducts: React.FC = () => {
                     </span>
                   </div>
                   <span className={`text-xs px-2 py-1 rounded-full ${
-                    product.status === 'active' 
-                      ? 'bg-green-500/20 text-green-500' 
-                      : 'bg-gray-500/20 text-gray-500'
+                    product.is_popular 
+                      ? 'bg-[#FF6B00]/20 text-[#FF6B00]' 
+                      : 'bg-green-500/20 text-green-500'
                   }`}>
-                    {product.status === 'active' ? t('admin.products.active') : t('admin.products.inactive')}
+                    {product.is_popular ? '⭐ Populaire' : 'Actif'}
                   </span>
                 </div>
 
                 {/* Quick Actions on Hover */}
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <button className={`flex-1 flex items-center justify-center gap-1 py-2 text-xs font-bold uppercase tracking-wide border ${borderClass} rounded-lg transition-colors ${textClass} hover:border-[#FF6B00]`}>
+                  <button 
+                    onClick={() => navigate(`/admin/products/${product.id}`)}
+                    className={`flex-1 flex items-center justify-center gap-1 py-2 text-xs font-bold uppercase tracking-wide border ${borderClass} rounded-lg transition-colors ${textClass} hover:border-[#FF6B00]`}
+                  >
                     <Eye className="w-3.5 h-3.5" />
                     {t('admin.products.view')}
                   </button>
-                  <button className={`flex-1 flex items-center justify-center gap-1 py-2 text-xs font-bold uppercase tracking-wide border ${borderClass} rounded-lg transition-colors ${textClass} hover:border-[#FF6B00]`}>
+                  <button 
+                    onClick={() => navigate(`/admin/products/${product.id}/edit`)}
+                    className={`flex-1 flex items-center justify-center gap-1 py-2 text-xs font-bold uppercase tracking-wide border ${borderClass} rounded-lg transition-colors ${textClass} hover:border-[#FF6B00]`}
+                  >
                     <Edit className="w-3.5 h-3.5" />
                     {t('admin.products.edit')}
                   </button>
-                  <button className="flex items-center justify-center gap-1 px-2.5 py-2 text-xs font-bold uppercase tracking-wide border border-red-500/50 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors">
+                  <button 
+                    onClick={() => handleDeleteProduct(product.id)}
+                    className="flex items-center justify-center gap-1 px-2.5 py-2 text-xs font-bold uppercase tracking-wide border border-red-500/50 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                  >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>

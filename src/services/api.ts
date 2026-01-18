@@ -5,36 +5,16 @@ import {
   Service, 
   PageContent, 
   SiteConfig,
-  SupportedLanguages 
+  SupportedLanguages,
+  createLocalizedString
 } from '../types/localization';
 
-interface ImportMeta {
-  env: {
-    VITE_API_URL?: string;
-  };
-}
-
-const API_BASE = (import.meta as unknown as ImportMeta).env?.VITE_API_URL || '/api/v1';
+const API_BASE = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
 interface ApiResponse<T> {
   data: T;
-  meta?: {
-    total: number;
-    page: number;
-    limit: number;
-  };
   success: boolean;
   message?: string;
-}
-
-interface GetProductsParams {
-  categoryId?: string;
-  subcategoryId?: string;
-  brandId?: string;
-  search?: string;
-  page?: number;
-  limit?: number;
-  sort?: 'price_asc' | 'price_desc' | 'name' | 'newest';
 }
 
 class ApiService {
@@ -66,111 +46,151 @@ class ApiService {
     return response.json();
   }
 
-  async getBrands(activeOnly: boolean = true): Promise<Brand[]> {
-    const params = activeOnly ? '?isActive=true' : '';
-    const response = await this.request<ApiResponse<Brand[]>>(`/brands${params}`);
-    return response.data;
+  async getBrands(): Promise<Brand[]> {
+    try {
+      const response = await this.request<ApiResponse<any[]>>('/brands');
+      return response.data.map((item: any, index: number) => ({
+        id: String(item.id),
+        name: createLocalizedString(item.name, item.name, item.name),
+        slug: item.name?.toLowerCase().replace(/\s+/g, '-') || `brand-${item.id}`,
+        logoPath: item.logo_url || undefined,
+        imageUrl: item.logo_url || undefined,
+        order: index,
+        isActive: true,
+        createdAt: item.created_at || new Date().toISOString(),
+        updatedAt: item.created_at || new Date().toISOString()
+      }));
+    } catch {
+      return [];
+    }
   }
 
-  async getBrandBySlug(slug: string): Promise<Brand | null> {
+  async getBrandById(id: string): Promise<Brand | null> {
     try {
-      const response = await this.request<ApiResponse<Brand>>(`/brands/slug/${slug}`);
-      return response.data;
+      const response = await this.request<ApiResponse<any>>(`/brands/${id}`);
+      const item = response.data;
+      return {
+        id: String(item.id),
+        name: createLocalizedString(item.name, item.name, item.name),
+        slug: item.name?.toLowerCase().replace(/\s+/g, '-') || `brand-${item.id}`,
+        logoPath: item.logo_url || undefined,
+        imageUrl: item.logo_url || undefined,
+        order: 0,
+        isActive: true,
+        createdAt: item.created_at || new Date().toISOString(),
+        updatedAt: item.created_at || new Date().toISOString()
+      };
     } catch {
       return null;
     }
   }
 
-  async getCategories(parentId?: string, activeOnly: boolean = true): Promise<Category[]> {
-    const params = new URLSearchParams();
-    if (parentId) params.append('parentId', parentId);
-    if (activeOnly) params.append('isActive', 'true');
-    
-    const query = params.toString() ? `?${params.toString()}` : '';
-    const response = await this.request<ApiResponse<Category[]>>(`/categories${query}`);
-    return response.data;
-  }
-
-  async getCategoryBySlug(slug: string): Promise<Category | null> {
+  async getCategories(): Promise<Category[]> {
     try {
-      const response = await this.request<ApiResponse<Category>>(`/categories/slug/${slug}`);
-      return response.data;
+      const response = await this.request<ApiResponse<any[]>>('/categories');
+      return response.data.map((item: any, index: number) => ({
+        id: String(item.id),
+        name: createLocalizedString(item.name_fr || '', item.name_en || '', item.name_ru || ''),
+        slug: item.slug || '',
+        icon: item.icon || undefined,
+        imageUrl: item.image_url || undefined,
+        parentId: item.parent_id ? String(item.parent_id) : undefined,
+        order: item.sort_order || index,
+        isActive: true,
+        createdAt: item.created_at || new Date().toISOString(),
+        updatedAt: item.created_at || new Date().toISOString()
+      }));
     } catch {
-      return null;
+      return [];
     }
   }
 
-  async getProducts(params: GetProductsParams = {}): Promise<ApiResponse<Product[]>> {
-    const searchParams = new URLSearchParams();
-    
-    if (params.categoryId) searchParams.append('categoryId', params.categoryId);
-    if (params.subcategoryId) searchParams.append('subcategoryId', params.subcategoryId);
-    if (params.brandId) searchParams.append('brandId', params.brandId);
-    if (params.search) searchParams.append('search', params.search);
-    if (params.page) searchParams.append('page', String(params.page));
-    if (params.limit) searchParams.append('limit', String(params.limit));
-    if (params.sort) searchParams.append('sort', params.sort);
-    
-    searchParams.append('lang', this.language);
-
-    const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-    return this.request<ApiResponse<Product[]>>(`/products${query}`);
+  async getProducts(): Promise<ApiResponse<Product[]>> {
+    try {
+      const response = await this.request<ApiResponse<any[]>>('/products');
+      
+      return {
+        data: response.data.map((item: any) => ({
+          id: String(item.id),
+          sku: item.sku || '',
+          name: createLocalizedString(item.name_fr || '', item.name_en || '', item.name_ru || ''),
+          description: createLocalizedString(item.desc_fr || '', item.desc_en || '', item.desc_ru || ''),
+          slug: (item.sku || `product-${item.id}`).toLowerCase().replace(/\s+/g, '-'),
+          price: item.price || 0,
+          imageUrl: item.image_url || undefined,
+          categoryId: item.category_id ? String(item.category_id) : '',
+          brandId: item.brand_id ? String(item.brand_id) : '',
+          stockQuantity: item.stock || 0,
+          inStock: (item.stock || 0) > 0,
+          order: 0,
+          isActive: true,
+          createdAt: item.created_at || new Date().toISOString(),
+          updatedAt: item.created_at || new Date().toISOString()
+        })),
+        success: true
+      };
+    } catch {
+      return { data: [], success: false };
+    }
   }
 
   async getProductById(id: string): Promise<Product | null> {
     try {
-      const response = await this.request<ApiResponse<Product>>(`/products/${id}?lang=${this.language}`);
-      return response.data;
+      const response = await this.request<ApiResponse<any>>(`/products/${id}`);
+      const item = response.data;
+      return {
+        id: String(item.id),
+        sku: item.sku || '',
+        name: createLocalizedString(item.name_fr || '', item.name_en || '', item.name_ru || ''),
+        description: createLocalizedString(item.desc_fr || '', item.desc_en || '', item.desc_ru || ''),
+        slug: (item.sku || `product-${item.id}`).toLowerCase().replace(/\s+/g, '-'),
+        price: item.price || 0,
+        imageUrl: item.image_url || undefined,
+        categoryId: item.category_id ? String(item.category_id) : '',
+        brandId: item.brand_id ? String(item.brand_id) : '',
+        stockQuantity: item.stock || 0,
+        inStock: (item.stock || 0) > 0,
+        order: 0,
+        isActive: true,
+        createdAt: item.created_at || new Date().toISOString(),
+        updatedAt: item.created_at || new Date().toISOString()
+      };
     } catch {
       return null;
     }
   }
 
-  async getProductBySlug(slug: string): Promise<Product | null> {
-    try {
-      const response = await this.request<ApiResponse<Product>>(`/products/slug/${slug}?lang=${this.language}`);
-      return response.data;
-    } catch {
-      return null;
-    }
+  async getServices(): Promise<Service[]> {
+    return [];
   }
 
-  async getServices(activeOnly: boolean = true): Promise<Service[]> {
-    const params = activeOnly ? '?isActive=true' : '';
-    const response = await this.request<ApiResponse<Service[]>>(`/services${params}`);
-    return response.data;
-  }
-
-  async getPageContent(slug: string): Promise<PageContent | null> {
-    try {
-      const response = await this.request<ApiResponse<PageContent>>(`/pages/${slug}?lang=${this.language}`);
-      return response.data;
-    } catch {
-      return null;
-    }
+  async getPageContent(): Promise<PageContent | null> {
+    return null;
   }
 
   async getSiteConfig(): Promise<SiteConfig> {
-    const response = await this.request<ApiResponse<SiteConfig>>('/config?lang=' + this.language);
-    return response.data;
+    return {
+      companyName: createLocalizedString("Yan's Deco", "Yan's Deco", "Yan's Deco"),
+      tagline: createLocalizedString('', '', ''),
+      phone1: '',
+      phone2: '',
+      email: '',
+      address: createLocalizedString('', '', ''),
+      workingHours: {
+        mondayFriday: createLocalizedString('', '', ''),
+        saturday: createLocalizedString('', '', ''),
+        sunday: createLocalizedString('', '', ''),
+        closed: createLocalizedString('', '', '')
+      }
+    };
   }
 
   async syncTranslations(): Promise<{ success: boolean; updated: number }> {
-    const response = await this.request<{ success: boolean; updated: number }>('/admin/sync-translations', {
-      method: 'POST',
-    });
-    return response;
+    return { success: false, updated: 0 };
   }
 
-  async updateTranslation(
-    key: string, 
-    language: SupportedLanguages, 
-    value: string
-  ): Promise<{ success: boolean }> {
-    return this.request<{ success: boolean }>('/admin/translations', {
-      method: 'PUT',
-      body: JSON.stringify({ key, language, value }),
-    });
+  async updateTranslation(): Promise<{ success: boolean }> {
+    return { success: false };
   }
 }
 

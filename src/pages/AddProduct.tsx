@@ -4,8 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ChevronRight, 
-  Upload, 
-  Plus,
   Package,
   Tag,
   Award,
@@ -14,30 +12,38 @@ import {
   Settings,
   RefreshCw,
   LogOut,
-  User,
   Sparkles,
   X,
   Check,
-  Camera
+  Save,
+  User
 } from 'lucide-react';
 
 interface Brand {
   id: number;
   name: string;
   logo_url: string | null;
+  description_ru: string | null;
+  description_fr: string | null;
+  description_en: string | null;
+  created_at: string;
 }
 
 interface Category {
   id: number;
+  slug: string;
+  icon: string | null;
+  image_url: string | null;
+  parent_id: number | null;
+  sort_order: number;
   name_ru: string | null;
   name_fr: string | null;
   name_en: string | null;
-  parent_id: number | null;
   children?: Category[];
 }
 
 const AddProduct: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -51,15 +57,14 @@ const AddProduct: React.FC = () => {
     return () => window.removeEventListener('themechange', handleThemeChange);
   }, []);
 
-  // Form state
   const [sku, setSku] = useState('');
   const [price, setPrice] = useState('');
-  const [stock, setStock] = useState('');
-  const [isPopular, setIsPopular] = useState(false);
-  const [announcementDate, setAnnouncementDate] = useState('');
+  const [stock] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [brandId, setBrandId] = useState<number | null>(null);
   const [categoryId, setCategoryId] = useState<number | null>(null);
+  const [subCategoryId, setSubCategoryId] = useState<number | null>(null);
+  const [isPopular, setIsPopular] = useState(false);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -69,28 +74,64 @@ const AddProduct: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Translations state
   const [translations, setTranslations] = useState({
     ru: { name: '', description: '' },
     fr: { name: '', description: '' },
     en: { name: '', description: '' }
   });
 
-  // Modal state
   const [showBrandModal, setShowBrandModal] = useState(false);
   const [newBrandName, setNewBrandName] = useState('');
   const [newBrandLogo, setNewBrandLogo] = useState<string | null>(null);
-
-  const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
-
   const [focusedField, setFocusedField] = useState<{ lang: string; field: 'name' | 'description' } | null>(null);
   const [translatingField, setTranslatingField] = useState<{ lang: string; field: 'name' | 'description' } | null>(null);
 
-  // Load brands
+  const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
+
   useEffect(() => {
     fetchBrands();
     fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${API_URL}/categories`);
+      const data = await response.json();
+      if (data.success) {
+        const processedCategories = processCategories(data.data);
+        setCategories(processedCategories);
+      }
+    } catch (err) {
+      console.error('Failed to load categories:', err);
+    }
+  };
+
+  const processCategories = (cats: Category[]): Category[] => {
+    const categoryMap = new Map<number, Category>();
+    const rootCategories: Category[] = [];
+    
+    // First pass: create map of all categories
+    cats.forEach(cat => {
+      categoryMap.set(cat.id, { ...cat, children: [] });
+    });
+    
+    // Second pass: build hierarchy
+    cats.forEach(cat => {
+      if (cat.parent_id) {
+        const parent = categoryMap.get(cat.parent_id);
+        if (parent) {
+          parent.children = parent.children || [];
+          parent.children.push(cat);
+        }
+      } else {
+        rootCategories.push(cat);
+      }
+    });
+    
+    return rootCategories;
+  };
+
+  
 
   const fetchBrands = async () => {
     try {
@@ -101,18 +142,6 @@ const AddProduct: React.FC = () => {
       }
     } catch (err) {
       console.error('Failed to load brands:', err);
-    }
-  };
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch(`${API_URL}/categories`);
-      const data = await response.json();
-      if (data.success) {
-        setCategories(data.data);
-      }
-    } catch (err) {
-      console.error('Failed to load categories:', err);
     }
   };
 
@@ -128,7 +157,6 @@ const AddProduct: React.FC = () => {
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
     const file = e.dataTransfer.files[0];
     if (file) {
       await uploadImage(file);
@@ -146,39 +174,28 @@ const AddProduct: React.FC = () => {
     setIsUploading(true);
     setError('');
     
-    console.log('[Upload] Starting upload, file:', file.name, 'size:', file.size, 'bytes');
-    
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', 'products');
 
     try {
-      console.log('[Upload] Sending request to:', `${API_URL}/upload`);
-      
       const response = await fetch(`${API_URL}/upload`, {
         method: 'POST',
         body: formData
       });
       
-      console.log('[Upload] Response status:', response.status, response.statusText);
-      console.log('[Upload] Response headers:', Object.fromEntries(response.headers.entries()));
-      
       const data = await response.json();
-      console.log('[Upload] Response data:', data);
       
       if (data.success) {
-        console.log('[Upload] Success! URL:', data.data.url);
         setImageUrl(data.data.url);
         setImagePreview(data.data.url);
       } else {
-        console.error('[Upload] Error from server:', data.error);
-        const errorMsg = `Ошибка загрузки: ${data.error || 'Неизвестная ошибка'}`;
+        const errorMsg = `Upload error: ${data.error || 'Unknown error'}`;
         setError(errorMsg);
         window.alert(errorMsg);
       }
     } catch (err) {
-      const errorMsg = `Ошибка загрузки изображения: ${err instanceof Error ? err.message : 'Network error'}`;
-      console.error('[Upload] Network error:', err);
+      const errorMsg = `Upload error: ${err instanceof Error ? err.message : 'Network error'}`;
       setError(errorMsg);
       window.alert(errorMsg);
     } finally {
@@ -225,17 +242,15 @@ const AddProduct: React.FC = () => {
           });
           return newTranslations;
         });
-        setSuccess('Перевод выполнен успешно');
+        setSuccess('Translation completed');
         setTimeout(() => setSuccess(''), 3000);
       } else {
-        console.error('[Translate] Server error:', data.error);
-        const errorMsg = `Ошибка перевода: ${data.error || 'Неизвестная ошибка'}`;
+        const errorMsg = `Translation error: ${data.error || 'Unknown error'}`;
         setError(errorMsg);
         window.alert(errorMsg);
       }
     } catch (err) {
-      const errorMsg = `Ошибка перевода: ${err instanceof Error ? err.message : 'Network error'}`;
-      console.error('[Translate] Network error:', err);
+      const errorMsg = `Translation error: ${err instanceof Error ? err.message : 'Network error'}`;
       setError(errorMsg);
       window.alert(errorMsg);
     } finally {
@@ -245,7 +260,7 @@ const AddProduct: React.FC = () => {
 
   const handleAddBrand = async () => {
     if (!newBrandName.trim()) {
-      setError('Введите название бренда');
+      setError('Enter brand name');
       return;
     }
 
@@ -265,7 +280,7 @@ const AddProduct: React.FC = () => {
         setShowBrandModal(false);
         setNewBrandName('');
         setNewBrandLogo(null);
-        setSuccess('Бренд добавлен');
+        setSuccess('Brand added');
         setTimeout(() => setSuccess(''), 3000);
       } else {
         setError(data.error || 'Failed to add brand');
@@ -277,15 +292,15 @@ const AddProduct: React.FC = () => {
 
   const handleSave = async () => {
     if (!sku.trim()) {
-      setError('Введите артикул товара');
+      setError('Enter product SKU');
       return;
     }
-    if (!translations.ru.name.trim()) {
-      setError('Введите название товара на русском');
+    if (!translations.fr.name.trim()) {
+      setError('Enter product name');
       return;
     }
     if (!price) {
-      setError('Введите цену');
+      setError('Enter price');
       return;
     }
 
@@ -297,27 +312,27 @@ const AddProduct: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sku,
-          price: parseFloat(price),
+          sku: sku.trim(),
+          price: parseFloat(price) || 0,
           stock: parseInt(stock) || 0,
-          brand_id: brandId,
-          category_id: categoryId,
-          is_popular: isPopular,
-          announcement_date: announcementDate || null,
+          brand_id: brandId === null ? null : brandId,
+          category_id: subCategoryId !== null ? subCategoryId : categoryId,
+          is_popular: isPopular ? 1 : 0,
+          announcement_date: null,
           image_url: imageUrl || null,
-          name_ru: translations.ru.name,
-          desc_ru: translations.ru.description,
-          name_fr: translations.fr.name,
-          desc_fr: translations.fr.description,
-          name_en: translations.en.name,
-          desc_en: translations.en.description
+          name_ru: translations.ru.name || null,
+          desc_ru: translations.ru.description || null,
+          name_fr: translations.fr.name || null,
+          desc_fr: translations.fr.description || null,
+          name_en: translations.en.name || null,
+          desc_en: translations.en.description || null
         })
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setSuccess('Товар успешно добавлен!');
+        setSuccess('Product added successfully!');
         setTimeout(() => {
           navigate('/admin/products');
         }, 1500);
@@ -331,11 +346,12 @@ const AddProduct: React.FC = () => {
     }
   };
 
-  const mutedClass = isLight ? 'text-zinc-600' : 'text-zinc-400';
-  const borderClass = isLight ? 'border-black' : 'border-[#FF6B00]/20';
-  const textClass = isLight ? 'text-zinc-900' : 'text-white';
+  const mutedClass = isLight ? 'text-gray-600' : 'text-gray-400';
+  const textClass = isLight ? 'text-black' : 'text-white';
   const inputBgClass = isLight ? 'bg-white' : 'bg-black/50';
+  const borderClass = isLight ? 'border-zinc-200' : 'border-zinc-700/50';
   const headerBgClass = isLight ? 'bg-white/95 border-gray-200' : 'bg-black/95 border-white/10';
+  const featureBgClass = isLight ? 'bg-white/5' : 'bg-white/5';
 
   const adminNavItems = [
     { id: 'products', label: t('admin.sections.products.title'), icon: <Package className="w-4 h-4" />, path: '/admin/products' },
@@ -348,19 +364,53 @@ const AddProduct: React.FC = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const currentBrand = brands.find(b => b.id === brandId);
+
+  const getProductName = () => {
+    const lang = i18n.language;
+    if (lang === 'ru') return translations.ru.name || translations.fr.name || translations.en.name || '';
+    if (lang === 'fr') return translations.fr.name || translations.ru.name || translations.en.name || '';
+    if (lang === 'en') return translations.en.name || translations.ru.name || translations.fr.name || '';
+    return translations.fr.name || '';
+  };
+
+  const getCategoryName = (category: Category) => {
+    const lang = i18n.language;
+    switch (lang) {
+      case 'ru': return category.name_ru || category.name_fr || category.name_en || 'Без названия';
+      case 'en': return category.name_en || category.name_fr || category.name_ru || 'Untitled';
+      default: return category.name_fr || category.name_ru || category.name_en || 'Sans titre';
+    }
+  };
+
+  const getSubCategories = (parentId: number): Category[] => {
+    const findParent = (categories: Category[]): Category | null => {
+      for (const category of categories) {
+        if (category.id === parentId) return category;
+        if (category.children) {
+          const found = findParent(category.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    
+    const parent = findParent(categories);
+    return parent?.children || [];
+  };
+
   return (
     <div className="min-h-screen">
-      {/* Header */}
       <header className={`w-full flex items-center justify-between px-4 sm:px-6 lg:px-10 py-3 border-b fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${headerBgClass}`}>
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate('/admin/products')}
             className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${
-              isLight ? 'text-gray-500 hover:text-[#FF6B00]' : 'text-zinc-500 hover:text-[#FF6B00]'
+              isLight ? 'text-gray-500 hover:text-[#FF6B00]' : 'text-gray-400 hover:text-[#FF6B00]'
             }`}
           >
             <ChevronRight className="w-3.5 h-3.5 rotate-180" />
-            {t('admin.backToDashboard')}
+            {t('admin.backToProducts')}
           </button>
           <div className={`h-4 w-px ${isLight ? 'bg-gray-300' : 'bg-white/10'}`} />
           
@@ -372,7 +422,7 @@ const AddProduct: React.FC = () => {
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 ${
                   isActive(item.path)
                     ? isLight ? 'bg-[#FF6B00] text-black' : 'bg-[#FF6B00] text-black'
-                    : isLight ? 'text-gray-600 hover:bg-gray-100 hover:text-[#FF6B00]' : 'text-zinc-400 hover:bg-white/5 hover:text-[#FF6B00]'
+                    : isLight ? 'text-gray-600 hover:bg-gray-100 hover:text-[#FF6B00]' : 'text-gray-400 hover:bg-white/5 hover:text-[#FF6B00]'
                 }`}
               >
                 {item.icon}
@@ -383,11 +433,6 @@ const AddProduct: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider bg-[#FF6B00] text-black rounded-lg hover:bg-[#FF8533] transition-colors">
-            <Upload className="w-3 h-3" />
-            {t('admin.sync')}
-          </button>
-
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-full bg-[#FF6B00] flex items-center justify-center">
               <User className="w-3.5 h-3.5 text-black" />
@@ -395,7 +440,7 @@ const AddProduct: React.FC = () => {
             <button
               onClick={() => navigate('/')}
               className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${
-                isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-zinc-400 hover:text-[#FF6B00]'
+                isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-400 hover:text-[#FF6B00]'
               }`}
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -405,66 +450,130 @@ const AddProduct: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="pt-20 pb-12">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Page Title */}
-          <div className="mb-8">
-            <h1 className={`font-black italic text-3xl md:text-4xl uppercase tracking-tight ${textClass}`}>
-              Добавить товар
-            </h1>
-            <p className={`text-sm ${mutedClass} mt-1`}>
-              Заполните информацию о товаре на трёх языках
-            </p>
-          </div>
-
-          {/* Messages */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-500 text-sm"
+      <main className="min-h-screen pt-4">
+        <section className="py-12 transition-colors duration-500 bg-transparent">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <button
+              onClick={() => navigate('/admin/products')}
+              className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
+                isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-400 hover:text-[#FF6B00]'
+              }`}
             >
-              {error}
-            </motion.div>
-          )}
+              <ChevronRight className="w-4 h-4 rotate-180" />
+              {t('admin.backToProducts')}
+            </button>
 
-          {success && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded-lg text-green-500 text-sm flex items-center gap-2"
-            >
-              <Check className="w-4 h-4" />
-              {success}
-            </motion.div>
-          )}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-500 text-sm"
+              >
+                {error}
+              </motion.div>
+            )}
 
-          <div className="space-y-6">
-            {/* Basic Info */}
-            <div className={`p-6 border ${borderClass} rounded-xl`}>
-              <h2 className={`font-bold italic text-lg uppercase tracking-wide mb-4 ${textClass}`}>
-                Основная информация
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
-                    Артикул *
+            {success && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded-lg text-green-500 text-sm flex items-center gap-2"
+              >
+                <Check className="w-4 h-4" />
+                {success}
+              </motion.div>
+            )}
+
+            <div className="grid lg:grid-cols-2 gap-12">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <div 
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`relative rounded-2xl overflow-hidden bg-white/5 backdrop-blur-sm border-2 border-dashed transition-all duration-300 ${
+                    isDragging 
+                      ? 'border-[#FF6B00] bg-[#FF6B00]/10' 
+                      : `${borderClass}`
+                  }`}
+                >
+                  <div className="aspect-square flex items-center justify-center p-8">
+                    {isUploading ? (
+                      <div className="flex flex-col items-center gap-3">
+                        <RefreshCw className="w-10 h-10 text-[#FF6B00] animate-spin" />
+                        <p className={`text-sm ${mutedClass}`}>Загрузка...</p>
+                      </div>
+                    ) : imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Product preview"
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <Package className="w-20 h-20 text-gray-300" />
+                        <p className={`mt-4 text-sm ${mutedClass}`}>Перетащите фото сюда</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <label className={`absolute inset-0 cursor-pointer ${!imagePreview ? 'flex' : 'hidden'}`}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
                   </label>
-                  <input
-                    type="text"
-                    value={sku}
-                    onChange={(e) => setSku(e.target.value)}
-                    className={`w-full px-4 py-2.5 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
-                    placeholder="SKU-12345"
-                  />
+
+                  {imagePreview && (
+                    <button
+                      onClick={() => { setImagePreview(''); setImageUrl(''); }}
+                      className="absolute top-4 right-4 p-2 bg-red-500 rounded-full text-white hover:bg-red-600 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
-                
-                <div>
-                  <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
-                    Цена *
-                  </label>
+
+                <p className={`text-center text-xs mt-3 ${mutedClass}`}>
+                  PNG, JPG до 5MB
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                className="flex flex-col"
+              >
+                <div className="mb-4">
+                  <span className="text-[#FF6B00] text-sm font-bold uppercase tracking-wide">
+                    {currentBrand?.name || 'НОВЫЙ ТОВАР'}
+                  </span>
+                </div>
+
+                <input
+                  type="text"
+                  value={getProductName()}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setTranslations(prev => ({
+                      ...prev,
+                      fr: { ...prev.fr, name: value },
+                      ru: { ...prev.ru, name: value },
+                      en: { ...prev.en, name: value }
+                    }));
+                  }}
+                  className={`w-full font-black italic text-3xl uppercase tracking-tight bg-transparent border-none focus:outline-none focus:ring-0 placeholder-gray-300 ${textClass}`}
+                  placeholder="НАЗВАНИЕ ТОВАРА"
+                />
+
+                <div className="flex items-center gap-4 mt-4 mb-6">
                   <div className="relative">
                     <input
                       type="number"
@@ -472,335 +581,243 @@ const AddProduct: React.FC = () => {
                       min="0"
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
-                      className={`w-full px-4 py-2.5 pr-12 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                      className={`w-28 pr-8 font-bold text-2xl bg-transparent border-b border-dashed focus:outline-none focus:border-[#FF6B00] ${textClass} placeholder-gray-300`}
                       placeholder="0.00"
                     />
-                    <span className={`absolute right-4 top-1/2 -translate-y-1/2 ${mutedClass}`}>€</span>
+                    <span className={`absolute right-0 top-1/2 -translate-y-1/2 font-bold text-2xl text-[#FF6B00]`}>€</span>
                   </div>
-                </div>
-                
-                <div>
-                  <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
-                    Остаток на складе
-                  </label>
+                  
+                  <span className={`text-sm ${mutedClass}`}>•</span>
+                  
                   <input
-                    type="number"
-                    min="0"
-                    value={stock}
-                    onChange={(e) => setStock(e.target.value)}
-                    className={`w-full px-4 py-2.5 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
-                    placeholder="0"
+                    type="text"
+                    value={sku}
+                    onChange={(e) => setSku(e.target.value)}
+                    className={`flex-1 text-sm ${mutedClass} bg-transparent border-b border-dashed focus:outline-none focus:border-[#FF6B00] placeholder-gray-300`}
+                    placeholder="Артикул"
                   />
                 </div>
-              </div>
 
-              {/* Brand Selector */}
-              <div className="mt-4">
-                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
-                  Бренд
-                </label>
-                <div className="flex gap-2">
-                  <select
-                    value={brandId || ''}
-                    onChange={(e) => setBrandId(e.target.value ? parseInt(e.target.value) : null)}
-                    className={`flex-1 px-4 py-2.5 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
-                  >
-                    <option value="">Выберите бренд...</option>
-                    {brands.map((brand) => (
-                      <option key={brand.id} value={brand.id}>
-                        {brand.name}
-                      </option>
+<p className={`text-sm leading-relaxed mb-6 ${mutedClass}`}>
+                      Полное описание товара...
+                    </p>
+
+                <div className="mb-8">
+                  <h3 className={`font-bold italic text-lg uppercase mb-4 ${textClass}`}>
+                    Характеристики
+                  </h3>
+                  <ul className="space-y-2">
+                    {[
+                      { lang: 'fr', label: 'Français', value: translations.fr.description },
+                      { lang: 'ru', label: 'Русский', value: translations.ru.description },
+                      { lang: 'en', label: 'English', value: translations.en.description }
+                    ].filter(item => item.value && item.value.length > 10).slice(0, 4)                    .map((item) => (
+                      <li key={item.lang} className={`flex items-center gap-2 text-sm ${mutedClass}`}>
+                        <Check className="w-4 h-4 text-[#FF6B00] flex-shrink-0" />
+                        {item.value.substring(0, 80)}{item.value.length > 80 ? '...' : ''}
+                      </li>
                     ))}
-                  </select>
-                  <button
-                    onClick={() => setShowBrandModal(true)}
-                    className={`px-4 py-2.5 border ${borderClass} rounded-lg text-sm font-bold uppercase tracking-wide transition-colors ${textClass} hover:border-[#FF6B00] flex items-center gap-1`}
-                  >
-                    <Plus className="w-4 h-4" />
-                    Новый
-                  </button>
+                    {translations.fr.description.length <= 10 && (
+                      <li className={`flex items-center gap-2 text-sm ${mutedClass}`}>
+                        <Check className="w-4 h-4 text-[#FF6B00] flex-shrink-0" />
+                        <span className="italic">Добавьте описание для характеристик</span>
+                      </li>
+                    )}
+                  </ul>
                 </div>
-              </div>
 
-              {/* Category Selector */}
-              <div className="mt-4">
-                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
-                  Категория
-                </label>
-                <select
-                  value={categoryId || ''}
-                  onChange={(e) => setCategoryId(e.target.value ? parseInt(e.target.value) : null)}
-                  className={`w-full px-4 py-2.5 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
-                >
-                  <option value="">Выберите категорию...</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name_ru || cat.name_fr || 'Category ' + cat.id}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Image Upload */}
-            <div className={`p-6 border ${borderClass} rounded-xl`}>
-              <h2 className={`font-bold italic text-lg uppercase tracking-wide mb-4 ${textClass}`}>
-                Изображение товара
-              </h2>
-              
-              <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
-                  isDragging 
-                    ? 'border-[#FF6B00] bg-[#FF6B00]/10' 
-                    : `${borderClass} ${isLight ? 'bg-gray-50' : 'bg-black/30'}`
-                }`}
-              >
-                {isUploading ? (
-                  <div className="flex flex-col items-center gap-3">
-                    <RefreshCw className="w-8 h-8 text-[#FF6B00] animate-spin" />
-                    <p className={`text-sm ${mutedClass}`}>Загрузка...</p>
-                  </div>
-                ) : imagePreview ? (
-                  <div className="relative">
-                    <img 
-                      src={imagePreview} 
-                      alt="Product preview" 
-                      className="max-h-64 mx-auto rounded-lg"
-                    />
-                    <button
-                      onClick={() => { setImagePreview(''); setImageUrl(''); }}
-                      className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <Upload className={`w-10 h-10 mx-auto mb-3 ${mutedClass}`} />
-                    <p className={`text-sm mb-2 ${mutedClass}`}>
-                      Перетащите файл сюда или нажмите кнопку ниже
-                    </p>
-                    <p className={`text-xs ${mutedClass} opacity-70 mb-4`}>
-                      PNG, JPG до 5MB
-                    </p>
-                    
-                    <label className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF6B00] text-black text-sm font-bold uppercase tracking-wide rounded-lg hover:bg-[#FF8533] transition-colors cursor-pointer">
-                      <Camera className="w-5 h-5" />
-                      Выбрать файл
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        onChange={handleFileSelect}
-                        className="hidden"
-                      />
-                    </label>
-                    
+                <div className="mt-6 mb-6">
+                  <label className={`flex items-center gap-3 cursor-pointer ${textClass}`}>
                     <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileSelect}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      type="checkbox"
+                      checked={isPopular}
+                      onChange={(e) => setIsPopular(e.target.checked)}
+                      className="w-5 h-5 text-[#FF6B00] bg-transparent border-2 border-[#FF6B00] rounded focus:ring-[#FF6B00] focus:ring-2 focus:ring-offset-0"
                     />
-                  </>
-                )}
-              </div>
+                    <span className="text-sm font-medium">
+                      {t('admin.content.popularProduct')}
+                    </span>
+                  </label>
+                </div>
+
+                <div className="mt-auto">
+                  <button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="w-full bg-[#FF6B00] text-black px-8 py-4 text-sm font-bold uppercase tracking-wider rounded-xl hover:bg-[#FF8533] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50"
+                  >
+                    {isSaving ? (
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        <Save className="w-5 h-5" />
+                        Добавить товар
+                      </>
+                    )}
+                  </button>
+                </div>
+              </motion.div>
             </div>
 
-            {/* Translations */}
-            <div className={`p-6 border ${borderClass} rounded-xl`}>
-              <div className="mb-4">
-                <h2 className={`font-bold italic text-lg uppercase tracking-wide ${textClass}`}>
-                  Мультиязычный контент
-                </h2>
-                <p className={`text-xs ${mutedClass} mt-1`}>
-                  Введите текст на любом языке и нажмите на иконку ✨ для перевода на остальные языки
-                </p>
-              </div>
-
-              {/* Language Tabs */}
-              <div className="flex gap-2 mb-6">
-                {[
-                  { code: 'ru', label: 'RU', flag: '🇷🇺' },
-                  { code: 'fr', label: 'FR', flag: '🇫🇷' },
-                  { code: 'en', label: 'EN', flag: '🇬🇧' }
-                ].map((lang) => (
-                  <button
-                    key={lang.code}
-                    className={`px-4 py-2 text-xs font-bold uppercase tracking-wide rounded-lg transition-colors ${
-                      translations[lang.code as keyof typeof translations] === translations.ru 
-                        ? 'bg-[#FF6B00] text-black' 
-                        : `border ${borderClass} ${textClass} hover:border-[#FF6B00]`
-                    }`}
-                  >
-                    {lang.flag} {lang.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Translation Fields */}
-              <div className="space-y-6">
-                {['ru', 'fr', 'en'].map((lang) => (
-                  <div key={lang} className="space-y-4">
-                    <div className="relative">
-                      <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
-                        Название ({lang.toUpperCase()}) {lang === 'ru' && '*'}
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          value={translations[lang as keyof typeof translations].name}
-                          onChange={(e) => {
-                            setTranslations(prev => ({
-                              ...prev,
-                              [lang]: { ...prev[lang as keyof typeof prev], name: e.target.value }
-                            }));
-                            setFocusedField({ lang, field: 'name' });
-                          }}
-                          onFocus={() => setFocusedField({ lang, field: 'name' })}
-                          onBlur={() => setTimeout(() => setFocusedField(null), 200)}
-                          className={`w-full px-4 py-2.5 pr-14 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
-                          placeholder={lang === 'ru' ? 'Название товара' : lang === 'fr' ? 'Nom du produit' : 'Product name'}
-                        />
-                        <AnimatePresence>
-                          {focusedField?.lang === lang && focusedField?.field === 'name' && 
-                           translations[lang as keyof typeof translations].name.length >= 3 && (
-                            <motion.button
-                              initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              exit={{ opacity: 0, scale: 0.8 }}
-                              onClick={() => handleTranslateFromField(lang, 'name')}
-                              disabled={translatingField !== null}
-                              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-[#FF6B00]/20 hover:bg-[#FF6B00]/40 rounded-lg transition-colors group"
-                              title="AI Translate"
-                            >
-                              {translatingField?.lang === lang && translatingField?.field === 'name' ? (
-                                <RefreshCw className="w-4 h-4 text-[#FF6B00] animate-spin" />
-                              ) : (
-                                <Sparkles className="w-4 h-4 text-[#FF6B00] group-hover:scale-110 transition-transform" />
-                              )}
-                            </motion.button>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </div>
-                    <div className="relative">
-                      <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
-                        Описание ({lang.toUpperCase()})
-                      </label>
-                      <div className="relative">
-                        <textarea
-                          rows={3}
-                          value={translations[lang as keyof typeof translations].description}
-                          onChange={(e) => {
-                            setTranslations(prev => ({
-                              ...prev,
-                              [lang]: { ...prev[lang as keyof typeof prev], description: e.target.value }
-                            }));
-                            setFocusedField({ lang, field: 'description' });
-                          }}
-                          onFocus={() => setFocusedField({ lang, field: 'description' })}
-                          onBlur={() => setTimeout(() => setFocusedField(null), 200)}
-                          className={`w-full px-4 py-2.5 pr-14 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass} resize-none`}
-                          placeholder="Описание товара..."
-                        />
-                        <AnimatePresence>
-                          {focusedField?.lang === lang && focusedField?.field === 'description' &&
-                           translations[lang as keyof typeof translations].description.length >= 3 && (
-                            <motion.button
-                              initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              exit={{ opacity: 0, scale: 0.8 }}
-                              onClick={() => handleTranslateFromField(lang, 'description')}
-                              disabled={translatingField !== null}
-                              className="absolute right-2 top-3 p-1.5 bg-[#FF6B00]/20 hover:bg-[#FF6B00]/40 rounded-lg transition-colors group"
-                              title="AI Translate"
-                            >
-                              {translatingField?.lang === lang && translatingField?.field === 'description' ? (
-                                <RefreshCw className="w-4 h-4 text-[#FF6B00] animate-spin" />
-                              ) : (
-                                <Sparkles className="w-4 h-4 text-[#FF6B00] group-hover:scale-110 transition-transform" />
-                              )}
-                            </motion.button>
-                          )}
-                        </AnimatePresence>
-                      </div>
+            <div className="mt-12 max-w-2xl">
+              <div className="mb-6">
+                <h3 className={`font-bold italic text-xl uppercase tracking-wide mb-6 ${textClass}`}>
+                  {t('admin.brands.title')}
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
+                      {t('admin.brands.select')}
+                    </label>
+                    <div className="flex gap-2">
+                      <select
+                        value={brandId || ''}
+                        onChange={(e) => setBrandId(e.target.value ? parseInt(e.target.value) : null)}
+                        className={`flex-1 px-4 py-3 rounded-lg border ${borderClass} text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                      >
+                        <option value="">{t('admin.brands.select')}</option>
+                        {brands.map((brand) => (
+                          <option key={brand.id} value={brand.id}>
+                            {brand.name}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => setShowBrandModal(true)}
+                        className={`px-4 py-3 rounded-lg border ${borderClass} text-sm font-bold uppercase tracking-wide transition-colors ${textClass} hover:border-[#FF6B00]`}
+                      >
+                        + {t('admin.brands.add')}
+                      </button>
                     </div>
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
 
-            {/* Commercial Params */}
-            <div className={`p-6 border ${borderClass} rounded-xl`}>
-              <h2 className={`font-bold italic text-lg uppercase tracking-wide mb-4 ${textClass}`}>
-                Коммерческие параметры
-              </h2>
-              
-              <div className="space-y-4">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isPopular}
-                    onChange={(e) => setIsPopular(e.target.checked)}
-                    className="w-5 h-5 rounded border-2 border-[#FF6B00] text-[#FF6B00] focus:ring-[#FF6B00]"
-                  />
-                  <span className={`text-sm font-medium ${textClass}`}>
-                    Сделать популярным
-                  </span>
-                </label>
+              <div className="mb-6">
+                <h3 className={`font-bold italic text-xl uppercase tracking-wide mb-6 ${textClass}`}>
+                  {t('admin.categories.title')}
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
+                      {t('admin.categories.title')}
+                    </label>
+                    <select
+                      value={categoryId || ''}
+                      onChange={(e) => setCategoryId(e.target.value ? parseInt(e.target.value) : null)}
+                      className={`w-full px-4 py-3 rounded-lg border ${borderClass} text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                    >
+                      <option value="">{t('admin.categories.select')}</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {getCategoryName(category)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                <div>
-                  <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
-                    Дата анонса (если товар "Скоро в продаже")
-                  </label>
-                  <input
-                    type="date"
-                    value={announcementDate}
-                    onChange={(e) => setAnnouncementDate(e.target.value)}
-                    className={`w-full md:w-64 px-4 py-2.5 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
-                  />
-                  <p className={`text-xs mt-1 ${mutedClass}`}>
-                    Оставьте пустым, если товар уже в продаже
-                  </p>
+                  {categoryId && getSubCategories(categoryId).length > 0 && (
+                    <div className="ml-4">
+                      <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
+                        {t('admin.categories.subcategory')}
+                      </label>
+                      <select
+                        value={subCategoryId || ''}
+                        onChange={(e) => setSubCategoryId(e.target.value ? parseInt(e.target.value) : null)}
+                        className={`w-full px-4 py-3 rounded-lg border ${borderClass} text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                      >
+                        <option value="">{t('admin.categories.selectSub')}</option>
+                        {getSubCategories(categoryId).map((subCategory) => (
+                          <option key={subCategory.id} value={subCategory.id}>
+                            {getCategoryName(subCategory)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Submit */}
-            <div className="flex justify-end gap-4 pt-4">
-              <button
-                onClick={() => navigate('/admin/products')}
-                className={`px-6 py-3 border ${borderClass} rounded-lg text-sm font-bold uppercase tracking-wide transition-colors ${textClass} hover:border-[#FF6B00]`}
-              >
-                Отмена
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="px-8 py-3 bg-[#FF6B00] text-black rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-[#FF8533] transition-colors disabled:opacity-50 flex items-center gap-2"
-              >
-                {isSaving ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    Сохранение...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4" />
-                    Добавить товар
-                  </>
-                )}
-              </button>
+                <div className="mt-12">
+              <h3 className={`font-bold italic text-xl uppercase tracking-wide mb-6 ${textClass}`}>
+                Переводы
+              </h3>
+              <div className="space-y-6">
+                {[
+                  { lang: 'fr', label: 'Français', flag: '🇫🇷' },
+                  { lang: 'en', label: 'English', flag: '🇬🇧' },
+                  { lang: 'ru', label: 'Русский', flag: '🇷🇺' }
+                ].map((lang) => (
+                  <motion.div
+                    key={lang.lang}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`p-4 rounded-xl ${featureBgClass}`}
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-lg">{lang.flag}</span>
+                      <span className={`text-sm font-bold uppercase tracking-wide ${textClass}`}>
+                        {lang.label}
+                      </span>
+                      <AnimatePresence>
+                        {focusedField?.lang === lang.lang && focusedField?.field === 'name' && 
+                         translations[lang.lang as keyof typeof translations].name.length >= 3 && (
+                          <motion.button
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            onClick={() => handleTranslateFromField(lang.lang, 'name')}
+                            disabled={translatingField !== null}
+                            className="ml-auto p-1.5 bg-[#FF6B00]/20 rounded-lg transition-colors group"
+                            title="AI Translate"
+                          >
+                            {translatingField?.lang === lang.lang && translatingField?.field === 'name' ? (
+                              <RefreshCw className="w-4 h-4 text-[#FF6B00] animate-spin" />
+                            ) : (
+                              <Sparkles className="w-4 h-4 text-[#FF6B00]" />
+                            )}
+                          </motion.button>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                    <div className="grid gap-3">
+                      <input
+                        type="text"
+                        value={translations[lang.lang as keyof typeof translations].name}
+                        onChange={(e) => {
+                          setTranslations(prev => ({
+                            ...prev,
+                            [lang.lang]: { ...prev[lang.lang as keyof typeof prev], name: e.target.value }
+                          }));
+                          setFocusedField({ lang: lang.lang, field: 'name' });
+                        }}
+                        onFocus={() => setFocusedField({ lang: lang.lang, field: 'name' })}
+                        className={`w-full px-4 py-2 bg-transparent border rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                        placeholder="Название"
+                      />
+                      <textarea
+                        rows={2}
+                        value={translations[lang.lang as keyof typeof translations].description}
+                        onChange={(e) => {
+                          setTranslations(prev => ({
+                            ...prev,
+                            [lang.lang]: { ...prev[lang.lang as keyof typeof prev], description: e.target.value }
+                          }));
+                        }}
+                        className={`w-full px-4 py-2 bg-transparent border rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass} resize-none`}
+                        placeholder="Описание"
+                      />
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        </section>
       </main>
 
-      {/* Brand Modal */}
       <AnimatePresence>
         {showBrandModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

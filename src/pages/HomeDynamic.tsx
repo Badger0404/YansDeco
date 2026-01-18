@@ -7,10 +7,11 @@ import { useLocalized, getLang } from '../hooks/useLocalized';
 
 const Home: React.FC = () => {
   const { i18n } = useTranslation();
-  const { currentLang, getLang: tObj } = useLocalized();
+  const { currentLang } = useLocalized();
   
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [slides, setSlides] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,13 +21,23 @@ const Home: React.FC = () => {
       try {
         api.setLanguage(currentLang);
         
-        const [brandsData, categoriesData] = await Promise.all([
+        const [brandsData, categoriesData, slidesData] = await Promise.all([
           api.getBrands(),
-          api.getCategories()
+          api.getCategories(),
+          fetch('https://yasndeco-api.andrey-gaffer.workers.dev/api/hero-slides').then(res => res.json())
         ]);
         
         setBrands(brandsData);
         setCategories(categoriesData);
+        
+        if (slidesData.success) {
+          const formattedSlides = slidesData.data.map((slide: any) => ({
+            label: slide[`badge_${currentLang}`] || slide.badge_fr || '',
+            title: slide[`title_${currentLang}`] || slide.title_fr || '',
+            description: slide[`subtitle_${currentLang}`] || slide.subtitle_fr || ''
+          }));
+          setSlides(formattedSlides);
+        }
       } catch (error) {
         console.error('Failed to load data:', error);
       } finally {
@@ -36,26 +47,6 @@ const Home: React.FC = () => {
 
     loadData();
   }, [currentLang]);
-
-  const slides = [
-    {
-      label: tObj({
-        fr: 'LIVRAISON EXPRESS DISPONIBLE',
-        en: 'EXPRESS DELIVERY AVAILABLE',
-        ru: 'ДОСТУПНА ЭКСПРЕСС-ДОСТАВКА'
-      }),
-      title: tObj({
-        fr: 'MATÉRIAUX DE CONSTRUCTION AVEC LIVRAISON RAPIDE',
-        en: 'CONSTRUCTION MATERIALS WITH FAST DELIVERY',
-        ru: 'СТРОИТЕЛЬНЫЕ МАТЕРИАЛЫ С БЫСТРОЙ ДОСТАВКОЙ'
-      }),
-      description: tObj({
-        fr: "Basé à Groslay, nous servons les professionnels et particuliers à Montmorency et dans toute l'Île-de-France. Qualité industrielle, service local.",
-        en: "Based in Groslay, we serve professionals and individuals in Montmorency and throughout Île-de-France. Industrial quality, local service.",
-        ru: 'Базируясь в Гролэ, мы обслуживаем профессионалов и частных лиц в Монморанси и по всему региону Иль-де-Франс.'
-      })
-    }
-  ];
 
   if (loading) {
     return (

@@ -1,17 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import AuthModal from './auth/AuthModal';
 
 interface HeaderProps {
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
 }
 
+interface SiteConfig {
+  phone1: { ru: string; fr: string; en: string };
+  phone2: { ru: string; fr: string; en: string };
+  email: { ru: string; fr: string; en: string };
+  address: { ru: string; fr: string; en: string };
+}
+
 const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
   const { t, i18n } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [siteConfig, setSiteConfig] = useState<SiteConfig | null>(null);
+  const { totalItems, setIsCartOpen } = useCart();
+  const { client, isAuthenticated, logout } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const isLight = theme === 'light';
+
+  useEffect(() => {
+    fetchSiteConfig();
+  }, []);
+
+  const fetchSiteConfig = async () => {
+    try {
+      const response = await fetch('https://yasndeco-api.andrey-gaffer.workers.dev/api/site-config');
+      const data = await response.json();
+      if (data.success) {
+        setSiteConfig(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching site config:', error);
+    }
+  };
+
+  const getConfigValue = (key: string) => {
+    if (!siteConfig || !(key in siteConfig)) return '';
+    const lang = i18n.language;
+    const configValue = siteConfig[key as keyof SiteConfig];
+    if (!configValue) return '';
+    return configValue[lang as keyof typeof configValue] || configValue.fr || '';
+  };
 
   const currentLang = i18n.language;
 
@@ -89,8 +127,8 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
           <div className={`hidden sm:flex flex-col items-end text-[10px] font-medium leading-tight ${
             isLight ? 'text-gray-600' : 'text-gray-400'
           }`}>
-            <span>{t('header.phone1')}</span>
-            <span>{t('header.phone2')}</span>
+            <span>{getConfigValue('phone1') || t('header.phone1')}</span>
+            <span>{getConfigValue('phone2') || t('header.phone2')}</span>
           </div>
 
           <div className="hidden sm:flex gap-1 text-xs">
@@ -112,20 +150,45 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
           </div>
 
           <button 
-            className={`transition-colors duration-200 ${isLight ? 'text-black hover:text-[#FF6B00]' : 'text-white hover:text-[#FF6B00]'}`} 
+            className={`relative transition-colors duration-200 ${isLight ? 'text-black hover:text-[#FF6B00]' : 'text-white hover:text-[#FF6B00]'}`} 
             aria-label="Panier"
+            onClick={() => setIsCartOpen(true)}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 w-5 h-5 bg-[#FF6B00] text-black text-xs font-bold rounded-full flex items-center justify-center">
+                {totalItems > 99 ? '99+' : totalItems}
+              </span>
+            )}
           </button>
 
-          <button className="hidden sm:flex items-center gap-2 bg-[#FF6B00] text-black px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-none hover:opacity-90 transition-opacity duration-200">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-            </svg>
-            Connexion
-          </button>
+          {isAuthenticated && client ? (
+            <div className="hidden sm:flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-[#FF6B00] flex items-center justify-center">
+                <span className="text-black text-xs font-bold">
+                  {client.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <button
+                onClick={logout}
+                className="text-xs font-bold uppercase tracking-wide hover:text-[#FF6B00] transition-colors"
+              >
+                {t('auth.logout')}
+              </button>
+            </div>
+          ) : (
+            <button 
+              onClick={() => setIsAuthModalOpen(true)}
+              className="hidden sm:flex items-center gap-2 bg-[#FF6B00] text-black px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-none hover:opacity-90 transition-opacity duration-200"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+              </svg>
+              Connexion
+            </button>
+          )}
 
           <button
             onClick={(e) => {
@@ -221,17 +284,37 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
               </ul>
 
               <div className="mt-8 pt-6 border-t border-white/10 space-y-3">
-                <button className="w-full flex items-center justify-center gap-2 bg-[#FF6B00] text-black px-4 py-3 text-sm font-bold uppercase tracking-wider rounded-lg hover:opacity-90 transition-opacity">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                  </svg>
-                  Connexion
-                </button>
+                {isAuthenticated && client ? (
+                  <button
+                    onClick={logout}
+                    className="w-full flex items-center justify-center gap-2 border border-red-500 text-red-500 px-4 py-3 text-sm font-bold uppercase tracking-wider rounded-lg hover:bg-red-500 hover:text-white transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
+                    </svg>
+                    {t('auth.logout')}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setIsAuthModalOpen(true);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 bg-[#FF6B00] text-black px-4 py-3 text-sm font-bold uppercase tracking-wider rounded-lg hover:opacity-90 transition-opacity"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                    </svg>
+                    Connexion
+                  </button>
+                )}
               </div>
             </nav>
           </div>
         </div>
       )}
+
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} theme={theme} />
     </>
   );
 };

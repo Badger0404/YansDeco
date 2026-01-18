@@ -101,7 +101,10 @@
   "brands": {
     "title": "NOS MARQUES",
     "subtitle": "Nous travaillons avec les plus grandes marques du secteur pour vous garantir qualité et fiabilité.",
-    "viewAll": "Voir tous les produits"
+    "viewAll": "Voir tous les produits",
+    "back": "← Aux marques",
+    "productsTitle": "PRODUITS",
+    "noProducts": "Les produits de cette marque seront bientôt disponibles"
   },
   "services": {
     "title": "NOS SERVICES",
@@ -122,6 +125,9 @@
       "title": "Devis Professionnels",
       "desc": "Devis gratuit sous 24h"
     }
+  },
+  "accueil": {
+    "popular": "Populaires"
   },
   "contact": {
     "title": "OÙ NOUS TROUVER",
@@ -151,9 +157,11 @@
     "notFound": "Produit non trouvé."
   },
   "admin": {
+    "menu": "MENU",
     "backToSite": "← RETOURNER AU SITE",
     "backToDashboard": "← RETOUR",
-    "logout": "Déconnexion",
+    "backToBrands": "← AUX MARQUES",
+    "back": "Retour",
     "cloudStatus": {
       "online": "Online",
       "offline": "Offline",
@@ -197,6 +205,57 @@
       "settings": {
         "title": "PARAMÈTRES",
         "description": "Paramètres généraux et Cloud"
+      },
+      "content": {
+        "title": "CONTENU SITE",
+        "description": "Gestion du contenu du site",
+        "backToDashboard": "Retour au dashboard",
+        "slidesHero": "Slides Hero",
+        "materialsCalculator": "Matériaux Calculateur",
+        "siteConfig": "Configuration du site",
+        "addSlide": "Ajouter un slide",
+        "addMaterial": "Ajouter un matériel",
+        "saveConfig": "Sauvegarder la configuration",
+        "badge": "Badge",
+        "title": "Titre", 
+        "subtitle": "Sous-titre",
+        "name": "Nom",
+        "consumption": "Consommation",
+        "unit": "Unité",
+        "coats": "Couches",
+        "order": "Ordre",
+        "active": "Actif",
+        "inactive": "Inactif",
+        "actions": "Actions",
+        "yes": "Oui",
+        "no": "Non",
+        "loading": "Chargement...",
+        "editSlide": "Modifier le slide",
+        "newSlide": "Nouveau slide",
+        "editMaterial": "Modifier le matériel",
+        "newMaterial": "Nouveau matériel",
+        "confirmDeleteSlide": "Êtes-vous sûr de vouloir supprimer ce slide ?",
+        "confirmDeleteMaterial": "Êtes-vous sûr de vouloir supprimer ce matériel ?",
+        "configSaved": "Configuration sauvegardée avec succès",
+"cancel": "Annuler",
+    "save": "Sauvegarder",
+    "popularProduct": "Afficher sur la page d'accueil (produit populaire)"
+      },
+      "services": {
+        "title": "Services",
+        "manageServices": "Gérez les services affichés sur la page Services",
+        "addService": "Ajouter un service",
+        "editService": "Éditer",
+        "noServices": "Aucun service disponible",
+        "key": "Clé",
+        "emoji": "Emoji",
+        "gradient": "Gradient",
+        "serviceLabels": {
+          "delivery": "Livraison",
+          "pickup": "Retrait", 
+          "advice": "Conseils",
+          "quote": "Devis"
+        }
       }
     },
     "quickActions": {
@@ -205,6 +264,29 @@
       "importCsv": "Importer CSV",
       "exportData": "Exporter Données",
       "syncCloud": "Sync Cloud"
+    },
+    "categories": {
+      "title": "Gestion des catégories",
+      "description": "Gérez les catégories de produits et leur organisation",
+      "import": "Importer",
+      "newCategory": "Nouvelle catégorie",
+      "filters": "Filtres",
+      "order": "Order",
+      "noCategoriesFound": "Aucune catégorie trouvée",
+      "tryAnotherSearch": "Essayez une autre recherche",
+      "startByAdding": "Commencez par ajouter votre première catégorie",
+      "cloudOnline": "Cloud Online",
+      "cloudOffline": "Cloud Offline",
+      "manageCategories": "Gestion des catégories"
+    },
+    "brands": {
+      "searchPlaceholder": "Rechercher une marque...",
+      "brandLogo": "Logo de la marque",
+      "multilingualDescription": "Description multilingue",
+      "translateHint": "Entrez le texte dans n'importe quelle langue et appuyez sur ✨ pour traduire",
+      "dragDropFile": "Glissez le fichier ici ou cliquez pour sélectionner",
+      "fileInfo": "PNG, JPG jusqu'à 5MB",
+      "chooseFile": "Choisir le fichier"
     },
     "recentActivity": {
       "title": "Activité Récente",
@@ -263,7 +345,9 @@
       "delete": "Supprimer",
       "logo": "Logo",
       "website": "Site web",
-      "noBrands": "Aucune marque trouvée"
+      "noBrands": "Aucune marque trouvée",
+      "noProducts": "Les produits de cette marque seront bientôt disponibles",
+      "name": "Nom de la marque"
     },
     "translations": {
       "title": "Gestion des Traductions",

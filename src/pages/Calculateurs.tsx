@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Material {
-  name: string;
+  id: number;
+  name_ru: string;
+  name_fr: string;
+  name_en: string;
   consumption: number;
   unit: string;
   coats: number;
@@ -11,27 +15,45 @@ interface CalculateursProps {
   theme: 'dark' | 'light';
 }
 
-const materials: Material[] = [
-  { name: 'Peinture acrylique', consumption: 0.15, unit: 'litres/m²', coats: 2 },
-  { name: 'Peinture glycéro', consumption: 0.12, unit: 'litres/m²', coats: 2 },
-  { name: 'Sous-couche', consumption: 0.10, unit: 'litres/m²', coats: 1 },
-  { name: 'Carrelage mural', consumption: 1.1, unit: 'm²/m²', coats: 1 },
-  { name: 'Carrelage sol', consumption: 1.05, unit: 'm²/m²', coats: 1 },
-  { name: 'Colle à carrelage', consumption: 3.5, unit: 'kg/m²', coats: 1 },
-  { name: 'Ragréage sol', consumption: 1.5, unit: 'kg/m²/mm', coats: 1 },
-  { name: 'Enduit de lissage', consumption: 1.0, unit: 'kg/m²/mm', coats: 1 },
-  { name: 'Mortier de réparation', consumption: 1.9, unit: 'kg/m²/mm', coats: 1 },
-];
-
 const Calculateurs: React.FC<CalculateursProps> = ({ theme }) => {
-  const [selectedMaterial, setSelectedMaterial] = useState<Material>(materials[0]);
+  const { i18n } = useTranslation();
+const [materials, setMaterials] = useState<Material[]>([]);
+  const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
+
+  useEffect(() => {
+    fetchMaterials();
+  }, []);
+
+  const fetchMaterials = async () => {
+    try {
+      const response = await fetch('https://yasndeco-api.andrey-gaffer.workers.dev/api/calculator-materials');
+      const data = await response.json();
+      if (data.success) {
+        setMaterials(data.data);
+        if (data.data.length > 0) {
+          setSelectedMaterial(data.data[0]);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching materials:', error);
+    }
+  };
+
+  const getMaterialName = (material: Material) => {
+    const lang = i18n.language;
+    switch (lang) {
+      case 'ru': return material.name_ru;
+      case 'en': return material.name_en;
+      default: return material.name_fr;
+    }
+  };
   const [area, setArea] = useState<string>('');
   const [result, setResult] = useState<number | null>(null);
   const isLight = theme === 'light';
 
   const calculate = () => {
     const areaNum = parseFloat(area);
-    if (isNaN(areaNum) || areaNum <= 0) {
+    if (isNaN(areaNum) || areaNum <= 0 || !selectedMaterial) {
       setResult(null);
       return;
     }
@@ -106,15 +128,16 @@ const Calculateurs: React.FC<CalculateursProps> = ({ theme }) => {
                       </label>
                       <select
                         className={inputClass}
-                        value={selectedMaterial.name}
+                        value={selectedMaterial?.id || ''}
                         onChange={(e) => {
-                          const mat = materials.find(m => m.name === e.target.value);
+                          const mat = materials.find(m => m.id === parseInt(e.target.value));
                           if (mat) setSelectedMaterial(mat);
                         }}
+                        disabled={!selectedMaterial}
                       >
                         {materials.map((mat) => (
-                          <option key={mat.name} value={mat.name}>
-                            {mat.name}
+                          <option key={mat.id} value={mat.id}>
+                            {getMaterialName(mat)}
                           </option>
                         ))}
                       </select>
@@ -141,7 +164,7 @@ const Calculateurs: React.FC<CalculateursProps> = ({ theme }) => {
                       Calculer
                     </button>
 
-                    {result !== null && (
+                    {result !== null && selectedMaterial && (
                       <div className={`p-4 mt-4 rounded-lg ${
                         isLight ? 'bg-white/40 border border-white/20' : 'bg-black/20 border border-white/10'
                       }`}>
@@ -157,9 +180,11 @@ const Calculateurs: React.FC<CalculateursProps> = ({ theme }) => {
                       </div>
                     )}
 
-                    <div className={`text-xs mt-4 ${labelClass}`}>
-                      <p>Consommation: {selectedMaterial.consumption} {selectedMaterial.unit}</p>
-                    </div>
+                    {selectedMaterial && (
+                      <div className={`text-xs mt-4 ${labelClass}`}>
+                        <p>Consommation: {selectedMaterial.consumption} {selectedMaterial.unit}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

@@ -1,0 +1,20 @@
+green-api 
+
+idInstance  7105474660
+
+apiTokenInstance   6edd0918847f4bceb023d9b0961bef2dbf4e21e5aa6c4fde83
+
+
+ADMIN_PASSWORD  Beton_Strong_88
+
+STAFF_PASSWORD  Store_User_10
+
+SUPER_ADMIN_PASSWORD   Foundation_Secure_777*
+
+
+Gemini API Key AIzaSyDmvH_1ZZje_afFjNvhkd-u5Y58Ue4u1RQ
+
+Xiaomi: MiMo-V2-Flash (free)   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
+
+
+имя на клауде yans-deco.pages.dev
