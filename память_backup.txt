@@ -43,21 +43,21 @@ Yan's Deco - строительный магазин декоративных м
 
 YansDeco/
 ├── src/
-│   ├── pages/                      # Страницы приложения (34 файла)
-│   │   ├── Home.tsx                # Главная страница с популярными товарами
-│   │   ├── Catalogue.tsx           # Каталог (категории + подкатегории)
+│   ├── pages/                      # Страницы приложения
+│   │   ├── Home.tsx                # Главная страница
+│   │   ├── Catalogue.tsx           # Каталог
 │   │   ├── Marques.tsx             # Бренды (публичная)
-│   │   ├── BrandPublic.tsx         # Страница одного бренда (публичная)
+│   │   ├── BrandPublic.tsx         # Страница бренда
 │   │   ├── Services.tsx            # Услуги
 │   │   ├── Calculateurs.tsx        # Калькуляторы
 │   │   ├── Contact.tsx             # Контакты
-│   │   ├── ProductPage.tsx         # Страница товара (покупка + корзина)
-│   │   ├── Profile.tsx             # Профиль клиента (НОВОЕ - 2026-01-18)
-│   │   ├── Checkout.tsx            # Оформление заказа (НОВОЕ - 2026-01-18)
+│   │   ├── ProductPage.tsx         # Страница товара
+│   │   ├── Profile.tsx             # Профиль клиента
+│   │   ├── Checkout.tsx            # Оформление заказа
 │   │   ├── AddProduct.tsx          # Добавление товара (admin)
 │   │   ├── EditProduct.tsx         # Редактирование товара (admin)
 │   │   ├── AdminDashboard.tsx      # Дашборд админки
-│   │   ├── AdminProducts.tsx       # Список товаров (admin)
+│   │   ├── AdminProducts.tsx       # Товары (admin)
 │   │   ├── AdminBrands.tsx         # Управление брендами (admin)
 │   │   ├── BrandDetail.tsx         # Страница бренда (admin)
 │   │   ├── AdminCategories.tsx     # Категории (admin)
@@ -80,9 +80,11 @@ YansDeco/
 │   │   ├── AdminHeader.tsx         # Шапка админки
 │   │   ├── Hero.tsx                # Hero секция
 │   │   ├── ScrollToTop.tsx         # Скролл наверх
-│   │   ├── cart/                   # Компоненты корзины
+│   │   ├── CloudStatus.tsx         # Индикатор статуса Cloudflare (NEW)
+│   │   ├── ColorPicker.tsx         # Выбор цвета (NEW)
+│   │   ├── cart/
 │   │   │   └── CartDrawer.tsx      # Выдвижная корзина
-│   │   └── auth/                   # Компоненты авторизации
+│   │   └── auth/
 │   │       └── AuthModal.tsx       # Модалка логин/регистрация
 │   │
 │   ├── context/                    # React Context
@@ -347,8 +349,8 @@ Response: { success: true, data: { order: { id, items, total_price, status, crea
     - id (INTEGER PRIMARY KEY AUTOINCREMENT)
     - key (TEXT UNIQUE NOT NULL)
     - icon, icon_emoji (TEXT)
-    - icon_url (TEXT)                    -- НОВОЕ: URL изображения иконки
-    - gradient_from (TEXT)               -- ОДИН цвет для градиента (ранее было два)
+    - icon_url (TEXT)                    -- URL изображения иконки
+    - gradient_from (TEXT)               -- Цвет градиента (имя: orange, purple, green...)
     - tags_ru, tags_fr, tags_en (TEXT)
     - title_ru, title_fr, title_en (TEXT)
     - subtitle_ru, subtitle_fr, subtitle_en (TEXT)
@@ -557,19 +559,74 @@ Admin маршруты:
  2. ГРАДИЕНТ ПРИ НАВЕДЕНИИ
     - Эффект как в админ-дашборде (карточки товары, категории)
     - Один цвет градиента (gradient_from)
+    - Имя цвета сохраняется: orange, purple, green, violet, blue, red...
     - Фиксированная прозрачность: 10%/5%
-    - При hover: появляется gradient + blur + бордер #FF6B00/50
-    - Плитка фиксированной высоты h-56 как у карточек товаров
+    - При hover: gradient + blur + бордер #FF6B00/50
+    - Плитка h-56 как у карточек товаров
 
  3. AI ПЕРЕВОД УСЛУГ
     - Переводит только на незаполненные языки
     - Работает с любого языка (RU, EN, FR)
     - Не перезаписывает уже заполненные поля
+    - Теги тоже переводятся AI
 
- 4. СКРЫТИЕ ИКОНКИ
-    - Если эмодзи пустой - иконка не отображается
-    - Если есть фото - показывается фото
-    - Если есть эмодзи - показывается эмодзи
+ ================================================================================
+ AI ПЕРЕВОД - ВАЖНЫЕ ПРАВИЛА
+ ================================================================================
+
+ Логика перевода (ПРИМЕНЯТЬ КО ВСЕМ МЕСТАМ С AI ПЕРЕВОДОМ):
+
+ 1. Переводим только на языки которые ещё НЕ заполнены
+ 2. Если источник RU → заполняем FR и EN (если они пустые)
+ 3. Если источник EN → заполняем RU и FR (если они пустые)
+ 4. Если источник FR → заполняем RU и EN (если они пустые)
+ 5. Это предотвращает перезапись уже заполненных полей
+
+ Пример кода:
+    targetLangs.forEach((lang: string) => {
+      if (data.data[lang] && !updated[`field_${lang}`]?.trim()) {
+        updated[`field_${lang}`] = data.data[lang].field || '';
+      }
+    });
+
+ Файлы с AI переводом (все нужно исправить по этому правилу):
+ - AdminServices.tsx (услуги)
+ - AdminBrands.tsx (бренды)
+ - AddProduct.tsx (добавление товара)
+ - EditProduct.tsx (редактирование товара)
+ - Categories.tsx (категории)
+
+ ================================================================================
+ UI ИСПРАВЛЕНИЯ (2026-01-19)
+ ================================================================================
+
+ 1. Header.tsx
+    - Бургер-меню: добавлен класс lg:hidden (скрывается на lg+ экранах)
+    - Навигация: изменено на hidden lg:flex (показывается с lg)
+
+ 2. Hero.tsx
+    - Увеличен отступ: pt-20 → pt-32 (контент не наезжает под хедер)
+
+ ================================================================================
+ КОНТРОЛЬНЫЕ ТОЧКИ DEPLOYMENT
+ ================================================================================
+
+ После изменений в коде ОБЯЗАТЕЛЬНО выполнять:
+
+ 1. Frontend (Pages Preview):
+    cd YansDeco
+    npm run build
+    npx wrangler pages deploy dist --project-name=yans-deco --branch=preview
+
+ 2. Backend (Worker):
+    cd worker
+    npx wrangler deploy --minify
+
+ 3. Проверка API:
+    curl https://yasndeco-api.andrey-gaffer.workers.dev/api/services
+
+ 4. Проверка страницы услуг:
+    https://preview.yans-deco.pages.dev/services
 
 ================================================================================
 КОНФИГУРАЦИЯ CLOUDFLARE
