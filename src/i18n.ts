@@ -202,6 +202,10 @@ const fr = {
         title: "TRADUCTIONS",
         description: "Édition des textes et traductions de l'interface"
       },
+      services: {
+        title: "SERVICES",
+        description: "Gestion des services et prestations"
+      },
       calculators: {
         title: "CALCULATEURS",
         description: "Paramètres des formules et calculs",
@@ -284,6 +288,25 @@ const fr = {
       website: "Site web",
       noBrands: "Aucune marque trouvée"
     },
+    services: {
+      title: "Gestion des Services",
+      manageServices: "Gérer les services affichés sur le site",
+      addNew: "Ajouter un Service",
+      addService: "AJOUTER UN SERVICE",
+      edit: "Modifier",
+      delete: "Supprimer",
+      noServices: "Aucun service trouvé",
+      noDescription: "Aucune description",
+      subtitle: "Sous-titre",
+      description: "Description",
+      active: "Actif",
+      hide: "Masquer",
+      show: "Afficher",
+      deleteConfirm: "Êtes-vous sûr de vouloir supprimer ce service ?",
+      updated: "Service mis à jour avec succès",
+      created: "Service créé avec succès",
+      deleted: "Service supprimé avec succès"
+    },
     translations: {
       title: "Gestion des Traductions",
       addNew: "Ajouter une Traduction",
@@ -298,8 +321,13 @@ const fr = {
       deleteConfirm: "Êtes-vous sûr de vouloir supprimer cette traduction ?",
       active: "Actif",
       namespace: "Espace de noms",
-      russian: "Russe"
+      russian: "Russe",
+      translate: "Traduire",
+      fillSourceField: "Remplissez d'abord le champ source (titre, sous-titre ou description)",
+      success: "Traduction réussie"
     },
+    save: "Enregistrer",
+    cancel: "Annuler",
     cloud: {
       title: "Paramètres Cloud",
       status: "Statut de la connexion",
@@ -556,6 +584,10 @@ const en = {
         title: "TRANSLATIONS",
         description: "Edit interface texts and translations"
       },
+      services: {
+        title: "SERVICES",
+        description: "Manage services displayed on the site"
+      },
       calculators: {
         title: "CALCULATORS",
         description: "Formula and calculation settings",
@@ -652,8 +684,32 @@ const en = {
       deleteConfirm: "Are you sure you want to delete this translation?",
       active: "Active",
       namespace: "Namespace",
-      russian: "Russian"
+      russian: "Russian",
+      translate: "Translate",
+      fillSourceField: "Please fill in the source field first (title, subtitle or description)",
+      success: "Translation successful"
     },
+    services: {
+      title: "Service Management",
+      manageServices: "Manage services displayed on the site",
+      addNew: "Add Service",
+      addService: "ADD SERVICE",
+      edit: "Edit",
+      delete: "Delete",
+      noServices: "No service found",
+      noDescription: "No description",
+      subtitle: "Subtitle",
+      description: "Description",
+      active: "Active",
+      hide: "Hide",
+      show: "Show",
+      deleteConfirm: "Are you sure you want to delete this service?",
+      updated: "Service updated successfully",
+      created: "Service created successfully",
+      deleted: "Service deleted successfully"
+    },
+    save: "Save",
+    cancel: "Cancel",
     cloud: {
       title: "Cloud Settings",
       status: "Connection status",
@@ -910,6 +966,10 @@ const ru = {
         title: "ПЕРЕВОДЫ",
         description: "Редактирование текстов и переводов интерфейса"
       },
+      services: {
+        title: "УСЛУГИ",
+        description: "Управление услугами на сайте"
+      },
       calculators: {
         title: "КАЛЬКУЛЯТОРЫ",
         description: "Настройки формул и расчётов",
@@ -1006,8 +1066,32 @@ const ru = {
       deleteConfirm: "Вы уверены, что хотите удалить этот перевод?",
       active: "Активен",
       namespace: "Пространство имён",
-      russian: "Русский"
+      russian: "Русский",
+      translate: "Перевести",
+      fillSourceField: "Сначала заполните исходное поле (заголовок, подзаголовок или описание)",
+      success: "Перевод успешен"
     },
+    services: {
+      title: "Управление услугами",
+      manageServices: "Управление услугами, отображаемыми на сайте",
+      addNew: "Добавить услугу",
+      addService: "ДОБАВИТЬ УСЛУГУ",
+      edit: "Редактировать",
+      delete: "Удалить",
+      noServices: "Услуги не найдены",
+      noDescription: "Нет описания",
+      subtitle: "Подзаголовок",
+      description: "Описание",
+      active: "Активен",
+      hide: "Скрыть",
+      show: "Показать",
+      deleteConfirm: "Вы уверены, что хотите удалить эту услугу?",
+      updated: "Услуга успешно обновлена",
+      created: "Услуга успешно создана",
+      deleted: "Услуга успешно удалена"
+    },
+    save: "Сохранить",
+    cancel: "Отмена",
     cloud: {
       title: "Настройки Клауда",
       status: "Статус подключения",

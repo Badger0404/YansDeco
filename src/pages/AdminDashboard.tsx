@@ -66,6 +66,14 @@ const AdminDashboard: React.FC = () => {
       label: t('admin.sections.brands.title')
     },
     {
+      id: 'services',
+      key: 'admin.sections.services',
+      icon: <Globe className="w-12 h-12" />,
+      path: '/admin/services',
+      color: 'from-teal-500/10 to-teal-600/5',
+      label: t('admin.sections.services.title')
+    },
+    {
       id: 'clients',
       key: 'admin.sections.clients',
       icon: <Users className="w-12 h-12" />,

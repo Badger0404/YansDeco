@@ -44,12 +44,51 @@ function verifyToken(token: string): string | null {
 app.use('*', cors({
   origin: '*',
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  allowHeaders: ['Content-Type', 'Authorization', 'x-session-id'],
 }));
 
 // Health check - API_ALIVE
 app.get('/api', (c) => c.text('API_ALIVE'));
 app.get('/', (c) => c.text('API_ALIVE'));
+
+// Full health check
+app.get('/api/health', async (c) => {
+  try {
+    let dbStatus = 'ok';
+    let r2Status = 'ok';
+    
+    // Check D1
+    try {
+      await c.env.DB.prepare('SELECT 1').first();
+    } catch (e) {
+      dbStatus = 'error';
+    }
+    
+    // Check R2 - just verify bucket is accessible
+    try {
+      await c.env.ASSETS.list({ limit: 1 });
+    } catch (e) {
+      r2Status = 'error';
+    }
+    
+    return c.json({
+      success: true,
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      services: {
+        api: 'ok',
+        db: dbStatus,
+        r2: r2Status
+      }
+    });
+  } catch (error: any) {
+    return c.json({
+      success: false,
+      status: 'unhealthy',
+      error: error.message
+    }, { status: 500 });
+  }
+});
 
 // Serve images from R2
 app.get('/images/*', async (c) => {
@@ -351,7 +390,7 @@ app.delete('/api/products/:id', async (c) => {
 
 app.get('/api/services', async (c) => {
   const { results } = await c.env.DB.prepare(
-    `SELECT id, key, icon, icon_emoji, gradient_from, gradient_to, 
+    `SELECT id, key, icon, icon_emoji, icon_url, gradient_from, gradient_to,
             tags_ru, tags_fr, tags_en,
             title_ru, title_fr, title_en,
             subtitle_ru, subtitle_fr, subtitle_en,
@@ -366,7 +405,7 @@ app.get('/api/services', async (c) => {
 
 app.get('/api/admin/services', async (c) => {
   const { results } = await c.env.DB.prepare(
-    `SELECT id, key, icon, icon_emoji, gradient_from, gradient_to,
+    `SELECT id, key, icon, icon_emoji, icon_url, gradient_from, gradient_to,
             tags_ru, tags_fr, tags_en,
             title_ru, title_fr, title_en,
             subtitle_ru, subtitle_fr, subtitle_en,
@@ -381,7 +420,7 @@ app.get('/api/admin/services', async (c) => {
 app.get('/api/services/:id', async (c) => {
   const id = c.req.param('id');
   const { results } = await c.env.DB.prepare(
-    `SELECT id, key, icon, icon_emoji, gradient_from, gradient_to,
+    `SELECT id, key, icon, icon_emoji, icon_url, gradient_from, gradient_to,
             tags_ru, tags_fr, tags_en,
             title_ru, title_fr, title_en,
             subtitle_ru, subtitle_fr, subtitle_en,
@@ -401,7 +440,7 @@ app.post('/api/services', async (c) => {
   try {
     const body = await c.req.json();
     const { 
-      key, icon, icon_emoji, gradient_from, gradient_to,
+      key, icon, icon_emoji, icon_url, gradient_from, gradient_to,
       tags_ru, tags_fr, tags_en,
       title_ru, title_fr, title_en,
       subtitle_ru, subtitle_fr, subtitle_en,
@@ -415,15 +454,15 @@ app.post('/api/services', async (c) => {
 
     await c.env.DB.prepare(`
       INSERT INTO services (
-        key, icon, icon_emoji, gradient_from, gradient_to,
+        key, icon, icon_emoji, icon_url, gradient_from, gradient_to,
         tags_ru, tags_fr, tags_en,
         title_ru, title_fr, title_en,
         subtitle_ru, subtitle_fr, subtitle_en,
         description_ru, description_fr, description_en,
         sort_order, is_active
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
-      key, icon || null, icon_emoji || null, gradient_from || null, gradient_to || null,
+      key, icon || null, icon_emoji || null, icon_url || null, gradient_from || null, gradient_to || null,
       tags_ru || null, tags_fr || null, tags_en || null,
       title_ru || null, title_fr || null, title_en || null,
       subtitle_ru || null, subtitle_fr || null, subtitle_en || null,
@@ -447,7 +486,7 @@ app.put('/api/services/:id', async (c) => {
   try {
     const body = await c.req.json();
     const { 
-      key, icon, icon_emoji, gradient_from, gradient_to,
+      key, icon, icon_emoji, icon_url, gradient_from, gradient_to,
       tags_ru, tags_fr, tags_en,
       title_ru, title_fr, title_en,
       subtitle_ru, subtitle_fr, subtitle_en,
@@ -457,7 +496,7 @@ app.put('/api/services/:id', async (c) => {
 
     await c.env.DB.prepare(`
       UPDATE services SET
-        key = ?, icon = ?, icon_emoji = ?, gradient_from = ?, gradient_to = ?,
+        key = ?, icon = ?, icon_emoji = ?, icon_url = ?, gradient_from = ?, gradient_to = ?,
         tags_ru = ?, tags_fr = ?, tags_en = ?,
         title_ru = ?, title_fr = ?, title_en = ?,
         subtitle_ru = ?, subtitle_fr = ?, subtitle_en = ?,
@@ -466,7 +505,7 @@ app.put('/api/services/:id', async (c) => {
         updated_at = datetime('now')
       WHERE id = ?
     `).bind(
-      key, icon || null, icon_emoji || null, gradient_from || null, gradient_to || null,
+      key, icon || null, icon_emoji || null, icon_url || null, gradient_from || null, gradient_to || null,
       tags_ru || null, tags_fr || null, tags_en || null,
       title_ru || null, title_fr || null, title_en || null,
       subtitle_ru || null, subtitle_fr || null, subtitle_en || null,
@@ -500,10 +539,10 @@ app.options('/api/translate', async (c) => {
 
 app.post('/api/translate', async (c) => {
   const body = await c.req.json();
-  const { text, targetLangs } = body;
+  const { text, tags, sourceLang, targetLangs } = body;
 
-  if (!text || !targetLangs || !Array.isArray(targetLangs)) {
-    return c.json({ success: false, error: 'Missing text or targetLangs' }, { status: 400 });
+  if ((!text || !tags) && !Array.isArray(targetLangs)) {
+    return c.json({ success: false, error: 'Missing text/tags or targetLangs' }, { status: 400 });
   }
 
   if (!c.env.AI) {
@@ -513,25 +552,59 @@ app.post('/api/translate', async (c) => {
     }, { status: 500 });
   }
 
-  const results: Record<string, { name: string; description: string }> = {};
+  const langNames: Record<string, string> = {
+    ru: 'Russian',
+    fr: 'French',
+    en: 'English'
+  };
+
+  const sourceLangName = langNames[sourceLang] || 'Russian';
+  const results: Record<string, { name: string; description: string; tags: string }> = {};
 
   for (const lang of targetLangs) {
-    const langName = lang === 'fr' ? 'французский' : 'английский';
-    const userPrompt = `Переведи на ${langName}:\n${JSON.stringify(text, null, 2)}`;
-
+    const targetLangName = langNames[lang] || 'English';
+    
     try {
+      let prompt = '';
+      
+      if (text && tags) {
+        prompt = `You are a professional translator for a decoration and building materials store. 
+        
+Translate from ${sourceLangName} to ${targetLangName}.
+
+Text to translate:
+${text}
+
+Tags (comma-separated list) to translate:
+${tags}
+
+Return ONLY valid JSON:
+{"description": "...", "tags": "..."}
+
+Keep tags as a comma-separated list in the same order. If no tags, return empty string for tags.`;
+      } else if (tags) {
+        prompt = `You are a professional translator for a decoration and building materials store. 
+        
+Translate these tags from ${sourceLangName} to ${targetLangName}:
+${tags}
+
+Return ONLY valid JSON:
+{"tags": "..."}
+
+Keep tags as a comma-separated list in the same order.`;
+      } else {
+        prompt = `You are a professional translator for a decoration and building materials store. Translate from ${sourceLangName} to ${targetLangName}. Keep the same tone and format. Return ONLY valid JSON: {"description": "..."}. If there's no description to translate, return empty string for description.`;
+      }
+
       const response = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
         messages: [
-          {
-            role: 'system',
-            content: 'Ты — переводчик магазина декора. Возвращай ТОЛЬКО JSON: {"name": "...", "description": "..."}'
-          },
-          { role: 'user', content: userPrompt }
+          { role: 'system', content: 'You are a professional translator. Return ONLY valid JSON, no markdown.' },
+          { role: 'user', content: prompt }
         ],
         max_tokens: 512,
       });
 
-      let translated: { name: string; description: string } = { name: '', description: '' };
+      let translated: { description: string; tags: string } = { description: '', tags: '' };
       
       if (typeof response === 'object' && response.response) {
         try {
@@ -545,13 +618,14 @@ app.post('/api/translate', async (c) => {
         try {
           translated = JSON.parse(textContent);
         } catch {
-          translated = { name: textContent.split('\n')[0]?.replace(/^["']|["']$/g, '') || '', description: '' };
+          translated = { description: '', tags: '' };
         }
       }
 
       results[lang] = {
-        name: translated.name || '',
-        description: (translated.description || '').replace(/\\n/g, '\n')
+        name: '',
+        description: (translated.description || '').replace(/\\n/g, '\n'),
+        tags: translated.tags || ''
       };
     } catch (err: any) {
       return c.json({ success: false, error: err.message }, 500);
@@ -986,6 +1060,7 @@ CREATE TABLE IF NOT EXISTS services (
     key TEXT UNIQUE NOT NULL,
     icon TEXT,
     icon_emoji TEXT,
+    icon_url TEXT,
     gradient_from TEXT,
     gradient_to TEXT,
     tags_ru TEXT,

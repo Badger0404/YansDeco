@@ -181,6 +181,7 @@ const Categories: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: textObj,
+          sourceLang,
           targetLangs
         })
       });
@@ -325,6 +326,7 @@ const Categories: React.FC = () => {
             name: formData.name_ru,
             description: formData.desc_ru
           },
+          sourceLang: 'ru',
           targetLangs: ['fr', 'en']
         })
       });
@@ -336,10 +338,10 @@ const Categories: React.FC = () => {
       if (data.success) {
         setFormData(prev => ({
           ...prev,
-          name_fr: data.data.fr?.name || '',
-          desc_fr: data.data.fr?.description || '',
-          name_en: data.data.en?.name || '',
-          desc_en: data.data.en?.description || ''
+          name_fr: prev.name_fr?.trim() ? prev.name_fr : (data.data.fr?.name || ''),
+          desc_fr: prev.desc_fr?.trim() ? prev.desc_fr : (data.data.fr?.description || ''),
+          name_en: prev.name_en?.trim() ? prev.name_en : (data.data.en?.name || ''),
+          desc_en: prev.desc_en?.trim() ? prev.desc_en : (data.data.en?.description || '')
         }));
         setSuccess('Перевод выполнен успешно');
         setTimeout(() => setSuccess(''), 3000);

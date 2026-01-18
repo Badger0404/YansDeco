@@ -84,7 +84,7 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
           : 'bg-black/80 backdrop-blur-md border-gray-800'
       }`}>
         <button
-          className={`p-1.5 sm:p-2 transition-colors ${isLight ? 'text-black hover:text-[#FF6B00]' : 'text-white hover:text-[#FF6B00]'}`}
+          className={`p-1.5 sm:p-2 transition-colors lg:hidden ${isLight ? 'text-black hover:text-[#FF6B00]' : 'text-white hover:text-[#FF6B00]'}`}
           onClick={() => setIsMenuOpen(true)}
           aria-label="Menu"
         >
@@ -103,7 +103,7 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
           </h1>
         </NavLink>
 
-        <nav className="hidden xl:flex items-center gap-4">
+        <nav className="hidden lg:flex items-center gap-4">
           {navItems.map((item) => (
             <NavLink
               key={item.key}

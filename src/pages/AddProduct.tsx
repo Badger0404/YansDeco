@@ -223,6 +223,7 @@ const AddProduct: React.FC = () => {
           text: {
             [sourceField]: sourceText
           },
+          sourceLang,
           targetLangs: targetLangs
         })
       });
@@ -233,7 +234,7 @@ const AddProduct: React.FC = () => {
         setTranslations(prev => {
           const newTranslations = { ...prev };
           targetLangs.forEach(targetLang => {
-            if (data.data[targetLang]) {
+            if (data.data[targetLang] && !newTranslations[targetLang as keyof typeof prev][sourceField]?.trim()) {
               newTranslations[targetLang as keyof typeof prev] = {
                 ...newTranslations[targetLang as keyof typeof prev],
                 [sourceField]: data.data[targetLang][sourceField] || ''

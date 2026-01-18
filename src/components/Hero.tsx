@@ -79,7 +79,7 @@ const HeroSection: React.FC = () => {
 
   return (
     <section 
-      className="relative min-h-screen flex items-center justify-center pt-20"
+      className="relative min-h-screen flex items-center justify-center pt-32"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >

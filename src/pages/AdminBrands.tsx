@@ -212,6 +212,7 @@ const AdminBrands: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: { description: sourceText },
+          sourceLang,
           targetLangs: targetLangs
         })
       });
@@ -222,7 +223,7 @@ const AdminBrands: React.FC = () => {
         setTranslations(prev => {
           const newTranslations = { ...prev };
           targetLangs.forEach(targetLang => {
-            if (data.data[targetLang]) {
+            if (data.data[targetLang] && !newTranslations[targetLang as keyof typeof prev].description?.trim()) {
               newTranslations[targetLang as keyof typeof prev] = {
                 ...newTranslations[targetLang as keyof typeof prev],
                 description: data.data[targetLang].description || ''

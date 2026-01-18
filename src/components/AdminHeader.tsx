@@ -8,9 +8,7 @@ import {
   Globe,
   Calculator,
   Settings,
-  Cloud,
   Upload,
-  RefreshCw,
   LogOut,
   User,
   ChevronRight,
@@ -19,12 +17,12 @@ import {
   Home,
   Users
 } from 'lucide-react';
+import CloudStatus from './CloudStatus';
 
 const AdminHeader: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const [isLight, setIsLight] = useState(() => localStorage.getItem('site-theme') === 'light');
-  const [cloudStatus, setCloudStatus] = useState<'online' | 'offline' | 'syncing'>('online');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -87,8 +85,6 @@ const AdminHeader: React.FC = () => {
     return location.pathname.startsWith(path);
   };
 
-  const isCloudOnline = cloudStatus === 'online';
-
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
@@ -145,15 +141,7 @@ const AdminHeader: React.FC = () => {
 
         <div className="flex items-center gap-4">
           <div className="hidden lg:flex items-center gap-2">
-            <Cloud className={`w-3.5 h-3.5 ${isCloudOnline ? 'text-green-500' : 'text-red-500'}`} />
-            <span className={`text-xs font-medium uppercase tracking-wide ${
-              isCloudOnline ? 'text-green-500' : 'text-red-500'
-            }`}>
-              {t(`admin.cloudStatus.${cloudStatus}`)}
-            </span>
-            {cloudStatus === 'syncing' && (
-              <RefreshCw className="w-3.5 h-3.5 text-yellow-500 animate-spin" />
-            )}
+            <CloudStatus />
           </div>
 
           <button
@@ -175,10 +163,6 @@ const AdminHeader: React.FC = () => {
           </button>
 
           <button
-            onClick={() => {
-              setCloudStatus('syncing');
-              setTimeout(() => setCloudStatus('online'), 2000);
-            }}
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider bg-[#FF6B00] text-black rounded-lg hover:bg-[#FF8533] transition-colors"
           >
             <Upload className="w-3 h-3" />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Truck, Warehouse, HardHat, FileText, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Service {
@@ -8,6 +8,7 @@ interface Service {
   key: string;
   icon: string | null;
   icon_emoji: string | null;
+  icon_url: string | null;
   gradient_from: string | null;
   gradient_to: string | null;
   tags_ru: string | null;
@@ -29,13 +30,6 @@ interface Service {
 interface ServicesProps {
   theme: 'dark' | 'light';
 }
-
-const iconMap: Record<string, React.ReactNode> = {
-  'livraison': <Truck className="w-10 h-10" />,
-  'retrait': <Warehouse className="w-10 h-10" />,
-  'conseils': <HardHat className="w-10 h-10" />,
-  'devis': <FileText className="w-10 h-10" />
-};
 
 const Services: React.FC<ServicesProps> = ({ theme }) => {
   const { t, i18n } = useTranslation();
@@ -101,14 +95,6 @@ const Services: React.FC<ServicesProps> = ({ theme }) => {
     return service.tags_fr?.split(',').map(s => s.trim()) || [];
   };
 
-  const cardClass = `relative rounded-2xl p-8 transition-all duration-300 cursor-pointer overflow-hidden ${
-    isLight 
-      ? 'bg-white/0 hover:bg-white/30' 
-      : 'bg-transparent hover:bg-white/5'
-  }`;
-
-  const iconBgClass = isLight ? 'bg-white/30' : 'bg-white/5';
-  const textClass = isLight ? 'text-black' : 'text-white';
   const descClass = isLight ? 'text-gray-700' : 'text-gray-300';
 
   if (loading) {
@@ -118,7 +104,7 @@ const Services: React.FC<ServicesProps> = ({ theme }) => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-center">
-                <Truck className="w-12 h-12 mx-auto mb-4 animate-pulse text-[#FF6B00]" />
+                <CheckCircle2 className="w-12 h-12 mx-auto mb-4 animate-pulse text-[#FF6B00]" />
                 <p className={isLight ? 'text-black' : 'text-white'}>Chargement...</p>
               </div>
             </div>
@@ -169,52 +155,71 @@ const Services: React.FC<ServicesProps> = ({ theme }) => {
 
             {services.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {services.map((service, index) => (
+                {services.map((service, index) => {
+                  const colorName = service.gradient_from?.startsWith('from-') 
+                    ? service.gradient_from.replace('from-', '').split('-')[0]
+                    : service.gradient_from || 'orange';
+                  
+                  const gradientClass = `from-${colorName}-500/10 to-${colorName}-500/5`;
+                  
+                  return (
                   <motion.div
                     key={service.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className={`${cardClass} group transform hover:scale-[1.02]`}
+                    className={`relative h-56 rounded-xl border border-transparent bg-transparent group cursor-pointer transition-all duration-500 ${
+                      isLight ? '' : ''
+                    }`}
                   >
-                    <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient_from || 'from-gray-500/20'} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                    <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                    <div className="absolute inset-0 backdrop-blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     
-                    <div className="relative z-10">
-                      <div className={`inline-flex p-4 rounded-2xl ${iconBgClass} mb-6 text-[#FF6B00]`}>
-                        {service.icon_emoji ? (
-                          <span className="text-4xl">{service.icon_emoji}</span>
-                        ) : (
-                          iconMap[service.key] || <Truck className="w-10 h-10" />
-                        )}
-                      </div>
+                    <div className="relative z-10 flex flex-col items-center justify-center h-full p-5">
+                      {service.icon_url || service.icon_emoji ? (
+                        <div className={`mb-3 transition-all duration-500 text-[#FF6B00]`}>
+                          {service.icon_url ? (
+                            <img src={service.icon_url} alt="" className="w-16 h-16 object-contain" />
+                          ) : service.icon_emoji ? (
+                            <span className="text-5xl">{service.icon_emoji}</span>
+                          ) : null}
+                        </div>
+                      ) : null}
                       
-                      <h3 className={`font-black italic text-3xl uppercase tracking-tight mb-2 ${textClass}`}>
+                      <h3 className={`font-black italic text-2xl uppercase tracking-tight mb-2 text-center transition-all duration-300 ${
+                        isLight ? 'text-black' : 'text-white'
+                      }`}>
                         {getServiceTitle(service)}{' '}
                         <span className="text-[#FF6B00]">{getServiceSubtitle(service)}</span>
                       </h3>
                       
-                      <p className={`text-sm leading-relaxed mb-6 ${descClass}`}>
+                      <p className={`text-sm leading-relaxed text-center ${descClass} line-clamp-2`}>
                         {getServiceDescription(service)}
                       </p>
                       
-                      <div className="flex flex-wrap gap-3">
+                      <div className="flex flex-wrap gap-2 justify-center mt-3">
                         {getServiceTags(service).map((tag, tagIndex) => (
                           <span
                             key={tagIndex}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#FF6B00]/10 text-[#FF6B00] border border-[#FF6B00]/20"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium bg-[#FF6B00]/10 text-[#FF6B00] border border-[#FF6B00]/20"
                           >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <CheckCircle2 className="w-3 h-3" />
                             {tag}
                           </span>
                         ))}
                       </div>
                     </div>
+
+                    <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-500">
+                      <div className="absolute inset-0 rounded-xl border border-[#FF6B00]/50" />
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#FF6B00]/10 to-transparent opacity-50" />
+                    </div>
                   </motion.div>
-                ))}
+                )})}
               </div>
             ) : (
               <div className={`text-center py-12 ${descClass}`}>
-                <Truck className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <CheckCircle2 className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Services bientôt disponibles</p>
               </div>
             )}
