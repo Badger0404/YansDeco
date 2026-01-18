@@ -238,9 +238,12 @@
         "confirmDeleteSlide": "Are you sure you want to delete this slide?",
         "confirmDeleteMaterial": "Are you sure you want to delete this material?",
         "configSaved": "Configuration saved successfully",
-"cancel": "Cancel",
-    "save": "Save",
-    "popularProduct": "Show on homepage (popular product)"
+        "cancel": "Cancel",
+        "save": "Save",
+        "popularProduct": "Show on homepage (popular product)",
+        "languageFr": "Français",
+        "languageEn": "English",
+        "languageRu": "Русский"
       },
       "services": {
         "title": "Services",

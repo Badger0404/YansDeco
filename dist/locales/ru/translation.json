@@ -238,9 +238,12 @@
         "confirmDeleteSlide": "Вы уверены, что хотите удалить этот слайд?",
         "confirmDeleteMaterial": "Вы уверены, что хотите удалить этот материал?",
         "configSaved": "Конфигурация успешно сохранена",
-"cancel": "Отмена",
-    "save": "Сохранить",
-    "popularProduct": "Показать на главной странице (популярный товар)"
+        "cancel": "Отмена",
+        "save": "Сохранить",
+        "popularProduct": "Показать на главной странице (популярный товар)",
+        "languageFr": "Français",
+        "languageEn": "English",
+        "languageRu": "Русский"
       },
       "services": {
         "title": "Услуги",

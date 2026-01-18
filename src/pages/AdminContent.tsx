@@ -247,7 +247,7 @@ const AdminContent: React.FC = () => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium mb-1">{t('admin.content.badge')} (FR)</label>
+                        <label className="block text-sm font-medium mb-1">{t('admin.content.badge')} ({t('admin.content.languageFr')})</label>
                         <input
                           type="text"
                           value={editingSlide.badge_fr || ''}
@@ -256,7 +256,7 @@ const AdminContent: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">{t('admin.content.badge')} (EN)</label>
+                        <label className="block text-sm font-medium mb-1">{t('admin.content.badge')} ({t('admin.content.languageEn')})</label>
                         <input
                           type="text"
                           value={editingSlide.badge_en || ''}
@@ -265,7 +265,7 @@ const AdminContent: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">{t('admin.content.badge')} (RU)</label>
+                        <label className="block text-sm font-medium mb-1">{t('admin.content.badge')} ({t('admin.content.languageRu')})</label>
                         <input
                           type="text"
                           value={editingSlide.badge_ru || ''}
@@ -274,7 +274,7 @@ const AdminContent: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">{t('admin.content.title')} (FR)</label>
+                        <label className="block text-sm font-medium mb-1">{t('admin.content.title')} ({t('admin.content.languageFr')})</label>
                         <input
                           type="text"
                           value={editingSlide.title_fr}
@@ -283,7 +283,7 @@ const AdminContent: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">{t('admin.content.title')} (EN)</label>
+                        <label className="block text-sm font-medium mb-1">{t('admin.content.title')} ({t('admin.content.languageEn')})</label>
                         <input
                           type="text"
                           value={editingSlide.title_en}
@@ -292,7 +292,7 @@ const AdminContent: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">{t('admin.content.title')} (RU)</label>
+                        <label className="block text-sm font-medium mb-1">{t('admin.content.title')} ({t('admin.content.languageRu')})</label>
                         <input
                           type="text"
                           value={editingSlide.title_ru}
@@ -301,7 +301,7 @@ const AdminContent: React.FC = () => {
                         />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium mb-1">{t('admin.content.subtitle')} (FR)</label>
+                        <label className="block text-sm font-medium mb-1">{t('admin.content.subtitle')} ({t('admin.content.languageFr')})</label>
                         <textarea
                           value={editingSlide.subtitle_fr || ''}
                           onChange={(e) => setEditingSlide({...editingSlide, subtitle_fr: e.target.value})}
@@ -310,7 +310,7 @@ const AdminContent: React.FC = () => {
                         />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium mb-1">{t('admin.content.subtitle')} (EN)</label>
+                        <label className="block text-sm font-medium mb-1">{t('admin.content.subtitle')} ({t('admin.content.languageEn')})</label>
                         <textarea
                           value={editingSlide.subtitle_en || ''}
                           onChange={(e) => setEditingSlide({...editingSlide, subtitle_en: e.target.value})}
@@ -319,7 +319,7 @@ const AdminContent: React.FC = () => {
                         />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium mb-1">{t('admin.content.subtitle')} (RU)</label>
+                        <label className="block text-sm font-medium mb-1">{t('admin.content.subtitle')} ({t('admin.content.languageRu')})</label>
                         <textarea
                           value={editingSlide.subtitle_ru || ''}
                           onChange={(e) => setEditingSlide({...editingSlide, subtitle_ru: e.target.value})}
@@ -409,7 +409,7 @@ const AdminContent: React.FC = () => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium mb-1">{t('admin.content.name')} (FR)</label>
+                        <label className="block text-sm font-medium mb-1">{t('admin.content.name')} ({t('admin.content.languageFr')})</label>
                         <input
                           type="text"
                           value={editingMaterial.name_fr}
@@ -418,7 +418,7 @@ const AdminContent: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">{t('admin.content.name')} (EN)</label>
+                        <label className="block text-sm font-medium mb-1">{t('admin.content.name')} ({t('admin.content.languageEn')})</label>
                         <input
                           type="text"
                           value={editingMaterial.name_en}
@@ -427,7 +427,7 @@ const AdminContent: React.FC = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">{t('admin.content.name')} (RU)</label>
+                        <label className="block text-sm font-medium mb-1">{t('admin.content.name')} ({t('admin.content.languageRu')})</label>
                         <input
                           type="text"
                           value={editingMaterial.name_ru}
