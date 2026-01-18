@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ChevronRight, 
   Plus, 
@@ -18,8 +18,21 @@ import {
   Cloud,
   Upload,
   LogOut,
-  User
+  User,
+  X,
+  Save
 } from 'lucide-react';
+
+interface Translation {
+  id: number;
+  key: string;
+  namespace: string;
+  value_ru: string;
+  value_fr: string;
+  value_en: string;
+  description: string | null;
+  is_active: number;
+}
 
 const AdminTranslations: React.FC = () => {
   const { t } = useTranslation();
@@ -29,6 +42,22 @@ const AdminTranslations: React.FC = () => {
   const [selectedLang, setSelectedLang] = useState('fr');
   const [cloudStatus, setCloudStatus] = useState<'online' | 'offline' | 'syncing'>('online');
   const [isLight, setIsLight] = useState(() => localStorage.getItem('site-theme') === 'light');
+  const [translations, setTranslations] = useState<Translation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingTranslation, setEditingTranslation] = useState<Translation | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editForm, setEditForm] = useState({
+    key: '',
+    namespace: 'common',
+    value_ru: '',
+    value_fr: '',
+    value_en: '',
+    description: '',
+    is_active: true
+  });
+  const [saving, setSaving] = useState(false);
+
+  const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
   useEffect(() => {
     const handleThemeChange = () => {
@@ -45,10 +74,114 @@ const AdminTranslations: React.FC = () => {
     setIsLight(!isLight);
     window.dispatchEvent(new Event('themechange'));
   };
+
+  useEffect(() => {
+    fetchTranslations();
+  }, []);
+
+  const fetchTranslations = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/admin/translations`);
+      const data = await response.json();
+      if (data.success) {
+        setTranslations(data.data.translations || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch translations:', error);
+    }
+    setLoading(false);
+  };
+
+  const handleAddNew = () => {
+    setEditForm({
+      key: '',
+      namespace: 'common',
+      value_ru: '',
+      value_fr: '',
+      value_en: '',
+      description: '',
+      is_active: true
+    });
+    setShowAddModal(true);
+  };
+
+  const handleEdit = (translation: Translation) => {
+    setEditingTranslation(translation);
+    setEditForm({
+      key: translation.key,
+      namespace: translation.namespace,
+      value_ru: translation.value_ru || '',
+      value_fr: translation.value_fr || '',
+      value_en: translation.value_en || '',
+      description: translation.description || '',
+      is_active: translation.is_active === 1
+    });
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      if (editingTranslation) {
+        const response = await fetch(`${API_URL}/admin/translations/${editingTranslation.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(editForm)
+        });
+        const data = await response.json();
+        if (data.success) {
+          setTranslations(prev => prev.map(t => 
+            t.id === editingTranslation.id ? { ...t, ...editForm, is_active: editForm.is_active ? 1 : 0 } as Translation : t
+          ));
+          setEditingTranslation(null);
+        }
+      } else {
+        const response = await fetch(`${API_URL}/admin/translations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(editForm)
+        });
+        const data = await response.json();
+        if (data.success && data.data.translation) {
+          setTranslations(prev => [...prev, data.data.translation]);
+          setShowAddModal(false);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to save translation:', error);
+    }
+    setSaving(false);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm(t('admin.translations.deleteConfirm'))) return;
+    
+    try {
+      const response = await fetch(`${API_URL}/admin/translations/${id}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setTranslations(prev => prev.filter(t => t.id !== id));
+      }
+    } catch (error) {
+      console.error('Failed to delete translation:', error);
+    }
+  };
+
+  const handleSync = () => {
+    setCloudStatus('syncing');
+    fetchTranslations().then(() => {
+      setTimeout(() => setCloudStatus('online'), 1000);
+    });
+  };
+
   const textClass = isLight ? 'text-zinc-900' : 'text-zinc-100';
   const mutedClass = isLight ? 'text-zinc-600' : 'text-zinc-400';
   const borderClass = isLight ? 'border-black' : 'border-[#FF6B00]/20';
   const hoverBorderClass = 'hover:border-[#FF6B00]';
+  const bgClass = isLight ? 'bg-white' : 'bg-zinc-900';
+  const inputBgClass = isLight ? 'bg-white' : 'bg-black/50';
 
   const adminNavItems = [
     { id: 'products', label: t('admin.sections.products.title'), icon: <Package className="w-4 h-4" />, path: '/admin/products' },
@@ -68,13 +201,20 @@ const AdminTranslations: React.FC = () => {
     { code: 'ru', label: 'RU', name: 'Русский' },
   ];
 
-  const translations = [
-    { key: 'nav.home', fr: 'Accueil', en: 'Home', ru: 'Главная' },
-    { key: 'nav.catalogue', fr: 'Catalogue', en: 'Catalogue', ru: 'Каталог' },
-    { key: 'nav.brands', fr: 'Marques', en: 'Brands', ru: 'Бренды' },
-    { key: 'nav.services', fr: 'Services', en: 'Services', ru: 'Услуги' },
-    { key: 'footer.tagline', fr: 'Le partenaire de vos chantiers', en: 'The partner for your construction projects', ru: 'Партнёр ваших строительных проектов' },
-  ];
+  const filteredTranslations = translations.filter(t => 
+    t.key.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (t.value_ru && t.value_ru.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (t.value_fr && t.value_fr.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (t.value_en && t.value_en.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const getTranslationValue = (translation: Translation, lang: string) => {
+    switch (lang) {
+      case 'ru': return translation.value_ru;
+      case 'en': return translation.value_en;
+      default: return translation.value_fr;
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -127,10 +267,7 @@ const AdminTranslations: React.FC = () => {
           </div>
 
           <button
-            onClick={() => {
-              setCloudStatus('syncing');
-              setTimeout(() => setCloudStatus('online'), 2000);
-            }}
+            onClick={handleSync}
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider bg-[#FF6B00] text-black rounded-lg hover:bg-[#FF8533] transition-colors"
           >
             <Upload className="w-3 h-3" />
@@ -184,18 +321,23 @@ const AdminTranslations: React.FC = () => {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <button className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider border ${borderClass} rounded-lg transition-colors ${textClass} ${hoverBorderClass}`}>
+              <button 
+                onClick={handleSync}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider border ${borderClass} rounded-lg transition-colors ${textClass} ${hoverBorderClass}`}
+              >
                 <RefreshCw className="w-3 h-3" />
                 {t('admin.translations.syncAll')}
               </button>
-              <button className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider bg-[#FF6B00] text-black rounded-lg hover:bg-[#FF8533] transition-colors">
+              <button 
+                onClick={handleAddNew}
+                className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold uppercase tracking-wider bg-[#FF6B00] text-black rounded-lg hover:bg-[#FF8533] transition-colors"
+              >
                 <Plus className="w-3 h-3" />
                 {t('admin.translations.addNew')}
               </button>
             </div>
           </div>
 
-          {/* Language Tabs */}
           <div className="flex gap-2 mb-5">
             {languages.map((lang) => (
               <button
@@ -216,40 +358,215 @@ const AdminTranslations: React.FC = () => {
             <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${mutedClass}`} />
             <input
               type="text"
-              placeholder="Rechercher une clé de traduction..."
+              placeholder={t('admin.translations.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={`w-full pl-10 pr-4 py-2.5 bg-transparent border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} placeholder-${mutedClass}`}
             />
           </div>
 
-          {/* Translations Table */}
-          <div className="space-y-3">
-            {translations.map((trans, index) => (
-              <motion.div
-                key={trans.key}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.03 }}
-                className={`p-4 bg-transparent border ${borderClass} ${hoverBorderClass} rounded-lg transition-all duration-300`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <code className={`text-xs font-mono ${mutedClass}`}>{trans.key}</code>
-                  <div className="flex gap-2">
-                    <button className={`p-2 border ${borderClass} rounded-lg transition-colors ${textClass} hover:border-[#FF6B00]`}>
-                      <Edit className="w-3.5 h-3.5" />
-                    </button>
-                    <button className="p-2 border border-red-500/50 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <RefreshCw className={`w-8 h-8 animate-spin ${mutedClass}`} />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredTranslations.length === 0 ? (
+                <div className={`text-center py-12 border ${borderClass} rounded-lg ${mutedClass}`}>
+                  {t('admin.translations.noTranslations')}
                 </div>
-                <p className={`text-sm ${textClass}`}>{trans[selectedLang as keyof typeof trans]}</p>
-              </motion.div>
-            ))}
-          </div>
+              ) : (
+                filteredTranslations.map((trans, index) => (
+                  <motion.div
+                    key={trans.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    className={`p-4 bg-transparent border ${borderClass} ${hoverBorderClass} rounded-lg transition-all duration-300`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <code className={`text-xs font-mono ${mutedClass}`}>{trans.key}</code>
+                        <span className={`text-xs px-2 py-0.5 rounded ${isLight ? 'bg-gray-100' : 'bg-white/10'} ${mutedClass}`}>
+                          {trans.namespace}
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handleEdit(trans)}
+                          className={`p-2 border ${borderClass} rounded-lg transition-colors ${textClass} hover:border-[#FF6B00]`}
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(trans.id)}
+                          className="p-2 border border-red-500/50 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                    <p className={`text-sm ${textClass}`}>{getTranslationValue(trans, selectedLang) || <span className={mutedClass}>—</span>}</p>
+                  </motion.div>
+                ))
+              )}
+            </div>
+          )}
         </div>
       </main>
+
+      <AnimatePresence>
+        {(editingTranslation || showAddModal) && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+              onClick={() => {
+                setEditingTranslation(null);
+                setShowAddModal(false);
+              }}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className={`fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-[70] ${bgClass} rounded-2xl shadow-2xl overflow-hidden`}
+            >
+              <div className={`relative p-4 border-b ${borderClass} flex items-center justify-between`}>
+                <h2 className={`font-bold italic text-lg uppercase tracking-wide ${textClass}`}>
+                  {editingTranslation ? t('admin.translations.edit') : t('admin.translations.addNew')}
+                </h2>
+                <button
+                  onClick={() => {
+                    setEditingTranslation(null);
+                    setShowAddModal(false);
+                  }}
+                  className={`p-2 rounded-lg transition-colors ${isLight ? 'hover:bg-gray-100' : 'hover:bg-white/10'}`}
+                >
+                  <X className={`w-5 h-5 ${textClass}`} />
+                </button>
+              </div>
+
+              <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                <div>
+                  <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
+                    Key *
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.key}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, key: e.target.value }))}
+                    className={`w-full px-4 py-2.5 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                    placeholder="nav.home"
+                    disabled={!!editingTranslation}
+                  />
+                </div>
+
+                <div>
+                  <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
+                    Namespace
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.namespace}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, namespace: e.target.value }))}
+                    className={`w-full px-4 py-2.5 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                    placeholder="common"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
+                      Français *
+                    </label>
+                    <textarea
+                      value={editForm.value_fr}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, value_fr: e.target.value }))}
+                      className={`w-full px-3 py-2 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                      rows={3}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
+                      English
+                    </label>
+                    <textarea
+                      value={editForm.value_en}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, value_en: e.target.value }))}
+                      className={`w-full px-3 py-2 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                      rows={3}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
+                      Русский
+                    </label>
+                    <textarea
+                      value={editForm.value_ru}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, value_ru: e.target.value }))}
+                      className={`w-full px-3 py-2 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                      rows={3}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
+                    Description
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.description}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                    className={`w-full px-4 py-2.5 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                    placeholder="Navigation home link"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="is_active"
+                    checked={editForm.is_active}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, is_active: e.target.checked }))}
+                    className="w-4 h-4 rounded border-gray-300 text-[#FF6B00] focus:ring-[#FF6B00]"
+                  />
+                  <label htmlFor="is_active" className={`text-sm ${textClass}`}>
+                    {t('admin.translations.active')}
+                  </label>
+                </div>
+              </div>
+
+              <div className={`p-4 border-t ${borderClass} flex justify-end gap-3`}>
+                <button
+                  onClick={() => {
+                    setEditingTranslation(null);
+                    setShowAddModal(false);
+                  }}
+                  className={`px-4 py-2 text-xs font-bold uppercase tracking-wider border ${borderClass} rounded-lg transition-colors ${textClass}`}
+                >
+                  {t('admin.cancel')}
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving || !editForm.key || !editForm.value_fr}
+                  className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-[#FF6B00] text-black rounded-lg hover:bg-[#FF8533] transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {saving ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
+                  {t('admin.save')}
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

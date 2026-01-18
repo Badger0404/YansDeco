@@ -1101,6 +1101,19 @@ CREATE TABLE IF NOT EXISTS site_config (
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
   );
 
+  CREATE TABLE IF NOT EXISTS translations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    key TEXT UNIQUE NOT NULL,
+    namespace TEXT DEFAULT 'common',
+    value_ru TEXT,
+    value_fr TEXT,
+    value_en TEXT,
+    description TEXT,
+    is_active INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+  );
+
   CREATE INDEX IF NOT EXISTS idx_hero_slides_sort ON hero_slides(sort_order);
   CREATE INDEX IF NOT EXISTS idx_calculator_materials_sort ON calculator_materials(sort_order);
   CREATE INDEX IF NOT EXISTS idx_site_config_key ON site_config(key);
@@ -1108,6 +1121,8 @@ CREATE TABLE IF NOT EXISTS site_config (
   CREATE INDEX IF NOT EXISTS idx_clients_email ON clients(email);
   CREATE INDEX IF NOT EXISTS idx_orders_client ON orders(client_id);
   CREATE INDEX IF NOT EXISTS idx_client_addresses_client ON client_addresses(client_id);
+  CREATE INDEX IF NOT EXISTS idx_translations_key ON translations(key);
+  CREATE INDEX IF NOT EXISTS idx_translations_namespace ON translations(namespace);
   `;
 
   try {
@@ -1822,6 +1837,146 @@ app.post('/api/orders', async (c) => {
     });
   } catch (error: any) {
     console.error('[Order] Create error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+// ============ ADMIN TRANSLATIONS API ============
+
+app.get('/api/admin/translations', async (c) => {
+  try {
+    const { results } = await c.env.DB.prepare(`
+      SELECT * FROM translations ORDER BY namespace, key
+    `).all();
+    
+    return c.json({ success: true, data: { translations: results } });
+  } catch (error: any) {
+    console.error('[Admin] Get translations error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+app.get('/api/admin/translations/:id', async (c) => {
+  const id = c.req.param('id');
+  
+  try {
+    const translation = await c.env.DB.prepare(`
+      SELECT * FROM translations WHERE id = ?
+    `).bind(parseInt(id)).first();
+    
+    if (!translation) {
+      return c.json({ success: false, error: 'Translation not found' }, { status: 404 });
+    }
+    
+    return c.json({ success: true, data: { translation } });
+  } catch (error: any) {
+    console.error('[Admin] Get translation error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+app.post('/api/admin/translations', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { key, namespace, value_ru, value_fr, value_en, description, is_active } = body;
+    
+    if (!key) {
+      return c.json({ success: false, error: 'Key is required' }, { status: 400 });
+    }
+    
+    const result = await c.env.DB.prepare(`
+      INSERT INTO translations (key, namespace, value_ru, value_fr, value_en, description, is_active, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+    `).bind(
+      key,
+      namespace || 'common',
+      value_ru || '',
+      value_fr || '',
+      value_en || '',
+      description || '',
+      is_active !== false ? 1 : 0
+    ).run();
+    
+    const newId = result.meta?.last_row_id;
+    
+    return c.json({ 
+      success: true, 
+      data: { 
+        translation: {
+          id: newId,
+          key,
+          namespace: namespace || 'common',
+          value_ru: value_ru || '',
+          value_fr: value_fr || '',
+          value_en: value_en || '',
+          description: description || '',
+          is_active: is_active !== false ? 1 : 0
+        }
+      } 
+    });
+  } catch (error: any) {
+    console.error('[Admin] Create translation error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+app.put('/api/admin/translations/:id', async (c) => {
+  const id = c.req.param('id');
+  
+  try {
+    const body = await c.req.json();
+    const { key, namespace, value_ru, value_fr, value_en, description, is_active } = body;
+    
+    const existing = await c.env.DB.prepare(`
+      SELECT id FROM translations WHERE id = ?
+    `).bind(parseInt(id)).first();
+    
+    if (!existing) {
+      return c.json({ success: false, error: 'Translation not found' }, { status: 404 });
+    }
+    
+    await c.env.DB.prepare(`
+      UPDATE translations 
+      SET key = ?, namespace = ?, value_ru = ?, value_fr = ?, value_en = ?, 
+          description = ?, is_active = ?, updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(
+      key,
+      namespace || 'common',
+      value_ru || '',
+      value_fr || '',
+      value_en || '',
+      description || '',
+      is_active !== false ? 1 : 0,
+      parseInt(id)
+    ).run();
+    
+    return c.json({ success: true, message: 'Translation updated' });
+  } catch (error: any) {
+    console.error('[Admin] Update translation error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+app.delete('/api/admin/translations/:id', async (c) => {
+  const id = c.req.param('id');
+  
+  try {
+    const existing = await c.env.DB.prepare(`
+      SELECT id FROM translations WHERE id = ?
+    `).bind(parseInt(id)).first();
+    
+    if (!existing) {
+      return c.json({ success: false, error: 'Translation not found' }, { status: 404 });
+    }
+    
+    await c.env.DB.prepare(`
+      DELETE FROM translations WHERE id = ?
+    `).bind(parseInt(id)).run();
+    
+    return c.json({ success: true, message: 'Translation deleted' });
+  } catch (error: any) {
+    console.error('[Admin] Delete translation error:', error.message);
     return c.json({ success: false, error: error.message }, { status: 500 });
   }
 });

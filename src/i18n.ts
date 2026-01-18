@@ -293,7 +293,12 @@ const fr = {
       key: "Clé de traduction",
       value: "Valeur",
       syncAll: "Synchroniser toutes les traductions",
-      noTranslations: "Aucune traduction trouvée"
+      noTranslations: "Aucune traduction trouvée",
+      searchPlaceholder: "Rechercher une clé ou une valeur...",
+      deleteConfirm: "Êtes-vous sûr de vouloir supprimer cette traduction ?",
+      active: "Actif",
+      namespace: "Espace de noms",
+      russian: "Russe"
     },
     cloud: {
       title: "Paramètres Cloud",
@@ -642,7 +647,12 @@ const en = {
       key: "Translation key",
       value: "Value",
       syncAll: "Sync all translations",
-      noTranslations: "No translation found"
+      noTranslations: "No translation found",
+      searchPlaceholder: "Search by key or value...",
+      deleteConfirm: "Are you sure you want to delete this translation?",
+      active: "Active",
+      namespace: "Namespace",
+      russian: "Russian"
     },
     cloud: {
       title: "Cloud Settings",
@@ -991,7 +1001,12 @@ const ru = {
       key: "Ключ перевода",
       value: "Значение",
       syncAll: "Синхронизировать все переводы",
-      noTranslations: "Переводы не найдены"
+      noTranslations: "Переводы не найдены",
+      searchPlaceholder: "Поиск по ключу или значению...",
+      deleteConfirm: "Вы уверены, что хотите удалить этот перевод?",
+      active: "Активен",
+      namespace: "Пространство имён",
+      russian: "Русский"
     },
     cloud: {
       title: "Настройки Клауда",
