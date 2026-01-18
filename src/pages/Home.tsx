@@ -103,11 +103,11 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
 
   return (
     <div className="min-h-screen">
-      <main className="min-h-[90vh] flex items-center py-36">
+      <main className="min-h-screen flex items-center py-20">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <div className="flex flex-col justify-between h-full min-h-[400px]">
-              <div className="h-[220px] flex flex-col justify-end pb-2">
+            <div className="flex flex-col justify-center h-full min-h-[400px]">
+              <div className="h-[280px] flex flex-col justify-end pb-2 gap-6">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={`${currentSlide}-${i18n.language}`}
@@ -123,7 +123,7 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
                     <h1 className={`font-black italic text-4xl md:text-5xl lg:text-6xl uppercase leading-none tracking-tight ${textClass}`}>
                       {currentSlideData.title}
                     </h1>
-                    <p className="mt-4 text-sm md:text-base leading-relaxed max-w-lg text-gray-400 line-clamp-3">
+                    <p className="mt-4 text-sm md:text-base leading-relaxed max-w-lg text-gray-400 line-clamp-3 h-[72px]">
                       {currentSlideData.description}
                     </p>
                   </motion.div>
