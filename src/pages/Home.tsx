@@ -106,8 +106,8 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
       <main className="min-h-[90vh] flex items-center py-36">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <div className="flex flex-col justify-between h-full">
-              <div className="h-[220px] flex flex-col justify-center">
+            <div className="flex flex-col justify-between h-full min-h-[400px]">
+              <div className="h-[220px] flex flex-col justify-end pb-2">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={`${currentSlide}-${i18n.language}`}
@@ -130,7 +130,7 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
                 </AnimatePresence>
               </div>
 
-              <div className="flex flex-wrap gap-4 mt-8">
+              <div className="flex flex-wrap gap-4 mt-auto pt-6">
                 <button 
                   onClick={() => navigate('/calculateurs')}
                   className="bg-[#FF6B00] text-black px-6 sm:px-8 py-2.5 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-lg sm:rounded-xl hover:bg-[#FF8533] transition-all duration-200"
@@ -149,7 +149,7 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
                 </button>
               </div>
 
-              <div className="flex gap-1.5 sm:gap-2 mt-4 sm:mt-6">
+              <div className="flex gap-1.5 sm:gap-2 mt-auto pt-4">
                 {Array.from({ length: slidesCount }).map((_, index) => (
                   <button
                     key={index}
@@ -165,7 +165,7 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
               </div>
             </div>
 
-            <div className="flex flex-col justify-center mt-4 lg:mt-0">
+            <div className="flex flex-col justify-center mt-4 lg:mt-0 min-h-[400px]">
               <div className="text-center mb-4 sm:mb-6">
                 <span className={`text-[10px] sm:text-sm font-medium uppercase tracking-widest ${accentClass}`}>
                   {t('home.popular')}
@@ -185,10 +185,10 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.4 }}
-                      className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl cursor-pointer ${isLight ? 'bg-white/40' : 'bg-black/40'} hover:bg-[#FF6B00]/20 transition-all duration-300`}
+                      className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl cursor-pointer min-h-[320px] sm:min-h-[380px] flex flex-col ${isLight ? 'bg-white/40' : 'bg-black/40'} hover:bg-[#FF6B00]/20 transition-all duration-300`}
                       onClick={() => navigate(`/product/${popularProducts[popularSlide].id}`)}
                     >
-                      <div className="aspect-square flex items-center justify-center mb-3 sm:mb-4">
+                      <div className="aspect-square flex items-center justify-center mb-3 sm:mb-4 flex-shrink-0">
                         {popularProducts[popularSlide].image_url ? (
                           <img
                             src={popularProducts[popularSlide].image_url}
