@@ -103,11 +103,11 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
 
   return (
     <div className="min-h-screen">
-      <main className="pt-20 sm:pt-24 pb-8 sm:pb-12">
-        <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
+      <main className="pt-24 pb-16">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div>
-              <div className="min-h-[120px] sm:min-h-[180px]">
+              <div className="h-[220px] flex flex-col justify-center">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={`${currentSlide}-${i18n.language}`}
@@ -117,20 +117,20 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
                     exit="exit"
                     transition={{ duration: 0.8, ease: 'easeInOut' }}
                   >
-                    <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-widest ${accentClass} block mb-2 sm:mb-3`}>
+                    <span className={`text-xs md:text-sm font-bold uppercase tracking-widest ${accentClass} block mb-3`}>
                       {currentSlideData.label}
                     </span>
-                    <h1 className={`font-black italic text-3xl sm:text-4xl md:text-5xl lg:text-6xl uppercase leading-none tracking-tight ${textClass}`}>
+                    <h1 className={`font-black italic text-4xl md:text-5xl lg:text-6xl uppercase leading-none tracking-tight ${textClass}`}>
                       {currentSlideData.title}
                     </h1>
-                    <p className={`mt-2 sm:mt-4 text-xs sm:text-sm leading-relaxed max-w-lg ${mutedClass}`}>
+                    <p className="mt-4 text-sm md:text-base leading-relaxed max-w-lg text-gray-400 line-clamp-3">
                       {currentSlideData.description}
                     </p>
                   </motion.div>
                 </AnimatePresence>
               </div>
 
-              <div className="flex flex-wrap gap-2 sm:gap-4 mt-6 sm:mt-8">
+              <div className="flex flex-wrap gap-4 mt-8">
                 <button 
                   onClick={() => navigate('/calculateurs')}
                   className="bg-[#FF6B00] text-black px-6 sm:px-8 py-2.5 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-lg sm:rounded-xl hover:bg-[#FF8533] transition-all duration-200"
