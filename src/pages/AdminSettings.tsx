@@ -2,22 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { 
-  ChevronRight, 
-  Cloud, 
-  Upload, 
-  Download,
+import {
+  ChevronRight,
+  Cloud,
   Settings,
   CheckCircle,
   Clock,
-  Package,
-  Tag,
-  Award,
-  Globe,
-  Calculator,
-  RefreshCw,
   LogOut,
-  User
+  User,
+  Bell,
+  Globe,
+  Database,
+  Shield
 } from 'lucide-react';
 
 const AdminSettings: React.FC = () => {
@@ -41,28 +37,62 @@ const AdminSettings: React.FC = () => {
     setIsLight(!isLight);
     window.dispatchEvent(new Event('themechange'));
   };
+
   const textClass = isLight ? 'text-zinc-900' : 'text-zinc-100';
   const mutedClass = isLight ? 'text-zinc-600' : 'text-zinc-400';
   const borderClass = isLight ? 'border-black' : 'border-[#FF6B00]/20';
   const hoverBorderClass = 'hover:border-[#FF6B00]';
 
   const adminNavItems = [
-    { id: 'products', label: t('admin.sections.products.title'), icon: <Package className="w-4 h-4" />, path: '/admin/products' },
-    { id: 'categories', label: t('admin.sections.categories.title'), icon: <Tag className="w-4 h-4" />, path: '/admin/categories' },
-    { id: 'brands', label: t('admin.sections.brands.title'), icon: <Award className="w-4 h-4" />, path: '/admin/brands' },
-    { id: 'translations', label: t('admin.sections.translations.title'), icon: <Globe className="w-4 h-4" />, path: '/admin/translations' },
-    { id: 'calculators', label: t('admin.sections.calculators.title'), icon: <Calculator className="w-4 h-4" />, path: '/admin/calculators' },
-    { id: 'settings', label: t('admin.sections.settings.title'), icon: <Settings className="w-4 h-4" />, path: '/admin/settings' },
+    { id: 'products', label: t('admin.sections.products.title'), icon: <ChevronRight className="w-4 h-4" />, path: '/admin/products' },
+    { id: 'categories', label: t('admin.sections.categories.title'), icon: <ChevronRight className="w-4 h-4" />, path: '/admin/categories' },
+    { id: 'brands', label: t('admin.sections.brands.title'), icon: <ChevronRight className="w-4 h-4" />, path: '/admin/brands' },
+    { id: 'translations', label: t('admin.sections.translations.title'), icon: <ChevronRight className="w-4 h-4" />, path: '/admin/translations' },
+    { id: 'calculators', label: t('admin.sections.calculators.title'), icon: <ChevronRight className="w-4 h-4" />, path: '/admin/calculators' },
+    { id: 'settings', label: t('admin.sections.settings.title'), icon: <ChevronRight className="w-4 h-4" />, path: '/admin/settings' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
 
-  const settings = [
-    { icon: <Cloud className="w-7 h-7" />, title: t('admin.cloud.title'), description: t('admin.cloud.settings'), status: 'connected' },
-    { icon: <Settings className="w-7 h-7" />, title: t('admin.settings.general'), description: t('admin.settings.siteConfig'), status: 'active' },
-    { icon: <Upload className="w-7 h-7" />, title: t('admin.settings.uploadMedia'), description: t('admin.settings.mediaManagement'), status: 'active' },
-    { icon: <Download className="w-7 h-7" />, title: t('admin.settings.backup'), description: t('admin.settings.backupDesc'), status: 'active' },
+  // Настройки будут добавлены здесь
+  // ========================================
+  
+  const settingsSections = [
+    {
+      id: 'notifications',
+      title: 'Уведомления',
+      icon: <Bell className="w-6 h-6" />,
+      description: 'Настройка WhatsApp, Email и Telegram уведомлений о заказах',
+      path: '/admin/settings/notifications',
+      status: 'pending'
+    },
+    {
+      id: 'integrations',
+      title: 'Интеграции',
+      icon: <Globe className="w-6 h-6" />,
+      description: 'Подключение внешних сервисов и API',
+      path: '/admin/settings/integrations',
+      status: 'pending'
+    },
+    {
+      id: 'database',
+      title: 'База данных',
+      icon: <Database className="w-6 h-6" />,
+      description: 'Управление данными и миграции',
+      path: '/admin/settings/database',
+      status: 'pending'
+    },
+    {
+      id: 'security',
+      title: 'Безопасность',
+      icon: <Shield className="w-6 h-6" />,
+      description: 'Настройки безопасности и доступа',
+      path: '/admin/settings/security',
+      status: 'pending'
+    }
   ];
+
+  // ========================================
 
   return (
     <div className="min-h-screen">
@@ -109,11 +139,6 @@ const AdminSettings: React.FC = () => {
             </span>
           </div>
 
-          <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider bg-[#FF6B00] text-black rounded-lg hover:bg-[#FF8533] transition-colors">
-            <RefreshCw className="w-3 h-3" />
-            {t('admin.sync')}
-          </button>
-
           <button
             onClick={themeToggle}
             className={`flex items-center justify-center w-9 h-9 transition-all duration-300 ${
@@ -151,7 +176,7 @@ const AdminSettings: React.FC = () => {
 
       <main className="pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-6">
+          <div className="mb-8">
             <h1 className={`font-black italic text-2xl md:text-3xl uppercase tracking-tight ${textClass}`}>
               {t('admin.settings.title')}
             </h1>
@@ -160,35 +185,50 @@ const AdminSettings: React.FC = () => {
             </p>
           </div>
 
+          {/* Секции настроек */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {settings.map((setting, index) => (
+            {settingsSections.map((section, index) => (
               <motion.div
-                key={index}
+                key={section.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
+                onClick={() => navigate(section.path)}
                 className={`relative p-5 bg-transparent border ${borderClass} ${hoverBorderClass} rounded-xl transition-all duration-500 group cursor-pointer`}
               >
-                <div className={`mb-3 ${isLight ? 'text-[#FF6B00]' : 'text-[#FF6B00]'}`}>{setting.icon}</div>
+                <div className={`mb-3 ${isLight ? 'text-[#FF6B00]' : 'text-[#FF6B00]'}`}>
+                  {section.icon}
+                </div>
                 <h3 className={`font-bold italic text-lg uppercase tracking-wide mb-1 ${textClass}`}>
-                  {setting.title}
+                  {section.title}
                 </h3>
-                <p className={`text-sm ${mutedClass} mb-3`}>{setting.description}</p>
+                <p className={`text-sm ${mutedClass} mb-3`}>{section.description}</p>
                 <div className="flex items-center gap-2">
-                  {setting.status === 'connected' ? (
+                  {section.status === 'ready' ? (
                     <>
                       <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-                      <span className="text-xs text-green-500">{t('admin.cloud.connected')}</span>
+                      <span className="text-xs text-green-500">Готово</span>
                     </>
                   ) : (
                     <>
                       <Clock className="w-3.5 h-3.5 text-yellow-500" />
-                      <span className="text-xs text-yellow-500">{t('admin.cloud.autoSync')}</span>
+                      <span className="text-xs text-yellow-500">Скоро</span>
                     </>
                   )}
                 </div>
               </motion.div>
             ))}
+          </div>
+
+          {/* Заглушка для контента */}
+          <div className={`mt-12 p-8 border ${borderClass} rounded-xl text-center`}>
+            <Settings className={`w-12 h-12 mx-auto mb-4 opacity-30 ${textClass}`} />
+            <p className={`text-lg ${mutedClass} mb-2`}>
+              Выберите раздел настроек слева
+            </p>
+            <p className={`text-sm ${mutedClass}`}>
+              Здесь будут доступны настройки уведомлений, интеграций и другие параметры системы
+            </p>
           </div>
         </div>
       </main>
