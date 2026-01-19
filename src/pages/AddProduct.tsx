@@ -66,7 +66,7 @@ const AddProduct: React.FC = () => {
   const [subCategoryId, setSubCategoryId] = useState<number | null>(null);
   const [isPopular, setIsPopular] = useState(false);
   const [brands, setBrands] = useState<Brand[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [flatCategories, setFlatCategories] = useState<Category[]>([]);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -98,37 +98,11 @@ const AddProduct: React.FC = () => {
       const response = await fetch(`${API_URL}/categories`);
       const data = await response.json();
       if (data.success) {
-        const processedCategories = processCategories(data.data);
-        setCategories(processedCategories);
+        setFlatCategories(data.data);
       }
     } catch (err) {
       console.error('Failed to load categories:', err);
     }
-  };
-
-  const processCategories = (cats: Category[]): Category[] => {
-    const categoryMap = new Map<number, Category>();
-    const rootCategories: Category[] = [];
-    
-    // First pass: create map of all categories
-    cats.forEach(cat => {
-      categoryMap.set(cat.id, { ...cat, children: [] });
-    });
-    
-    // Second pass: build hierarchy
-    cats.forEach(cat => {
-      if (cat.parent_id) {
-        const parent = categoryMap.get(cat.parent_id);
-        if (parent) {
-          parent.children = parent.children || [];
-          parent.children.push(cat);
-        }
-      } else {
-        rootCategories.push(cat);
-      }
-    });
-    
-    return rootCategories;
   };
 
   
@@ -385,20 +359,10 @@ const AddProduct: React.FC = () => {
   };
 
   const getSubCategories = (parentId: number): Category[] => {
-    const findParent = (categories: Category[]): Category | null => {
-      for (const category of categories) {
-        if (category.id === parentId) return category;
-        if (category.children) {
-          const found = findParent(category.children);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
-    
-    const parent = findParent(categories);
-    return parent?.children || [];
+    return flatCategories.filter(cat => Number(cat.parent_id) === parentId);
   };
+
+  const topLevelCategories = flatCategories.filter(cat => !cat.parent_id);
 
   return (
     <div className="min-h-screen">
@@ -706,11 +670,14 @@ const AddProduct: React.FC = () => {
                     </label>
                     <select
                       value={categoryId || ''}
-                      onChange={(e) => setCategoryId(e.target.value ? parseInt(e.target.value) : null)}
+                      onChange={(e) => {
+                        setCategoryId(e.target.value ? parseInt(e.target.value) : null);
+                        setSubCategoryId(null);
+                      }}
                       className={`w-full px-4 py-3 rounded-lg border ${borderClass} text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
                     >
                       <option value="">{t('admin.categories.select')}</option>
-                      {categories.map((category) => (
+                      {topLevelCategories.map((category) => (
                         <option key={category.id} value={category.id}>
                           {getCategoryName(category)}
                         </option>

@@ -62,7 +62,7 @@ const EditProduct: React.FC = () => {
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [subCategoryId, setSubCategoryId] = useState<number | null>(null);
   const [brands, setBrands] = useState<Brand[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [flatCategories, setFlatCategories] = useState<Category[]>([]);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -127,46 +127,31 @@ const EditProduct: React.FC = () => {
 
 
 
-  const processCategories = (cats: Category[]): Category[] => {
-    const categoryMap = new Map<number, Category>();
-    const rootCategories: Category[] = [];
-    
-    // First pass: create map of all categories
-    cats.forEach(cat => {
-      categoryMap.set(cat.id, { ...cat, children: [] });
-    });
-    
-    // Second pass: build hierarchy
-    cats.forEach(cat => {
-      if (cat.parent_id) {
-        const parent = categoryMap.get(cat.parent_id);
-        if (parent) {
-          parent.children = parent.children || [];
-          parent.children.push(cat);
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${API_URL}/categories`);
+      const data = await response.json();
+      if (data.success) {
+        setFlatCategories(data.data);
+        
+        if (id && categoryId) {
+          const currentCat = data.data.find((c: Category) => c.id === categoryId);
+          if (currentCat && currentCat.parent_id) {
+            setSubCategoryId(categoryId);
+            setCategoryId(currentCat.parent_id);
+          }
         }
-      } else {
-        rootCategories.push(cat);
       }
-    });
-    
-    return rootCategories;
+    } catch (err) {
+      console.error('Failed to load categories:', err);
+    }
   };
 
   const getSubCategories = (parentId: number): Category[] => {
-    const findParent = (categories: Category[]): Category | null => {
-      for (const category of categories) {
-        if (category.id === parentId) return category;
-        if (category.children) {
-          const found = findParent(category.children);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
-    
-    const parent = findParent(categories);
-    return parent?.children || [];
+    return flatCategories.filter(cat => Number(cat.parent_id) === parentId);
   };
+
+  const topLevelCategories = flatCategories.filter(cat => !cat.parent_id);
 
   const getCategoryName = (category: Category) => {
     const lang = i18n.language;
@@ -186,39 +171,6 @@ const EditProduct: React.FC = () => {
       }
     } catch (err) {
       console.error('Failed to load brands:', err);
-    }
-  };
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch(`${API_URL}/categories`);
-      const data = await response.json();
-      if (data.success) {
-        const processedCategories = processCategories(data.data);
-        setCategories(processedCategories);
-        
-        if (id && categoryId) {
-          const findParentCategory = (cats: Category[], catId: number): number | null => {
-            for (const cat of cats) {
-              if (cat.children) {
-                const found = cat.children.find(child => child.id === catId);
-                if (found) return cat.id;
-                const deeper = findParentCategory(cat.children, catId);
-                if (deeper) return deeper;
-              }
-            }
-            return null;
-          };
-          
-          const parentId = findParentCategory(processedCategories, categoryId);
-          if (parentId) {
-            setSubCategoryId(categoryId);
-            setCategoryId(parentId);
-          }
-        }
-      }
-    } catch (err) {
-      console.error('Failed to load categories:', err);
     }
   };
 
@@ -619,11 +571,14 @@ const EditProduct: React.FC = () => {
                 </label>
                 <select
                   value={categoryId || ''}
-                  onChange={(e) => setCategoryId(e.target.value ? parseInt(e.target.value) : null)}
+                  onChange={(e) => {
+                    setCategoryId(e.target.value ? parseInt(e.target.value) : null);
+                    setSubCategoryId(null);
+                  }}
                   className={`w-full px-4 py-2.5 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
                 >
                   <option value="">{t('admin.categories.select')}</option>
-                  {categories.map((category) => (
+                  {topLevelCategories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {getCategoryName(category)}
                     </option>
