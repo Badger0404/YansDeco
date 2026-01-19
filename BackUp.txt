@@ -239,3 +239,71 @@ node reimport-catalog.mjs
 Примечание: Файл names.json содержит переводы всех категорий на FR/EN/RU.
 
 ================================================================================
+                            БРЕНДЫ (REAL DATA)
+================================================================================
+
+Страница брендов переименована:
+- RU: Наши партнеры
+- FR: Nos partenaires
+- EN: Our partners
+
+8 реальных брендов в базе:
+
+1. Bostik
+   FR: Leader mondial des solutions de collage et d'étanchéité pour la construction et l'industrie.
+   RU: Мировой лидер в области клеевых решений и герметизации для строительства и промышленности.
+
+2. Semin
+   FR: Spécialiste français des enduits, colles et solutions pour l'aménagement intérieur des professionnels.
+   RU: Французский эксперт в производстве шпатлевок, клеев и решений для внутренней отделки.
+
+3. Dulary
+   FR: Marque de référence offrant des peintures et revêtements de haute performance pour le bâtiment.
+   RU: Ведущий бренд, предлагающий высокотехнологичные краски и покрытия для строительной отрасли.
+
+4. Berner
+   FR: Expert en fixation, outillage et produits chimiques pour les professionnels du bâtiment et de l'industrie.
+   RU: Эксперт в области крепежа, инструмента и строительной химии для профессионалов.
+
+5. Rubi
+   FR: La référence mondiale de l'outillage pour la coupe et la pose de carrelage.
+   RU: Мировой эталон инструмента для резки и укладки плитки.
+
+6. Weber
+   FR: Leader des mortiers industriels, solutions pour façades, pose de carrelage et sols.
+   RU: Лидер в производстве строительных растворов, фасадных систем и смесей для укладки пола.
+
+7. Premines Industries
+   FR: Fabricant spécialisé dans les abrasifs et solutions de ponçage haute qualité.
+   RU: Производитель, специализирующийся на высококачественных абразивах и решениях для шлифовки.
+
+8. L'outil Parfait
+   FR: Concepteur français d'outillage manuel ergonomique pour le peintre et le plaquiste.
+   RU: Французский разработчик эргономичного ручного инструмента для маляров и отделочников.
+
+ИМПОРТ БРЕНДОВ:
+--------------------------------------------------------------------------------
+node import-brands.mjs
+
+================================================================================
+                            МОБИЛЬНАЯ ОПТИМИЗАЦИЯ
+================================================================================
+
+Последнее обновление: 19.01.2026
+
+Исправления:
+- Адаптивная типографика: заголовки text-3xl sm:text-4xl md:text-5xl
+- Уменьшенная высота карточек на мобильных (min-h-[400px] вместо 600px)
+- Увеличенные touch targets: кнопки корзины p-2, стрелки навигации p-2
+- Оптимизированные отступы для мобильных grid (gap-4 sm:gap-6)
+- Улучшенные отступы на мобильных экранах
+
+Страницы с исправлениями:
+- Home.tsx: карточки товаров, навигация по слайдеру
+- Catalogue.tsx: заголовки, сетка категорий
+- Marques.tsx: заголовок, сетка брендов
+- Contact.tsx: заголовок
+- Services.tsx: заголовок
+- CartDrawer.tsx: кнопки +/- для количества
+
+================================================================================
