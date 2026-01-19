@@ -340,7 +340,8 @@
       "parent": "Parent category",
       "order": "Display order",
       "icon": "Icon",
-      "noCategories": "No categories found"
+      "noCategories": "No categories found",
+      "subcategory": "Product Subcategories"
     },
     "brands": {
       "title": "Brand Management",

@@ -339,7 +339,8 @@
       "parent": "Catégorie parente",
       "order": "Ordre d'affichage",
       "icon": "Icône",
-      "noCategories": "Aucune catégorie trouvée"
+      "noCategories": "Aucune catégorie trouvée",
+      "subcategory": "Sous-catégories de produits"
     },
     "brands": {
       "title": "Gestion des Marques",
