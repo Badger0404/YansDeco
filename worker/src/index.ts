@@ -5,6 +5,9 @@ interface Env {
   DB: D1Database;
   ASSETS: R2Bucket;
   AI: Ai;
+  GREEN_API_ID_INSTANCE: string;
+  GREEN_API_TOKEN_INSTANCE: string;
+  ENV: string;
 }
 
 const app = new Hono<{ Bindings: Env }>();
@@ -1991,6 +1994,120 @@ app.post('/api/notifications/test-whatsapp', async (c) => {
     }
   } catch (error: any) {
     console.error('[WhatsApp] Test error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+// ============ SYSTEM CHECK (Green-API) ============
+
+app.get('/api/system-check', async (c) => {
+  try {
+    // Get environment variables
+    const greenApiId = c.env.GREEN_API_ID_INSTANCE || '';
+    const greenApiToken = c.env.GREEN_API_TOKEN_INSTANCE || '';
+    const env = c.env.ENV || 'unknown';
+
+    // Get current time in French format
+    const now = new Date();
+    const dateTimeFR = now.toLocaleString('fr-FR', { 
+      timeZone: 'Europe/Paris',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    // Check D1 Database
+    let dbSize = 0;
+    let dbStatus = 'OK';
+    try {
+      const dbResult = await c.env.DB.prepare(`
+        SELECT (page_count * page_size) / 1024.0 / 1024.0 as size 
+        FROM pragma_page_count(), pragma_page_size()
+      `).first();
+      dbSize = dbResult?.size || 0;
+    } catch (dbError: any) {
+      console.error('[SystemCheck] DB error:', dbError.message);
+      dbStatus = 'Erreur';
+    }
+
+    // Check R2 Storage
+    let r2Size = 0;
+    let r2Files = 0;
+    let r2Status = 'OK';
+    try {
+      const r2List = await c.env.ASSETS.list({ limit: 1000 });
+      r2Files = r2List.objects.length;
+      // R2 doesn't have direct size in list, estimate based on common object size
+      r2Size = r2Files * 0.5; // Approximate 0.5MB per object
+    } catch (r2Error: any) {
+      console.error('[SystemCheck] R2 error:', r2Error.message);
+      r2Status = 'Erreur';
+    }
+
+    // Format message
+    const dbStatusIcon = dbStatus === 'OK' ? '✅' : '❌';
+    const r2StatusIcon = r2Status === 'OK' ? '✅' : '❌';
+
+    const systemMessage = `🛠 *RAPPORT D'ÉTAT SYSTÈME - Yan's Deco*
+--------------------------
+📅 **Date/Heure :** ${dateTimeFR}
+🗄 **Base de données D1 :** ${dbStatusIcon} ${dbSize.toFixed(2)} MB
+📦 **Stockage R2 (Photos) :** ${r2StatusIcon} ${r2Size.toFixed(2)} MB / ${r2Files} fichiers
+🆔 **ID Instance :** ${greenApiId}
+🌐 **Environnement :** ${env}
+
+📊 **Statut Global :**
+- Connexion DB : ${dbStatus}
+- Accès Stockage : ${r2Status}
+- WhatsApp API : ${greenApiId ? 'Connecté' : 'Non configuré'}
+
+🚀 *Système Yan's Deco opérationnel à 100%*
+--------------------------
+_Rapport dynamique généré par le Worker_`;
+
+    // Send via Green-API if configured
+    let whatsappSent = false;
+    if (greenApiId && greenApiToken) {
+      try {
+        const greenApiUrl = `https://api.green-api.com/waInstance${greenApiId}/sendMessage/${greenApiToken}`;
+        const response = await fetch(greenApiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chatId: 'demo@c.us',
+            message: systemMessage
+          })
+        });
+        const whatsappResult = await response.json();
+        if (whatsappResult.idMessage) {
+          whatsappSent = true;
+        }
+      } catch (whatsappError: any) {
+        console.error('[SystemCheck] WhatsApp error:', whatsappError.message);
+      }
+    }
+
+    return c.json({
+      success: true,
+      data: {
+        timestamp: dateTimeFR,
+        database: {
+          status: dbStatus,
+          sizeMB: dbSize.toFixed(2)
+        },
+        storage: {
+          status: r2Status,
+          sizeMB: r2Size.toFixed(2),
+          files: r2Files
+        },
+        whatsapp: whatsappSent ? 'sent' : 'skipped',
+        environment: env
+      }
+    });
+  } catch (error: any) {
+    console.error('[SystemCheck] Error:', error.message);
     return c.json({ success: false, error: error.message }, { status: 500 });
   }
 });

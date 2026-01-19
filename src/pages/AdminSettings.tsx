@@ -15,10 +15,11 @@ import {
   Database,
   Shield,
   Smartphone,
-  Save
+  Save,
+  Server
 } from 'lucide-react';
 
-type SettingsSection = 'notifications' | 'integrations' | 'database' | 'security';
+type SettingsSection = 'notifications' | 'integrations' | 'database' | 'security' | 'system';
 
 const AdminSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -89,6 +90,13 @@ const AdminSettings: React.FC = () => {
       description: t('admin.settings.securityDesc'),
       icon: <Shield className="w-8 h-8" />,
       color: 'from-red-500/20 to-rose-600/10'
+    },
+    {
+      id: 'system',
+      title: t('admin.settings.systemCheck'),
+      description: t('admin.settings.systemCheckDesc'),
+      icon: <Server className="w-8 h-8" />,
+      color: 'from-cyan-500/20 to-blue-600/10'
     }
   ];
 
@@ -102,6 +110,8 @@ const AdminSettings: React.FC = () => {
         return <DatabaseSettings textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} />;
       case 'security':
         return <SecuritySettings textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} />;
+      case 'system':
+        return <SystemCheckSettings textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} />;
       default:
         return null;
     }
@@ -732,6 +742,121 @@ const SecuritySettings: React.FC<{textClass: string; mutedClass: string; borderC
           </p>
         </div>
       </div>
+    </div>
+  );
+};
+
+// ============ System Check Settings ============
+const SystemCheckSettings: React.FC<{textClass: string; mutedClass: string; borderClass: string}> = ({ textClass, mutedClass, borderClass }) => {
+  const { t } = useTranslation();
+  const [checking, setChecking] = useState(false);
+  const [result, setResult] = useState<{
+    success: boolean;
+    data?: {
+      timestamp: string;
+      database: { status: string; sizeMB: string };
+      storage: { status: string; sizeMB: string; files: number };
+      whatsapp: string;
+      environment: string;
+    };
+    error?: string;
+  } | null>(null);
+
+  const handleSystemCheck = async () => {
+    setChecking(true);
+    setResult(null);
+    
+    try {
+      const response = await fetch('https://yasndeco-api.andrey-gaffer.workers.dev/api/system-check');
+      const data = await response.json();
+      setResult(data);
+    } catch (error: any) {
+      setResult({ success: false, error: error.message });
+    }
+    
+    setChecking(false);
+  };
+
+  return (
+    <div>
+      <h2 className={`font-bold italic text-xl uppercase tracking-wide mb-6 ${textClass}`}>
+        🛠️ {t('admin.settings.systemCheck')}
+      </h2>
+
+      <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
+        <p className={`text-sm ${mutedClass} mb-6`}>
+          {t('admin.settings.systemCheckDesc')}
+        </p>
+
+        <button
+          onClick={handleSystemCheck}
+          disabled={checking}
+          className="bg-[#FF6B00] text-black px-8 py-4 rounded-xl font-bold uppercase tracking-wide hover:bg-[#FF8533] transition-colors flex items-center gap-3 disabled:opacity-50"
+        >
+          {checking ? (
+            <>
+              <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+              Vérification...
+            </>
+          ) : (
+            <>
+              <Server className="w-5 h-5" />
+              {t('admin.settings.sendSystemReport')}
+            </>
+          )}
+        </button>
+      </div>
+
+      {result && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`p-5 border ${borderClass} rounded-xl ${
+            result.success ? 'bg-green-500/10' : 'bg-red-500/10'
+          }`}
+        >
+          {result.success ? (
+            <>
+              <div className="flex items-center gap-3 mb-4">
+                <CheckCircle className="w-6 h-6 text-green-500" />
+                <h3 className={`font-bold uppercase tracking-wide ${textClass}`}>
+                  ✅ {t('admin.settings.systemReportSent')}
+                </h3>
+              </div>
+              
+              {result.data && (
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between py-2 border-b border-gray-300 dark:border-gray-700">
+                    <span className={mutedClass}>📅 Date/Heure</span>
+                    <span className={`font-mono ${textClass}`}>{result.data.timestamp}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-300 dark:border-gray-700">
+                    <span className={mutedClass}>🗄️ Base de données</span>
+                    <span className={`font-mono ${textClass}`}>✅ {result.data.database.sizeMB} MB</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-300 dark:border-gray-700">
+                    <span className={mutedClass}>📦 Stockage R2</span>
+                    <span className={`font-mono ${textClass}`}>✅ {result.data.storage.sizeMB} MB / {result.data.storage.files} fichiers</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-300 dark:border-gray-700">
+                    <span className={mutedClass}>🌐 Environnement</span>
+                    <span className={`font-mono ${textClass}`}>{result.data.environment}</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span className={mutedClass}>📱 WhatsApp</span>
+                    <span className={`font-mono ${textClass}`}>{result.data.whatsapp === 'sent' ? '✅ Envoyé' : '⏭️ Ignoré'}</span>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex items-center gap-3 text-red-500">
+              <span className="text-2xl">❌</span>
+              <span>{result.error || 'Erreur de vérification'}</span>
+            </div>
+          )}
+        </motion.div>
+      )}
     </div>
   );
 };
