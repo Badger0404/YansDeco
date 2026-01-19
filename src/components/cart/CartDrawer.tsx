@@ -61,7 +61,16 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ theme }) => {
                 <div className="flex flex-col items-center justify-center h-full text-center">
                   <ShoppingCart className={`w-12 h-12 sm:w-16 sm:h-16 ${mutedClass} opacity-30 mb-3 sm:mb-4`} />
                   <p className={`text-base sm:text-lg ${mutedClass}`}>{t('cart.empty')}</p>
-                  <p className={`text-xs sm:text-sm ${mutedClass} mt-1.5 sm:mt-2`}>{t('cart.addItems')}</p>
+                  <p className={`text-xs sm:text-sm ${mutedClass} mt-1.5 sm:mt-2 mb-6`}>{t('cart.addItems')}</p>
+                  <button
+                    onClick={() => {
+                      setIsCartOpen(false);
+                      navigate('/catalogue');
+                    }}
+                    className="bg-[#FF6B00] text-black px-6 py-3 rounded-xl font-bold uppercase tracking-wide hover:bg-[#FF8533] transition-colors"
+                  >
+                    {t('catalogue.products')}
+                  </button>
                 </div>
               ) : (
                 <div className="space-y-3 sm:space-y-4">

@@ -71,6 +71,16 @@ const Checkout: React.FC = () => {
 
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
   const [deliveryCost] = useState(deliveryMethod === 'delivery' ? 0 : 0);
+  
+  // Tax settings
+  const [taxRate, setTaxRate] = useState(20); // Default 20% for France
+  const [taxMode, setTaxMode] = useState<'ttc' | 'ht' | 'remove'>('ttc'); // ttc = prices include tax, ht = prices exclude tax, remove = remove TVA from TTC prices
+
+  const taxRates = [
+    { value: 20, label: 'TVA 20% (France)' },
+    { value: 10, label: 'TVA 10% (Rénovation)' },
+    { value: 5.5, label: 'TVA 5.5% (Environnement)' }
+  ];
 
   const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
@@ -123,6 +133,36 @@ const Checkout: React.FC = () => {
   const cardBgClass = isLight ? 'bg-white/80' : 'bg-zinc-900/80';
 
   const formatPrice = (price: number) => price.toFixed(2) + ' €';
+
+  // Calculate prices based on tax mode
+  // If taxMode is 'ttc' - prices INCLUDE tax, so we need to extract HT
+  // If taxMode is 'ht' - prices are already EXCL tax, show as is
+  // If taxMode is 'remove' - prices INCLUDE tax, subtract TVA (same as HT)
+  
+  const getPriceExclTax = (price: number): number => {
+    if (taxMode === 'ht') return price;
+    if (taxMode === 'ttc' || taxMode === 'remove') {
+      return price / (1 + taxRate / 100);
+    }
+    return price;
+  };
+
+  const getTaxAmount = (price: number): number => {
+    return price - getPriceExclTax(price);
+  };
+
+  // Calculate order totals
+  const subtotalExclTax = items.reduce((sum, item) => sum + getPriceExclTax(item.price * item.quantity), 0);
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const taxAmount = items.reduce((sum, item) => sum + getTaxAmount(item.price * item.quantity), 0);
+  const totalWithTax = subtotal + deliveryCost;
+  const totalExclTax = subtotalExclTax + getPriceExclTax(deliveryCost);
+
+  // Display values based on mode
+  const displaySubtotal = taxMode === 'ht' || taxMode === 'remove' ? subtotalExclTax : subtotal;
+  const displayTax = taxMode === 'remove' ? 0 : (taxMode === 'ttc' ? taxAmount : subtotal * taxRate / 100);
+  const displayDelivery = taxMode === 'ht' || taxMode === 'remove' ? getPriceExclTax(deliveryCost) : deliveryCost;
+  const displayTotal = taxMode === 'ht' ? totalExclTax : (taxMode === 'remove' ? subtotalExclTax + getPriceExclTax(deliveryCost) : totalWithTax);
 
   const getItemName = (item: CartItem) => item.name;
 
@@ -716,10 +756,10 @@ const Checkout: React.FC = () => {
                           ) : (
                             <>
                               <Check className="w-5 h-5" />
-                              {t('checkout.confirmOrder')} - {formatPrice(totalPrice + deliveryCost)}
+                              {t('checkout.confirmOrder')} - {formatPrice(displayTotal)}
                             </>
                           )}
-                        </button>
+                            </button>
                       </div>
                     </motion.div>
                   )}
@@ -729,9 +769,72 @@ const Checkout: React.FC = () => {
 
             <div className="lg:col-span-1">
               <div className={`p-6 border ${borderClass} rounded-xl ${cardBgClass} sticky top-24`}>
-                <h3 className={`font-bold italic text-lg uppercase tracking-wide mb-4 ${textClass}`}>
-                  {t('checkout.yourOrder')}
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className={`font-bold italic text-lg uppercase tracking-wide ${textClass}`}>
+                    {t('checkout.yourOrder')}
+                  </h3>
+                </div>
+
+                {/* Tax Settings */}
+                <div className={`p-3 border ${borderClass} rounded-lg mb-4`}>
+                  <div className="mb-3">
+                    <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
+                      Taux de TVA
+                    </label>
+                    <select
+                      value={taxRate}
+                      onChange={(e) => setTaxRate(Number(e.target.value))}
+                      className={`w-full px-3 py-2 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                    >
+                      {taxRates.map(rate => (
+                        <option key={rate.value} value={rate.value}>{rate.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
+                      Affichage des prix
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        onClick={() => setTaxMode('ttc')}
+                        className={`px-2 py-2 text-xs font-bold uppercase tracking-wide rounded-lg transition-colors ${
+                          taxMode === 'ttc'
+                            ? 'bg-[#FF6B00] text-black'
+                            : `${borderClass} ${textClass} hover:border-[#FF6B00]`
+                        }`}
+                      >
+                        TTC
+                      </button>
+                      <button
+                        onClick={() => setTaxMode('ht')}
+                        className={`px-2 py-2 text-xs font-bold uppercase tracking-wide rounded-lg transition-colors ${
+                          taxMode === 'ht'
+                            ? 'bg-[#FF6B00] text-black'
+                            : `${borderClass} ${textClass} hover:border-[#FF6B00]`
+                        }`}
+                      >
+                        HT
+                      </button>
+                      <button
+                        onClick={() => setTaxMode('remove')}
+                        className={`px-2 py-2 text-xs font-bold uppercase tracking-wide rounded-lg transition-colors ${
+                          taxMode === 'remove'
+                            ? 'bg-[#FF6B00] text-black'
+                            : `${borderClass} ${textClass} hover:border-[#FF6B00]`
+                        }`}
+                      >
+                        -TVA
+                      </button>
+                    </div>
+                    <p className={`text-[10px] ${mutedClass} mt-2`}>
+                      {taxMode === 'ttc' && 'Les prix incluent la TVA'}
+                      {taxMode === 'ht' && 'Les prix sont Hors Taxe'}
+                      {taxMode === 'remove' && 'Enlever la TVA du prix TTC'}
+                    </p>
+                  </div>
+                </div>
 
                 <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
                   {items.map((item) => (
@@ -767,21 +870,32 @@ const Checkout: React.FC = () => {
                 <div className={`border-t ${borderClass} pt-4 space-y-2`}>
                   <div className="flex items-center justify-between">
                     <span className={`text-sm ${mutedClass}`}>{t('cart.subtotal')}</span>
-                    <span className={`font-bold ${textClass}`}>{formatPrice(totalPrice)}</span>
+                    <span className={`font-bold ${textClass}`}>{formatPrice(displaySubtotal)}</span>
                   </div>
+                  {displayTax > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className={`text-sm ${mutedClass}`}>
+                        TVA ({taxRate}%)
+                        {taxMode === 'remove' && ' removed'}
+                      </span>
+                      <span className={`font-bold ${textClass}`}>
+                        {taxMode === 'remove' ? '-' : ''}{formatPrice(displayTax)}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between">
                     <span className={`text-sm ${mutedClass}`}>{t('checkout.delivery')}</span>
                     <span className={`font-bold ${textClass}`}>
-                      {deliveryCost > 0 ? formatPrice(deliveryCost) : t('checkout.free')}
+                      {deliveryCost > 0 ? formatPrice(displayDelivery) : t('checkout.free')}
                     </span>
                   </div>
                   <div className={`border-t ${borderClass} pt-2 mt-2`}>
                     <div className="flex items-center justify-between">
                       <span className={`font-bold uppercase tracking-wide ${textClass}`}>
-                        {t('cart.total')}
+                        {taxMode === 'ht' ? 'Total HT' : taxMode === 'remove' ? 'Total TTC - TVA' : 'Total TTC'}
                       </span>
                       <span className={`text-xl font-black italic text-[#FF6B00]`}>
-                        {formatPrice(totalPrice + deliveryCost)}
+                        {formatPrice(displayTotal)}
                       </span>
                     </div>
                   </div>
