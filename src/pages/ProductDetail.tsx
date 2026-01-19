@@ -158,7 +158,6 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ theme }) => {
     );
   }
 
-  const categoryTitle = categoryId?.replace(/_/g, ' ').toUpperCase() || '';
   const subcategoryName = getSubcategoryName();
 
   return (
@@ -177,12 +176,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ theme }) => {
 
           <div className="text-center mb-10">
             <h1 className={`font-black italic text-4xl uppercase tracking-tight mb-2 ${textClass}`}>
-              <span className={isLight ? 'text-black' : 'text-white'}>{categoryTitle.split(' ')[0]}</span>{' '}
-              <span className="text-[#FF6B00]">{categoryTitle.split(' ').slice(1).join(' ')}</span>
+              <span className={isLight ? 'text-black' : 'text-white'}>{subcategoryName}</span>
             </h1>
-            <h2 className={`font-bold italic text-2xl mt-4 ${textClass}`}>
-              {subcategoryName}
-            </h2>
           </div>
 
           {products.length > 0 ? (
@@ -228,8 +223,9 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ theme }) => {
                           Rupture
                         </span>
                       )}
-                      <span className={`text-xs font-medium ${mutedClass} group-hover:text-[#FF6B00] transition-colors`}>
-                        Voir le produit →
+                      <span className={`text-xs font-medium ${mutedClass} group-hover:text-[#FF6B00] transition-colors flex items-center gap-1`}>
+                        <span>Voir le produit</span>
+                        <span className="text-sm transition-transform duration-300 group-hover:translate-x-1">→</span>
                       </span>
                     </div>
                   </div>

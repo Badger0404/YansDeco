@@ -190,15 +190,15 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                         onClick={() => handleCategoryClick(category.id)}
-                        className={`rounded-xl overflow-hidden group cursor-pointer transition-all duration-300`}
-                      >
-                        <div className="aspect-[4/3] flex items-center justify-center p-6 bg-transparent">
-                          {category.image_url ? (
-                            <img
-                              src={category.image_url}
-                              alt={getCategoryName(category)}
-                              className="max-w-full max-h-full object-contain"
-                            />
+                              className={`rounded-xl overflow-hidden group cursor-pointer transition-all duration-300 border border-transparent hover:border-[#FF6B00] hover:scale-[1.02] bg-transparent`}
+                            >
+                              <div className="aspect-[4/3] flex items-center justify-center p-6 bg-transparent">
+                                {category.image_url ? (
+                                  <img
+                                    src={category.image_url}
+                                    alt={getCategoryName(category)}
+                                    className="max-w-full max-h-full object-contain transition-transform duration-1000 group-hover:scale-110"
+                                  />
                           ) : (
                             <Package className={`w-16 h-16 ${mutedClass} opacity-30`} />
                           )}
@@ -211,7 +211,7 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                             <span className={`text-xs ${mutedClass}`}>
                               {category.children?.length || 0} sous-catégories
                             </span>
-                            <ChevronRight className={`w-5 h-5 ${mutedClass} group-hover:text-[#FF6B00] transition-colors`} />
+                            <ChevronRight className={`w-5 h-5 ${mutedClass} group-hover:text-[#FF6B00] group-hover:translate-x-1 transition-all duration-300`} />
                           </div>
                         </div>
                       </motion.div>
@@ -268,14 +268,14 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: index * 0.05 }}
                               onClick={() => navigate(`/catalogue/${categoryId}/${sub.id}`)}
-                              className={`rounded-xl overflow-hidden group cursor-pointer transition-all duration-300`}
+                              className={`rounded-xl overflow-hidden group cursor-pointer transition-all duration-300 border border-transparent hover:border-[#FF6B00] hover:scale-[1.02] bg-transparent`}
                             >
                               <div className="aspect-square flex items-center justify-center p-4 bg-transparent">
                                 {sub.image_url ? (
                                   <img
                                     src={sub.image_url}
                                     alt={getCategoryName(sub)}
-                                    className="max-w-full max-h-full object-contain"
+                                    className="max-w-full max-h-full object-contain transition-transform duration-1000 group-hover:scale-110"
                                   />
                                 ) : (
                                   <Package className={`w-12 h-12 ${mutedClass} opacity-30`} />
@@ -289,7 +289,7 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                                   <span className={`text-xs ${mutedClass}`}>
                                     {sub.children?.length || 0} sous-catégories
                                   </span>
-                                  <ChevronRight className={`w-4 h-4 ${mutedClass} group-hover:text-[#FF6B00] transition-colors`} />
+                                  <ChevronRight className={`w-4 h-4 ${mutedClass} group-hover:text-[#FF6B00] group-hover:translate-x-1 transition-all duration-300`} />
                                 </div>
                               </div>
                             </motion.div>
