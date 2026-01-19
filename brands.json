@@ -1,0 +1,68 @@
+{
+  "brands": [
+    {
+      "name": "Bostik",
+      "description": {
+        "fr": "Leader mondial des solutions de collage et d'étanchéité pour la construction et l'industrie.",
+        "en": "Global leader in adhesive and sealing solutions for construction and industry.",
+        "ru": "Мировой лидер в области клеевых решений и герметизации для строительства и промышленности."
+      }
+    },
+    {
+      "name": "Semin",
+      "description": {
+        "fr": "Spécialiste français des enduits, colles et solutions pour l'aménagement intérieur des professionnels.",
+        "en": "French specialist in plasters, adhesives, and interior fitting solutions for professionals.",
+        "ru": "Французский эксперт в производстве шпатлевок, клеев и решений для внутренней отделки."
+      }
+    },
+    {
+      "name": "Dulary",
+      "description": {
+        "fr": "Marque de référence offrant des peintures et revêtements de haute performance pour le bâtiment.",
+        "en": "Leading brand offering high-performance paints and coatings for the building industry.",
+        "ru": "Ведущий бренд, предлагающий высокотехнологичные краски и покрытия для строительной отрасли."
+      }
+    },
+    {
+      "name": "Berner",
+      "description": {
+        "fr": "Expert en fixation, outillage et produits chimiques pour les professionnels du bâtiment et de l'industrie.",
+        "en": "Expert in fixings, tools, and chemical products for construction and industrial professionals.",
+        "ru": "Эксперт в области крепежа, инструмента и строительной химии для профессионалов."
+      }
+    },
+    {
+      "name": "Rubi",
+      "description": {
+        "fr": "La référence mondiale de l'outillage pour la coupe et la pose de carrelage.",
+        "en": "The world reference in tools for cutting and laying tiles.",
+        "ru": "Мировой эталон инструмента для резки и укладки плитки."
+      }
+    },
+    {
+      "name": "Weber",
+      "description": {
+        "fr": "Leader des mortiers industriels, solutions pour façades, pose de carrelage et sols.",
+        "en": "Leader in industrial mortars, facade solutions, tiling, and flooring.",
+        "ru": "Лидер в производстве строительных растворов, фасадных систем и смесей для укладки пола."
+      }
+    },
+    {
+      "name": "Premines Industries",
+      "description": {
+        "fr": "Fabricant spécialisé dans les abrasifs et solutions de ponçage haute qualité.",
+        "en": "Manufacturer specialized in high-quality abrasives and sanding solutions.",
+        "ru": "Производитель, специализирующийся на высококачественных абразивах и решениях для шлифовки."
+      }
+    },
+    {
+      "name": "L’outil Parfait",
+      "description": {
+        "fr": "Concepteur français d'outillage manuel ergonomique pour le peintre et le plaquiste.",
+        "en": "French designer of ergonomic hand tools for painters and drywallers.",
+        "ru": "Французский разработчик эргономичного ручного инструмента для маляров и отделочников."
+      }
+    }
+  ]
+}
