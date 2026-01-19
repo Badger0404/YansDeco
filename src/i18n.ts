@@ -57,7 +57,10 @@ const fr = {
   brands: {
     title: "Nos partenaires",
     subtitle: "Nous travaillons avec les plus grandes marques du secteur pour vous garantir qualité et fiabilité.",
-    viewAll: "Voir tous les produits"
+    viewAll: "Voir tous les produits",
+    back: "← Retour aux partenaires",
+    productsTitle: "Produits de cette marque",
+    noProducts: "Aucun produit disponible pour le moment"
   },
   services: {
     title: "NOS SERVICES",
@@ -439,7 +442,10 @@ const en = {
   brands: {
     title: "Our partners",
     subtitle: "We work with the biggest brands in the industry to guarantee you quality and reliability.",
-    viewAll: "See all products"
+    viewAll: "See all products",
+    back: "← Back to partners",
+    productsTitle: "Products of this brand",
+    noProducts: "No products available at the moment"
   },
   services: {
     title: "OUR SERVICES",
@@ -821,7 +827,10 @@ const ru = {
   brands: {
     title: "Наши партнеры",
     subtitle: "Мы работаем с ведущими брендами отрасли, чтобы гарантировать вам качество и надёжность.",
-    viewAll: "Смотреть все товары"
+    viewAll: "Смотреть все товары",
+    back: "← Назад к партнерам",
+    productsTitle: "Товары этого бренда",
+    noProducts: "Нет доступных товаров"
   },
   services: {
     title: "НАШИ УСЛУГИ",
