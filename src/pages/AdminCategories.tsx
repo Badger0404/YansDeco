@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -133,7 +133,7 @@ const AdminCategories: React.FC = () => {
   const borderClass = isLight ? 'border-black' : 'border-[#FF6B00]/20';
   
 
-  const adminNavItems = [
+  const adminNavItems = useMemo(() => [
     { id: 'products', label: t('admin.sections.products.title'), icon: <Package className="w-4 h-4" />, path: '/admin/products' },
     { id: 'categories', label: t('admin.sections.categories.title'), icon: <Tag className="w-4 h-4" />, path: '/admin/categories' },
     { id: 'brands', label: t('admin.sections.brands.title'), icon: <Award className="w-4 h-4" />, path: '/admin/brands' },
@@ -141,7 +141,7 @@ const AdminCategories: React.FC = () => {
     { id: 'calculators', label: t('admin.sections.calculators.title'), icon: <Calculator className="w-4 h-4" />, path: '/admin/calculators' },
     { id: 'settings', label: t('admin.sections.settings.title'), icon: <Settings className="w-4 h-4" />, path: '/admin/settings' },
     { id: 'content', label: t('admin.sections.content.title'), icon: <Settings className="w-4 h-4" />, path: '/admin/content' },
-  ];
+  ], [t, i18n.language]);
 
   const isActive = (path: string) => location.pathname === path;
   const isCloudOnline = cloudStatus === 'online';

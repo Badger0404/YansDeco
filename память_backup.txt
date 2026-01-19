@@ -1,5 +1,5 @@
 ================================================================================
-          CORE SYSTEM INSTRUCTIONS / СИСТЕМНЫЕ УСТАНОВКИ ПРОЕКТА
+           CORE SYSTEM INSTRUCTIONS / СИСТЕМНЫЕ УСТАНОВКИ ПРОЕКТА
 ================================================================================
 1. ПРАВИЛО ОБНОВЛЕНИЯ: После каждой успешной реализации новой фичи (API, UI, 
    логика и та далее) ИИ ОБЯЗАН предложить обновить этот файл.
@@ -10,13 +10,8 @@
 ================================================================================
 
 
-
-
-
-
-
 ================================================================================
-                    YAN'S DECO PROJECT - COMPREHENSIVE MEMORY FILE
+                     YAN'S DECO PROJECT - COMPREHENSIVE MEMORY FILE
 ================================================================================
 Дата создания: 2026-01-17
 Последнее обновление: 2026-01-19
@@ -48,830 +43,144 @@ YansDeco/
 │   │   ├── Catalogue.tsx           # Каталог
 │   │   ├── Marques.tsx             # Бренды (публичная)
 │   │   ├── BrandPublic.tsx         # Страница бренда
+│   │   ├── ProductPage.tsx         # Страница товара
+│   │   ├── ProductDetail.tsx       # Товары подкатегории
 │   │   ├── Services.tsx            # Услуги
 │   │   ├── Calculateurs.tsx        # Калькуляторы
 │   │   ├── Contact.tsx             # Контакты
-│   │   ├── ProductPage.tsx         # Страница товара
-│   │   ├── Profile.tsx             # Профиль клиента
-│   │   ├── Checkout.tsx            # Оформление заказа
-│   │   ├── AddProduct.tsx          # Добавление товара (admin)
-│   │   ├── EditProduct.tsx         # Редактирование товара (admin)
-│   │   ├── AdminDashboard.tsx      # Дашборд админки
-│   │   ├── AdminProducts.tsx       # Товары (admin)
-│   │   ├── AdminBrands.tsx         # Управление брендами (admin)
-│   │   ├── BrandDetail.tsx         # Страница бренда (admin)
-│   │   ├── AdminCategories.tsx     # Категории (admin)
-│   │   ├── CategoryDetail.tsx      # Категория детально (admin)
-│   │   ├── CategoryEdit.tsx        # Редактирование категории (admin)
-│   │   ├── AddCategory.tsx         # Добавление категории (admin)
-│   │   ├── AdminClients.tsx        # Клиенты (admin)
-│   │   ├── AdminClientDetail.tsx   # История клиента (admin)
-│   │   ├── AdminTranslations.tsx   # Переводы (admin)
-│   │   ├── AdminCalculators.tsx    # Калькуляторы (admin)
-│   │   ├── AdminSettings.tsx       # Настройки (admin)
-│   │   ├── AdminServices.tsx       # Услуги (admin)
-│   │   ├── AdminContent.tsx        # Контент (admin)
-│   │   ├── ProductDetail.tsx       # Детали подкатегории
-│   │   └── ProductDetailAdmin.tsx  # Товар детально (admin)
-│   │
+│   │   └── admin/                  # Админ-панель
 │   ├── components/                 # Компоненты
-│   │   ├── Header.tsx              # Шапка с корзиной и авторизацией
-│   │   ├── Footer.tsx              # Подвал
-│   │   ├── AdminHeader.tsx         # Шапка админки
-│   │   ├── Hero.tsx                # Hero секция
-│   │   ├── ScrollToTop.tsx         # Скролл наверх
-│   │   ├── CloudStatus.tsx         # Индикатор статуса Cloudflare (NEW)
-│   │   ├── ColorPicker.tsx         # Выбор цвета (NEW)
-│   │   ├── cart/
-│   │   │   └── CartDrawer.tsx      # Выдвижная корзина
-│   │   └── auth/
-│   │       └── AuthModal.tsx       # Модалка логин/регистрация
-│   │
-│   ├── context/                    # React Context
-│   │   ├── CartContext.tsx         # Контекст корзины
-│   │   └── AuthContext.tsx         # Контекст авторизации
-│   │
-│   ├── services/
-│   │   └── api.ts                  # API URL константы
-│   ├── hooks/
-│   │   └── useLocalized.tsx
-│   ├── types/
-│   │   └── localization.ts
-│   ├── i18n.ts                     # Конфигурация i18n (RU, FR, EN)
-│   └── App.tsx                     # Роутинг + провайдеры
-│
+│   ├── hooks/                      # Хуки
+│   ├── services/                   # API сервисы
+│   └── i18n.ts                     # Локализация
 ├── worker/
-│   └── src/
-│       └── index.ts                # Cloudflare Worker (API сервер)
-│
-├── wrangler.toml                   # Cloudflare Workers конфигурация
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-└── память_backup.txt               # Этот файл
+│   ├── src/index.ts                # Cloudflare Worker API
+│   └── wrangler.toml               # Worker конфигурация
+└── public/locales/                 # Переводы (RU, FR, EN)
 
 ================================================================================
-API ENDPOINTS (Cloudflare Worker)
+API ENDPOINTS
 ================================================================================
 
-Базовый URL: https://yasndeco-api.andrey-gaffer.workers.dev/api
+ПРОДУКТЫ:
+- GET    /api/products              # Все товары
+- GET    /api/products/:id          # Товар по ID
+- POST   /api/products              # Создать товар
+- PUT    /api/products/:id          # Обновить товар
+- DELETE /api/products/:id          # Удалить товар
+- GET    /api/products?popular=1    # Популярные товары
 
-BRANDS (Бренды):
-----------------
-GET    /api/brands                   # Список всех брендов
-GET    /api/brands/:id               # Один бренд по ID
-GET    /api/brands/:id/products      # Товары бренда
-POST   /api/brands                   # Создать бренд
-PUT    /api/brands/:id               # Обновить бренд
-DELETE /api/brands/:id               # Удалить бренд
+КАТЕГОРИИ:
+- GET    /api/categories            # Все категории (дерево)
+- GET    /api/categories/:id        # Категория по ID
+- POST   /api/categories            # Создать категорию
+- PUT    /api/categories/:id        # Обновить категорию
+- DELETE /api/categories/:id        # Удалить категорию
+- GET    /api/categories/:id/products  # Товары категории + подкатегорий
 
-CATEGORIES (Категории):
------------------------
-GET    /api/categories               # Список категорий (плоский)
-GET    /api/categories/:id           # Категория по ID
-POST   /api/categories               # Создать категорию
-PUT    /api/categories/:id           # Обновить категорию
-DELETE /api/categories/:id           # Удалить категорию
+БРЕНДЫ:
+- GET    /api/brands                # Все бренды
+- GET    /api/brands/:id            # Бренд по ID
+- POST   /api/brands                # Создать бренд
+- PUT    /api/brands/:id            # Обновить бренд
+- DELETE /api/brands/:id            # Удалить бренд
+- GET    /api/brands/:id/products   # Товары бренда
 
-PRODUCTS (Товары):
-------------------
-GET    /api/products                 # Список товаров
-GET    /api/products/:id             # Товар по ID
-POST   /api/products                 # Создать товар
-PUT    /api/products/:id             # Обновить товар
-DELETE /api/products/:id             # Удалить товар
+ПЕРЕВОДЫ:
+- POST   /api/translate             # AI перевод текста
 
-SERVICES (Услуги):
-------------------
-GET    /api/services                 # Список услуг
-GET    /api/admin/services           # Все услуги (admin)
-POST   /api/services                 # Создать услугу
-PUT    /api/services/:id             # Обновить услугу
-DELETE /api/services/:id             # Удалить услугу
-
-HERO SLIDES (Слайды):
----------------------
-GET    /api/hero-slides              # Список слайдов
-GET    /api/admin/hero-slides        # Все слайды (admin)
-POST   /api/hero-slides              # Создать слайд
-PUT    /api/hero-slides/:id          # Обновить слайд
-DELETE /api/hero-slides/:id          # Удалить слайд
-
-CALCULATOR MATERIALS:
----------------------
-GET    /api/calculator-materials     # Материалы калькулятора
-GET    /api/admin/calculator-materials  # Все материалы (admin)
-POST   /api/calculator-materials     # Создать материал
-PUT    /api/calculator-materials/:id
-DELETE /api/calculator-materials/:id
-
-SITE CONFIG:
-------------
-GET    /api/site-config              # Конфигурация сайта
-POST   /api/site-config              # Создать/обновить конфиг
-
-TRANSLATION (AI перевод):
--------------------------
-POST   /api/translate                # AI перевод текста
-
-UPLOAD (Загрузка изображений):
-------------------------------
-POST   /api/upload                   # Загрузка изображения в R2
-Пример: curl -X POST -F "file=@image.png" -F "folder=products" https://.../api/upload
-Ответ: { success: true, data: { url: "...", path: "...", filename: "..." } }
-
-MIGRATION (Миграция БД):
-------------------------
-POST   /api/migrate                  # Создать/обновить таблицы БД
+MEDIA:
+- POST   /api/upload                # Загрузка изображений в R2
 
 ================================================================================
-CLIENTS API (Клиенты)
+КЛЮЧЕВЫЕ ИСПРАВЛЕНИЯ И УЛУЧШЕНИЯ (2026-01-19)
 ================================================================================
 
-Регистрация:
-------------
-POST   /api/clients/register
-Body: { "name": string, "phone": string, "email": string, "password": string }
-Response: { success: true, data: { client: {...}, token: string } }
-Пример:
-curl -X POST https://.../api/clients/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"John Doe","phone":"+33 6 12 34 56 78","email":"john@example.com","password":"secret123"}'
+1. HERO-СЕКЦИЯ (Home.tsx):
+   - Убраны прыжки контента при смене слайдов
+   - Использован AnimatePresence mode="wait" с absolute positioning
+   - Текст + точки управления + кнопки выровнены по низу карточки товаров
+   - Обе колонки (текст и товар) имеют одинаковую высоту h-[600px]+
+   - Плавная анимация: duration 0.6s, ease [0.25, 0.1, 0.25, 1]
+   - Пауза 250ms между слайдами (интервал 5250ms)
 
-Авторизация:
-------------
-POST   /api/clients/login
-Body: { "email": string, "password": string }
-Response: { success: true, data: { client: {...}, token: string } }
+2. КАРТОЧКА ТОВАРА (Popular Products):
+   - aspect-[4/3] для изображения с object-contain
+   - flex flex-col h-full + flex-grow для выталкивания цены вниз
+   - min-h-[3rem] для названия товара
+   - Фиксированная высота карточки: min-h-[600px] sm:min-h-[640px] lg:min-h-[680px]
+   - Скелетон загрузки с точными размерами карточки
 
-Google OAuth:
--------------
-POST   /api/clients/google
-Body: { "googleId": string, "name": string, "email": string, "avatarUrl": string }
-Response: { success: true, data: { client: {...}, token: string } }
+3. API КАТЕГОРИЙ (worker/src/index.ts):
+   - GET /api/categories/:id/products теперь возвращает товары из категории 
+     И ВСЕХ её подкатегорий
+   - Используется RECURSIVE CTE для обхода дерева категорий
 
-Профиль клиента:
-----------------
-GET    /api/clients/me               # Получить профиль
-Headers: Authorization: Bearer {token}
+4. PRODUCTDETAIL (src/pages/ProductDetail.tsx):
+   - Запрос товаров напрямую через /api/categories/:id/products
+   - Использует categoryId и subcategoryId из URL
+   - Поддерживает переход из каталога с подкатегориями
 
-PUT    /api/clients/me               # Обновить профиль
-Headers: Authorization: Bearer {token}
-Body: { "name": string, "phone": string }
-
-Адреса клиента:
----------------
-GET    /api/clients/me/addresses     # Получить адреса
-Headers: Authorization: Bearer {token}
-
-POST   /api/clients/me/addresses     # Добавить адрес
-Headers: Authorization: Bearer {token}
-Body: { "type": "shipping"|"billing", "name": string, "address": string, 
-        "city": string, "postal_code": string, "country": string, 
-        "phone": string, "is_default": boolean }
-
-PUT    /api/clients/me/addresses/:id # Обновить адрес
-Headers: Authorization: Bearer {token}
-
-DELETE /api/clients/me/addresses/:id # Удалить адрес
-Headers: Authorization: Bearer {token}
-
-Смена пароля:
--------------
-PUT    /api/clients/me/password      # Изменить пароль
-Headers: Authorization: Bearer {token}
-Body: { "currentPassword": string, "newPassword": string }
-
-Заказы клиента:
----------------
-GET    /api/clients/me/orders        # История заказов
-Headers: Authorization: Bearer {token}
+5. АДМИНКА - ПЕРЕВОДЫ:
+   - admin.sections.content.title переводится при смене языка
+   - Используется useMemo с зависимостью от i18n.language
 
 ================================================================================
-ADMIN Clients API (Админка клиентов)
+ЦВЕТОВАЯ СХЕМА И СТИЛЬ
 ================================================================================
 
-GET    /api/admin/clients            # Список всех клиентов
-Response: { success: true, data: { clients: [{ id, name, email, phone, 
-             created_at, last_login, order_count, total_spent }] } }
+Основные цвета:
+- Акцентный: #FF6B00 (оранжевый неон)
+- Фон (темный): #0a0a0a / #111111
+- Текст: #FFFFFF / #e5e5e5
+-muted: #737373 / #a3a3a3
 
-GET    /api/admin/clients/:id        # Детали клиента + заказы + адреса
-Response: { success: true, data: { client: {...}, orders: [...], addresses: [...] } }
-
-================================================================================
-CART API (Корзина)
-================================================================================
-
-GET    /api/cart                     # Получить корзину
-Headers: X-Session-ID: {sessionId}
-Response: { success: true, data: { sessionId, items: [...], totalItems: 0, totalPrice: 0 } }
-
-POST   /api/cart                     # Сохранить корзину
-Headers: X-Session-ID: {sessionId}
-Body: { "items": [...] }
-
-Session ID генерируется на клиенте (localStorage cart_session) и используется для 
-идентификации корзины. При каждом изменении корзины данные синхронизируются с D1.
-
-DELETE /api/cart                     # Очистить корзину
-Headers: X-Session-ID: {sessionId}
+Стиль:
+- Темная тема по умолчанию
+- Framer Motion анимации
+- Italic заголовки (font-black italic)
+- uppercase для кнопок и меток
+- Минималистичные карточки с hover-эффектами
 
 ================================================================================
-ORDERS API (Заказы)
+КОМАНДЫ DEPLOY
 ================================================================================
 
-Создание заказа (требует авторизации):
---------------------------------------
-POST   /api/orders
-Headers: Authorization: Bearer {token}
-Body: { 
-  "items": [{ "id": number, "name": string, "sku": string, "price": number, 
-              "quantity": number, "image_url": string|null }],
-  "totalPrice": number,
-  "shippingAddress": {
-    "firstName": string,
-    "lastName": string,
-    "address": string,
-    "apartment": string,
-    "city": string,
-    "postalCode": string,
-    "country": string,
-    "phone": string,
-    "notes": string,
-    "fullName": string,
-    "method": "delivery"|"pickup"
-  },
-  "notes": string
-}
-Response: { success: true, data: { order: { id, items, total_price, status, created_at } } }
+Frontend (Cloudflare Pages):
+  cd YansDeco && npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=preview
+
+Backend API (Cloudflare Workers):
+  cd YansDeco/worker && npx wrangler deploy --name yansdeco-api
+
+Preview URL: https://preview.yans-deco.pages.dev
+API URL: https://yansdeco-api.andrey-gaffer.workers.dev/api
 
 ================================================================================
-БАЗА ДАННЫХ (Cloudflare D1)
+ТЕКУЩИЕ ДАННЫЕ (ТЕСТОВЫЕ)
 ================================================================================
 
-База: yasndeco (9c32735c-132c-4111-a661-097a1a52055d)
+Бренды:
+- ID 1: "Тест" (логотип загружен)
+- ID 2: "Новый Бренд"
 
-Таблицы:
+Категории:
+- ID 7: "тестовая категория" (родительская)
+- ID 8: "тестовая подкатегория" (parent_id: 7)
+- ID 9: "Новая Категория" (родительская)
+- ID 10: "Новая Подкатегория" (parent_id: 9)
 
-1. brands
-   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
-   - name (TEXT UNIQUE NOT NULL)
-   - logo_url (TEXT)
-   - description_ru, description_fr, description_en (TEXT)
-   - created_at (TEXT DEFAULT datetime('now'))
-
-2. categories
-   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
-   - slug (TEXT UNIQUE NOT NULL)
-   - icon (TEXT)
-   - image_url (TEXT)
-   - parent_id (INTEGER, FK -> categories.id)
-   - sort_order (INTEGER DEFAULT 0)
-   - name_ru, name_fr, name_en (TEXT)
-   - desc_ru, desc_fr, desc_en (TEXT)
-   - created_at (TEXT DEFAULT datetime('now'))
-
-3. products
-   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
-   - sku (TEXT UNIQUE NOT NULL)
-   - price (DECIMAL(10,2) NOT NULL DEFAULT 0)
-   - stock (INTEGER DEFAULT 0)
-   - brand_id (INTEGER, FK -> brands.id)
-   - category_id (INTEGER, FK -> categories.id)
-   - is_popular (INTEGER DEFAULT 0)
-   - announcement_date (TEXT)
-   - image_url (TEXT)
-   - name_ru, name_fr, name_en (TEXT)
-   - desc_ru, desc_fr, desc_en (TEXT)
-   - created_at, updated_at (TEXT DEFAULT datetime('now'))
-
- 4. services
-    - id (INTEGER PRIMARY KEY AUTOINCREMENT)
-    - key (TEXT UNIQUE NOT NULL)
-    - icon, icon_emoji (TEXT)
-    - icon_url (TEXT)                    -- URL изображения иконки
-    - gradient_from (TEXT)               -- Цвет градиента (имя: orange, purple, green...)
-    - tags_ru, tags_fr, tags_en (TEXT)
-    - title_ru, title_fr, title_en (TEXT)
-    - subtitle_ru, subtitle_fr, subtitle_en (TEXT)
-    - description_ru, description_fr, description_en (TEXT)
-    - sort_order (INTEGER DEFAULT 0)
-    - is_active (INTEGER DEFAULT 1)
-    - created_at, updated_at (TEXT DEFAULT datetime('now'))
-
-5. hero_slides
-   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
-   - badge_ru, badge_fr, badge_en (TEXT)
-   - title_ru, title_fr, title_en (TEXT)
-   - subtitle_ru, subtitle_fr, subtitle_en (TEXT)
-   - sort_order (INTEGER DEFAULT 0)
-   - is_active (INTEGER DEFAULT 1)
-   - created_at (TEXT DEFAULT datetime('now'))
-
-6. calculator_materials
-   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
-   - name_ru, name_fr, name_en (TEXT NOT NULL)
-   - consumption (REAL NOT NULL)
-   - unit (TEXT NOT NULL)
-   - coats (INTEGER DEFAULT 1)
-   - sort_order (INTEGER DEFAULT 0)
-   - is_active (INTEGER DEFAULT 1)
-   - created_at (TEXT DEFAULT datetime('now'))
-
-7. site_config
-   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
-   - key (TEXT UNIQUE NOT NULL)
-   - value_ru, value_fr, value_en (TEXT)
-   - type (TEXT DEFAULT 'text')
-   - created_at, updated_at (TEXT DEFAULT datetime('now'))
-
-8. carts
-   - id (TEXT PRIMARY KEY) - session ID
-   - user_session (TEXT NOT NULL)
-   - items (TEXT NOT NULL DEFAULT '[]') - JSON массив
-   - total_items (INTEGER DEFAULT 0)
-   - total_price (DECIMAL(10,2) DEFAULT 0)
-   - created_at, updated_at (TEXT DEFAULT datetime('now'))
-
-9. clients
-   - id (INTEGER PRIMARY KEY AUTOINCREMENT)
-   - name (TEXT NOT NULL)
-   - phone (TEXT)
-   - email (TEXT UNIQUE NOT NULL)
-   - password_hash (TEXT)
-   - google_id (TEXT)
-   - avatar_url (TEXT)
-   - created_at (TEXT DEFAULT datetime('now'))
-   - last_login (TEXT)
-   - is_active (INTEGER DEFAULT 1)
-
-10. orders
-    - id (INTEGER PRIMARY KEY AUTOINCREMENT)
-    - client_id (INTEGER NOT NULL, FK -> clients.id ON DELETE CASCADE)
-    - items (TEXT NOT NULL DEFAULT '[]') - JSON массив товаров
-    - total_price (DECIMAL(10,2) DEFAULT 0)
-    - status (TEXT DEFAULT 'pending')
-    - shipping_address (TEXT) - JSON объект адреса
-    - notes (TEXT)
-    - created_at (TEXT DEFAULT datetime('now'))
-    - updated_at (TEXT DEFAULT datetime('now'))
-
-11. client_addresses
-    - id (INTEGER PRIMARY KEY AUTOINCREMENT)
-    - client_id (INTEGER NOT NULL, FK -> clients.id ON DELETE CASCADE)
-    - type (TEXT DEFAULT 'shipping')
-    - name (TEXT) - метка адреса (например "Дом", "Работа")
-    - address (TEXT)
-    - city (TEXT)
-    - postal_code (TEXT)
-    - country (TEXT)
-    - phone (TEXT)
-    - is_default (INTEGER DEFAULT 0)
-    - created_at (TEXT DEFAULT datetime('now'))
-
-Индексы:
-- idx_products_sku ON products(sku)
-- idx_products_category ON products(category_id)
-- idx_products_brand ON products(brand_id)
-- idx_services_key ON services(key)
-- idx_services_sort ON services(sort_order)
-- idx_hero_slides_sort ON hero_slides(sort_order)
-- idx_calculator_materials_sort ON calculator_materials(sort_order)
-- idx_site_config_key ON site_config(key)
-- idx_carts_session ON carts(user_session)
-- idx_clients_email ON clients(email)
-- idx_orders_client ON orders(client_id)
-- idx_client_addresses_client ON client_addresses(client_id)
+Товары:
+- ID 4: "Nouveau Produit" - BRAND-NEW-001 - 199.99€ - brand_id: 2, category_id: 10, is_popular: 1
 
 ================================================================================
-CLOUDFLARE R2 (ХРАНИЛИЩЕ ИЗОБРАЖЕНИЙ)
+ЗАДАЧИ НА БУДУЩЕЕ
 ================================================================================
 
-Bucket: yans-deco-assets
-Binding: ASSETS
+1. Добавить полноценную корзину и оформление заказа
+2. Реализовать Google OAuth авторизацию
+3. Добавить фильтры товаров в каталоге
+4. Реализовать wishlist для пользователей
+5. Добавить отзывы и рейтинги товаров
+6. Интеграция с платежной системой
 
-Структура папок:
-- products/          # Изображения товаров
-- brands/            # Логотипы брендов
-- categories/        # Изображения категорий
-
-Публичный URL изображений:
-https://yasndeco-api.andrey-gaffer.workers.dev/images/{path}
-
-Примеры:
-https://yasndeco-api.andrey-gaffer.workers.dev/images/products/123-image.jpg
-https://yasndeco-api.andrey-gaffer.workers.dev/images/brands/logo.png
-
-================================================================================
-РОУТИНГ (Frontend)
-================================================================================
-
-Публичные маршруты:
-- /                           # Главная (Hero + Популярные товары)
-- /catalogue                  # Каталог (категории)
-- /catalogue/:categoryId      # Категория
-- /catalogue/:categoryId/:subcategoryId  # Подкатегория
-- /catalogue/:categoryId/:subcategoryId/:productId  # Товар
-- /product/:id                # Страница товара (альтернативный роут)
-- /marques                    # Бренды
-- /marques/:id                # Страница бренда
-- /services                   # Услуги
-- /calculateurs               # Калькуляторы
-- /contact                    # Контакты
-- /profile                    # Профиль клиента (НОВОЕ - 2026-01-18)
-- /checkout                   # Оформление заказа (НОВОЕ - 2026-01-18)
-
-Admin маршруты:
-- /admin                      # Dashboard
-- /admin/products             # Товары
-- /admin/products/:id         # Товар детально (admin)
-- /admin/products/:id/edit    # Редактировать товар
-- /admin/add-product          # Добавить товар
-- /admin/categories           # Категории
-- /admin/categories/:id       # Категория детально
-- /admin/categories/:id/edit  # Редактировать категорию
-- /admin/add-category         # Добавить категорию
-- /admin/brands               # Бренды
-- /admin/brands/:id           # Страница бренда (admin)
-- /admin/clients              # Клиенты
-- /admin/clients/:id          # История клиента
-- /admin/translations         # Переводы
-- /admin/services             # Услуги
-- /admin/calculators          # Калькуляторы
-- /admin/settings             # Настройки
-- /admin/content              # Контент
-
- ================================================================================
- НОВЫЕ ФУНКЦИИ (2026-01-18)
- ================================================================================
-
- 1. ПРОФИЛЬ КЛИЕНТА (Profile.tsx)
-    - Маршрут: /profile
-    - Три вкладки: Профиль / Адреса / Заказы
-    - Редактирование имени и телефона
-    - Управление адресами (добавить, удалить)
-    - Просмотр истории заказов
-    - Смена пароля
-    - Выход из аккаунта
-    - Стилистика: карточки с оранжевыми акцентами, как в админке
-
- 2. ОФОРМЛЕНИЕ ЗАКАЗА (Checkout.tsx)
-    - Маршрут: /checkout
-    - Многошаговый интерфейс:
-      * Шаг 1: Контактные данные (адрес доставки)
-      * Шаг 2: Способ доставки (доставка / самовывоз)
-      * Шаг 3: Итог заказа и подтверждение
-    - Для авторизованных: выбор сохранённых адресов
-    - Сводка заказа с товарами справа (sticky)
-    - Создание заказа через POST /api/orders
-    - Экран успешного заказа с номером
-
- 3. УЛУЧШЕНИЯ ИНТЕРФЕЙСА (Header.tsx)
-    - При авторизации: показ имени клиента вместо "Connexion"
-    - Выпадающее меню при наведении: профиль + выход
-    - В мобильном меню: информация о клиенте + кнопки
-    - Стилистика оранжевого бейджа с первой буквой имени
-
- 4. КОРЗИНА (CartDrawer.tsx)
-    - Кнопка "Commander" ведёт на /checkout
-    - Анимация Framer Motion при открытии/закрытии
-    - Отображение товаров с изображениями
-    - Управление количеством +/-
-    - Итоговая сумма
-
- 5. API АДРЕСОВ (worker/src/index.ts)
-    - GET /api/clients/me/addresses
-    - POST /api/clients/me/addresses
-    - PUT /api/clients/me/addresses/:id
-    - DELETE /api/clients/me/addresses/:id
-    - PUT /api/clients/me/password
-
- ================================================================================
- НОВЫЕ ФУНКЦИИ (2026-01-19) - УСЛУГИ
- ================================================================================
-
- 1. ЗАГРУЗКА ФОТО УСЛУГ
-    - В админке: загрузка изображения иконки услуги
-    - Сохранение в R2: папка services/
-    - Поле icon_url в таблице services
-    - Удаление фото при редактировании
-
- 2. ГРАДИЕНТ ПРИ НАВЕДЕНИИ
-    - Эффект как в админ-дашборде (карточки товары, категории)
-    - Один цвет градиента (gradient_from)
-    - Имя цвета сохраняется: orange, purple, green, violet, blue, red...
-    - Фиксированная прозрачность: 10%/5%
-    - При hover: gradient + blur + бордер #FF6B00/50
-    - Плитка h-56 как у карточек товаров
-
- 3. AI ПЕРЕВОД УСЛУГ
-    - Переводит только на незаполненные языки
-    - Работает с любого языка (RU, EN, FR)
-    - Не перезаписывает уже заполненные поля
-    - Теги тоже переводятся AI
-
- ================================================================================
- AI ПЕРЕВОД - ВАЖНЫЕ ПРАВИЛА
- ================================================================================
-
- Логика перевода (ПРИМЕНЯТЬ КО ВСЕМ МЕСТАМ С AI ПЕРЕВОДОМ):
-
- 1. Переводим только на языки которые ещё НЕ заполнены
- 2. Если источник RU → заполняем FR и EN (если они пустые)
- 3. Если источник EN → заполняем RU и FR (если они пустые)
- 4. Если источник FR → заполняем RU и EN (если они пустые)
- 5. Это предотвращает перезапись уже заполненных полей
-
- Пример кода:
-    targetLangs.forEach((lang: string) => {
-      if (data.data[lang] && !updated[`field_${lang}`]?.trim()) {
-        updated[`field_${lang}`] = data.data[lang].field || '';
-      }
-    });
-
- Файлы с AI переводом (все нужно исправить по этому правилу):
- - AdminServices.tsx (услуги)
- - AdminBrands.tsx (бренды)
- - AddProduct.tsx (добавление товара)
- - EditProduct.tsx (редактирование товара)
- - Categories.tsx (категории)
-
- ================================================================================
- UI ИСПРАВЛЕНИЯ (2026-01-19)
- ================================================================================
-
- 1. Header.tsx
-    - Бургер-меню: добавлен класс lg:hidden (скрывается на lg+ экранах)
-    - Навигация: изменено на hidden lg:flex (показывается с lg)
-
-  2. Hero.tsx
-     - Увеличен отступ: pt-20 → pt-64 (контент не наезжает под хедер)
-
-  ================================================================================
-  UI ИСПРАВЛЕНИЯ (2026-01-19) - HERO SECTION
-  =============================================================================
-
-  1. ИСПРАВЛЕНИЕ НАЛОЖЕНИЯ ТЕКСТА НА КНОПКИ
-     - Увеличена высота контейнера: h-[220px] → h-[280px] (строка 110)
-     - Добавлен gap-6 между элементами в блоке с текстом
-     - Добавлена фиксированная высота h-[72px] для описания (строка 126)
-
-  2. ИСПРАВЛЕНИЕ ВЕРТИКАЛЬНОГО ПОЗИЦИОНИРОВАНИЯ
-     - Изменено min-h-[90vh] на min-h-screen в main (строка 106)
-     - Уменьшен py-36 до py-20 для центрирования контента
-     - Родительский контейнер имеет flex items-center для симметрии
-
-  3. УСТРАНЕНИЕ ПРЫЖКОВ ПРИ ПЕРЕКЛЮЧЕНИИ СЛАЙДОВ
-     - Добавлена фиксированная высота h-[72px] для контейнера описания
-     - Теперь кнопки остаются в одном положении независимо от длины текста
-      - Описание обрезается через line-clamp-3 при превышении 3 строк
-
-  ================================================================================
-  UI ИСПРАВЛЕНИЯ (2026-01-19) - ADMIN CONTENT TRANSLATIONS
-  =============================================================================
-
-  1. ПЕРЕВОД НАЗВАНИЙ ПОЛЕЙ В АДМИНКЕ
-     - Заменены статические (FR), (EN), (RU) на динамические названия языков
-     - Теперь показывает: "Badge (Français)", "Badge (English)", "Badge (Русский)"
-     - Названия языков переводятся в зависимости от выбранного языка сайта
-     - Добавлены ключи переводов: languageFr, languageEn, languageRu
-     - Файлы: public/locales/{fr,ru,en}/translation.json
-     - Компонент: src/pages/AdminContent.tsx
-
-  ================================================================================
-  КОНТРОЛЬНЫЕ ТОЧКИ DEPLOYMENT
- ================================================================================
-
- После изменений в коде ОБЯЗАТЕЛЬНО выполнять:
-
- 1. Frontend (Pages Preview):
-    cd YansDeco
-    npm run build
-    npx wrangler pages deploy dist --project-name=yans-deco --branch=preview
-
- 2. Backend (Worker):
-    cd worker
-    npx wrangler deploy --minify
-
- 3. Проверка API:
-    curl https://yasndeco-api.andrey-gaffer.workers.dev/api/services
-
- 4. Проверка страницы услуг:
-    https://preview.yans-deco.pages.dev/services
-
-================================================================================
-КОНФИГУРАЦИЯ CLOUDFLARE
-================================================================================
-
-Workers:
-- yasndeco-api (Cloudflare Workers)
-  - D1: yasndeco (DB) - database_id: 9c32735c-132c-4111-a661-097a1a52055d
-  - R2: yans-deco-assets (ASSETS) - bucket_name: yans-deco-assets
-  - AI: AI binding - для AI переводов
-
-Pages:
-- yans-deco (Cloudflare Pages)
-  - Production: https://yans-deco.pages.dev
-  - Preview: https://preview.yans-deco.pages.dev
-
-Account ID: a6f65be7d970b82c7844bea3eb1134b7
-
-wrangler.toml (worker/):
--------------------------
-name = "yasndeco-api"
-main = "src/index.ts"
-compatibility_date = "2024-01-01"
-
-[vars]
-ENV = "production"
-
-account_id = "a6f65be7d970b82c7844bea3eb1134b7"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "yasndeco"
-database_id = "9c32735c-132c-4111-a661-097a1a52055d"
-
-[[r2_buckets]]
-binding = "ASSETS"
-bucket_name = "yans-deco-assets"
-
-[ai]
-binding = "AI"
-
-================================================================================
-КОМАНДЫ DEPLOYMENT
-================================================================================
-
-# Полный деплой
-npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=preview
-
-# Деплой frontend preview
-cd YansDeco
-npm run build
-npx wrangler pages deploy dist --project-name=yans-deco --branch=preview
-
-# Деплой frontend production
-npm run build
-npx wrangler pages deploy dist --project-name=yans-deco --branch=production
-
-# Деплой только worker
-cd worker
-npx wrangler deploy --minify
-
-# Запуск миграции БД
-curl -X POST https://yasndeco-api.andrey-gaffer.workers.dev/api/migrate
-
-# Проверка API
-curl https://yasndeco-api.andrey-gaffer.workers.dev/api
-
-# Тестовый логин
-curl -X POST https://yasndeco-api.andrey-gaffer.workers.dev/api/clients/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"test123"}'
-
-# Проверка заказов
-curl -H "Authorization: Bearer <token>" https://yasndeco-api.andrey-gaffer.workers.dev/api/clients/me/orders
-
-================================================================================
-ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ
-================================================================================
-
-Frontend -> Backend API:
-https://yasndeco-api.andrey-gaffer.workers.dev/api
-
-Google OAuth (требует настройки в Google Cloud Console):
-В файле src/components/auth/AuthModal.tsx:
-const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'
-
-================================================================================
-ВАЖНЫЕ ЗАМЕТКИ
-================================================================================
-
-1. D1 Database использует SQLite синтаксис
-2. При изменении схемы БД -> POST /api/migrate
-3. Все ID в БД - INTEGER, в API response - number
-4. Nullable поля всегда проверять перед использованием
-5. AI перевод работает через Cloudflare Workers AI binding
-6. Изображения загружаются в R2, публичный доступ через /images/ path
-7. Корзина сохраняется в D1 по sessionId (localStorage cart_session)
-8. Авторизация использует простой JWT токен (base64 payload)
-9. Пароли хешируются через SHA-256 + соль 'yans-deco-salt-2024'
-10. Google OAuth требует настройки в Google Cloud Console
-11. Worker нужно передеплоить после изменения API эндпоинтов
-12. Frontend и Worker деплоятся отдельно
-13. При проблемах: Cloudflare Dashboard -> Workers & Pages -> Logs
-
-================================================================================
-ТЕКУЩЕЕ СОСТОЯНИЕ (на 2026-01-18)
-================================================================================
-
-Проверено и работает ПОЛНОСТЬЮ:
-
-✓ База данных D1
-  - Все 11 таблиц созданы
-  - Связи между таблицами (FOREIGN KEY)
-  - Индексы для оптимизации запросов
-  - Миграция запущена успешно
-
-✓ API эндпоинты
-  - Товары, категории, бренды, услуги
-  - Клиенты (регистрация, логин, профиль)
-  - Адреса клиентов (CRUD)
-  - Заказы (создание, история)
-  - Корзина (сессионная)
-  - Загрузка изображений в R2
-  - AI перевод
-  - Конфигурация сайта
-
-✓ Frontend страницы
-  - Главная, каталог, бренды, услуги
-  - Калькуляторы, контакты
-  - Страница товара с добавлением в корзину
-  - Админка полностью функциональна
-  - Профиль клиента (NEW)
-  - Checkout с оформлением заказа (NEW)
-
-✓ Интерфейс
-  - Мультиязычность (RU, FR, EN)
-  - Тёмная/светлая тема
-  - Корзина с анимацией
-  - Авторизация (логин/регистрация)
-  - Отображение имени клиента в шапке
-  - Мобильное меню с учётом авторизации
-
-✓ Интеграции
-  - Cloudflare D1 - база данных
-  - Cloudflare R2 - хранение изображений
-  - Cloudflare Workers - API
-  - Cloudflare Pages - фронтенд
-  - Cloudflare Workers AI - переводы
-
-Требует настройки:
-- Google OAuth (нужен Google Cloud Console проект)
-
-================================================================================
-ТЕСТОВЫЕ ДАННЫЕ
-================================================================================
-
-Тестовый клиент:
-- Email: test@example.com
-- Password: test123
-- Token: (получается через POST /api/clients/login)
-
-Тестовый заказ:
-- ID: 1, 2
-- Статус: completed
-- Сумма: 51 €
-
-Тестовый адрес:
-- ID: 1
-- Адрес: 123 Rue de la Paix, Paris, 75001
-
-================================================================================
-ССЫЛКИ
-================================================================================
-
-Production (Main):
-- Сайт: https://yans-deco.pages.dev
-- Admin: https://yans-deco.pages.dev/admin
-
-Preview (Staging):
-- Сайт: https://preview.yans-deco.pages.dev
-- Admin: https://preview.yans-deco.pages.dev/admin
-
-API:
-- Worker: https://yasndeco-api.andrey-gaffer.workers.dev
-- API Base: https://yasndeco-api.andrey-gaffer.workers.dev/api
-
-Cloudflare Dashboard:
-- Account: a6f65be7d970b82c7844bea3eb1134b7
-- D1 DB: yasndeco (9c32735c-132c-4111-a661-097a1a52055d)
-- R2 Bucket: yans-deco-assets
-
-GitHub:
-- Repository: https://github.com/Badger0404/YansDeco
-- Branch: main
-
-================================================================================
-ПРОВЕРКА СОЕДИНЕНИЙ (Test Results - 2026-01-18)
-================================================================================
-
-✓ API Health: OK (API_ALIVE)
-✓ Categories: OK (6 categories returned)
-✓ Products: OK (empty array, but endpoint works)
-✓ Client Login: OK (token received)
-✓ Client Profile: OK (profile data returned)
-✓ Client Addresses: OK (addresses CRUD works)
-✓ Client Orders: OK (orders history works)
-✓ Create Order: OK (order created with ID)
-✓ Cart API: OK (session management works)
-✓ Image Upload: OK (uploaded to R2, URL returned)
-✓ Image Access: OK (HTTP 200, content served)
-✓ Worker Deploy: OK (Version ID: cd52b96c-ec6a-4774-a717-f3c4b1ea1e73)
-✓ Frontend Deploy: OK (22 files uploaded)
-✓ Git Push: OK (commit db58a84)
-
-================================================================================
-END OF FILE
 ================================================================================

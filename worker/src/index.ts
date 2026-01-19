@@ -722,6 +722,20 @@ app.get('/api/categories/:id/products', async (c) => {
     return c.json({ success: false, error: 'Category not found' }, { status: 404 });
   }
   
+  // Get all category IDs (current category and all subcategories)
+  const { results: categoryIds } = await c.env.DB.prepare(`
+    WITH RECURSIVE category_tree AS (
+      SELECT id FROM categories WHERE id = ?
+      UNION ALL
+      SELECT c.id FROM categories c
+      INNER JOIN category_tree ct ON c.parent_id = ct.id
+    )
+    SELECT id FROM category_tree
+  `).bind(id).all();
+  
+  const categoryIdList = categoryIds.map((row: any) => row.id);
+  const placeholders = categoryIdList.map(() => '?').join(',');
+  
   // Get products for this category and its subcategories
   const { results: products } = await c.env.DB.prepare(`
     SELECT 
@@ -737,9 +751,9 @@ app.get('/api/categories/:id/products', async (c) => {
       b.name as brand_name
     FROM products p
     LEFT JOIN brands b ON p.brand_id = b.id
-    WHERE p.category_id = ?
+    WHERE p.category_id IN (${placeholders})
     ORDER BY p.created_at DESC
-  `).bind(id).all();
+  `).bind(...categoryIdList).all();
   
   return c.json({ success: true, data: products });
 });

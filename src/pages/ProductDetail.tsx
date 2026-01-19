@@ -53,28 +53,26 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ theme }) => {
   const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
   useEffect(() => {
-    if (subcategoryId) {
-      fetchData(parseInt(subcategoryId));
+    if (categoryId) {
+      fetchData(parseInt(categoryId), subcategoryId ? parseInt(subcategoryId) : null);
     }
-  }, [subcategoryId]);
+  }, [categoryId, subcategoryId]);
 
-  const fetchData = async (subId: number) => {
+  const fetchData = async (catId: number, subId: number | null) => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`${API_URL}/categories/${subId}`);
-      const data = await response.json();
-      if (data.success) {
-        setSubcategory(data.data);
+      const categoryResponse = await fetch(`${API_URL}/${subId ? `categories/${subId}` : `categories/${catId}`}`);
+      const categoryData = await categoryResponse.json();
+      if (categoryData.success) {
+        setSubcategory(categoryData.data);
       }
 
-      const productsResponse = await fetch(`${API_URL}/products`);
+      const productsResponse = await fetch(`${API_URL}/categories/${subId || catId}/products`);
       const productsData = await productsResponse.json();
       
       if (productsData.success) {
-        const allProducts = productsData.data;
-        const filtered = allProducts.filter((p: Product) => p.category_id === subId);
-        setProducts(filtered);
+        setProducts(productsData.data);
       }
     } catch (err) {
       console.error('Failed to load data:', err);

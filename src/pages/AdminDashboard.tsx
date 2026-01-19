@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -28,7 +28,7 @@ interface AdminSection {
 }
 
 const AdminDashboard: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
@@ -40,7 +40,7 @@ const AdminDashboard: React.FC = () => {
   const borderClass = isLight ? 'border-black' : 'border-[#FF6B00]/20';
   const hoverBorderClass = 'hover:border-[#FF6B00]';
 
-  const sections: AdminSection[] = [
+  const sections: AdminSection[] = useMemo(() => [
     {
       id: 'products',
       key: 'admin.sections.products',
@@ -113,7 +113,7 @@ const AdminDashboard: React.FC = () => {
       color: 'from-red-500/10 to-red-600/5',
       label: t('admin.sections.content.title')
     }
-  ];
+  ], [t, i18n.language]);
 
   const renderDashboardContent = () => (
     <>
