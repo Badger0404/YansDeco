@@ -144,11 +144,13 @@ const Services: React.FC<ServicesProps> = ({ theme }) => {
             transition={{ duration: 0.5 }}
           >
             <div className="text-center mb-12">
-              <h1 className="font-black italic text-5xl uppercase tracking-tight mb-4 drop-shadow-lg">
+              <h1 className="font-black italic text-3xl sm:text-4xl md:text-5xl uppercase tracking-tight mb-4 drop-shadow-lg">
                 <span className={isLight ? 'text-black' : 'text-white'}>{t('services.title').split(' ')[0]}</span>{' '}
                 <span className="text-[#FF6B00]">{t('services.title').split(' ').slice(1).join(' ')}</span>
               </h1>
-              <p className={`max-w-2xl mx-auto text-sm leading-relaxed drop-shadow-md ${descClass}`}>
+              <p className={`max-w-2xl mx-auto text-xs sm:text-sm leading-relaxed drop-shadow-md ${
+                isLight ? 'text-gray-700' : 'text-gray-300'
+              }`}>
                 {t('services.subtitle')}
               </p>
             </div>

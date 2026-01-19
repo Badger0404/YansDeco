@@ -128,12 +128,12 @@ const BrandPublic: React.FC<BrandPublicProps> = ({ theme }) => {
   return (
     <main className="min-h-screen pt-20 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link 
+          <Link 
           to="/marques"
           className={`inline-flex items-center gap-2 mb-8 text-sm font-bold uppercase tracking-wide hover:text-[#FF6B00] transition-colors ${textClass}`}
         >
           <ArrowLeft className="w-4 h-4" />
-          {t('marques.back')}
+          {t('brands.back')}
         </Link>
 
         <motion.div
@@ -171,14 +171,14 @@ const BrandPublic: React.FC<BrandPublicProps> = ({ theme }) => {
 
         <div className="mb-8">
           <h2 className={`font-bold italic text-2xl uppercase tracking-wide mb-6 ${textClass}`}>
-            {t('marques.productsTitle')}
+            {t('brands.productsTitle')}
           </h2>
           
           {products.length === 0 ? (
             <div className={`text-center py-12 border ${borderClass} rounded-xl`}>
               <Package className={`w-12 h-12 mx-auto mb-4 ${mutedClass} opacity-50`} />
               <p className={`text-lg ${mutedClass}`}>
-                {t('marques.noProducts')}
+                {t('brands.noProducts')}
               </p>
             </div>
           ) : (

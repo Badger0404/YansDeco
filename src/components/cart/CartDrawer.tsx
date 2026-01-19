@@ -104,18 +104,18 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ theme }) => {
                         <div className="flex items-center gap-1.5 sm:gap-2">
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className={`p-1 sm:p-1.5 rounded-lg transition-colors ${isLight ? 'bg-gray-100 hover:bg-gray-200' : 'bg-white/10 hover:bg-white/20'}`}
+                            className={`p-2 sm:p-2.5 rounded-lg transition-colors ${isLight ? 'bg-gray-100 hover:bg-gray-200' : 'bg-white/10 hover:bg-white/20'}`}
                           >
-                            <Minus className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${textClass}`} />
+                            <Minus className={`w-4 h-4 sm:w-4 sm:h-4 ${textClass}`} />
                           </button>
-                          <span className={`w-6 sm:w-8 text-center font-bold text-xs sm:text-sm ${textClass}`}>
+                          <span className={`w-8 sm:w-8 text-center font-bold text-sm sm:text-sm ${textClass}`}>
                             {item.quantity}
                           </span>
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className={`p-1 sm:p-1.5 rounded-lg transition-colors ${isLight ? 'bg-gray-100 hover:bg-gray-200' : 'bg-white/10 hover:bg-white/20'}`}
+                            className={`p-2 sm:p-2.5 rounded-lg transition-colors ${isLight ? 'bg-gray-100 hover:bg-gray-200' : 'bg-white/10 hover:bg-white/20'}`}
                           >
-                            <Plus className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${textClass}`} />
+                            <Plus className={`w-4 h-4 sm:w-4 sm:h-4 ${textClass}`} />
                           </button>
                         </div>
                         <div className="flex items-center gap-2 sm:gap-3">

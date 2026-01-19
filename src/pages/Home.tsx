@@ -168,14 +168,14 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
             </div>
 
             <div className="flex flex-col justify-center mt-8 lg:mt-0 h-full">
-              <div className="text-center mb-6 sm:mb-8">
-                <span className={`text-[10px] sm:text-sm font-medium uppercase tracking-widest ${accentClass}`}>
+              <div className="text-center mb-4 sm:mb-6">
+                <span className={`text-[10px] sm:text-xs md:text-sm font-medium uppercase tracking-widest ${accentClass}`}>
                   {t('home.popular')}
                 </span>
               </div>
               
               {loadingPopular ? (
-                <div className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl flex flex-col ${isLight ? 'bg-white/40' : 'bg-black/40'} h-full min-h-[600px] sm:min-h-[640px] lg:min-h-[680px]`}>
+                <div className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl flex flex-col ${isLight ? 'bg-white/40' : 'bg-black/40'} h-full min-h-[400px] sm:min-h-[500px] lg:min-h-[680px]`}>
                   <div className="aspect-[4/3] w-full bg-black/20 rounded-lg mb-4"></div>
                   <div className="h-6 bg-black/20 rounded mb-2 w-3/4"></div>
                   <div className="h-4 bg-black/20 rounded mb-2 w-1/2"></div>
@@ -190,7 +190,7 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.4 }}
-                      className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl cursor-pointer flex flex-col h-full min-h-[600px] sm:min-h-[640px] lg:min-h-[680px] ${isLight ? 'bg-white/40' : 'bg-black/40'} hover:bg-[#FF6B00]/20 transition-all duration-300`}
+                      className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl cursor-pointer flex flex-col h-full min-h-[400px] sm:min-h-[500px] lg:min-h-[680px] ${isLight ? 'bg-white/40' : 'bg-black/40'} hover:bg-[#FF6B00]/20 transition-all duration-300`}
                       onClick={() => navigate(`/product/${popularProducts[popularSlide].id}`)}
                     >
                       <div className="aspect-[4/3] w-full flex items-center justify-center mb-4 flex-shrink-0 bg-white/5 rounded-lg overflow-hidden">
@@ -221,16 +221,16 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
                   
                   {popularProducts.length > 1 && (
                     <>
-                      <button
+                    <button
                         onClick={() => setPopularSlide((prev) => (prev - 1 + popularProducts.length) % popularProducts.length)}
-                        className={`absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 rounded-full transition-colors ${isLight ? 'bg-white/80 text-black' : 'bg-black/50 text-white'} hover:bg-[#FF6B00] hover:text-black z-10`}
+                        className={`absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 p-2 sm:p-2.5 rounded-full transition-colors ${isLight ? 'bg-white/80 text-black' : 'bg-black/50 text-white'} hover:bg-[#FF6B00] hover:text-black z-10`}
                         aria-label="Produit précédent"
                       >
                         <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 rotate-180" />
                       </button>
                       <button
                         onClick={() => setPopularSlide((prev) => (prev + 1) % popularProducts.length)}
-                        className={`absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 rounded-full transition-colors ${isLight ? 'bg-white/80 text-black' : 'bg-black/50 text-white'} hover:bg-[#FF6B00] hover:text-black z-10`}
+                        className={`absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 p-2 sm:p-2.5 rounded-full transition-colors ${isLight ? 'bg-white/80 text-black' : 'bg-black/50 text-white'} hover:bg-[#FF6B00] hover:text-black z-10`}
                         aria-label="Produit suivant"
                       >
                         <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />

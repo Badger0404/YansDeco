@@ -53,11 +53,11 @@ const Contact: React.FC<ContactProps> = ({ theme }) => {
       <section className="py-16 transition-colors duration-500 bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h1 className="font-black italic text-5xl uppercase tracking-tight mb-4 drop-shadow-lg">
+            <h1 className="font-black italic text-3xl sm:text-4xl md:text-5xl uppercase tracking-tight mb-4 drop-shadow-lg">
               <span className={isLight ? 'text-black' : 'text-white'}>{t('contact.title').split(' ')[0]}</span>{' '}
               <span className="text-[#FF6B00]">{t('contact.title').split(' ').slice(1).join(' ')}</span>
             </h1>
-            <p className={`max-w-2xl mx-auto text-sm leading-relaxed drop-shadow-md ${
+            <p className={`max-w-2xl mx-auto text-xs sm:text-sm leading-relaxed drop-shadow-md ${
               isLight ? 'text-gray-700' : 'text-gray-300'
             }`}>
               {t('contact.subtitle')}

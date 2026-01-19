@@ -173,10 +173,10 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
             {!categoryId ? (
               <>
                 <div className="text-center mb-12">
-                  <h1 className={`font-black italic text-4xl uppercase tracking-tight mb-4 ${textClass}`}>
+                  <h1 className={`font-black italic text-2xl sm:text-3xl md:text-4xl uppercase tracking-tight mb-4 ${textClass}`}>
                     {t('catalogue.title')}
                   </h1>
-                  <p className={`text-sm ${mutedClass} max-w-2xl mx-auto`}>
+                  <p className={`text-xs sm:text-sm ${mutedClass} max-w-2xl mx-auto`}>
                     {t('catalogue.subtitle')}
                   </p>
                 </div>
@@ -251,10 +251,10 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                   return (
                     <>
                       <div className="text-center mb-8">
-                        <h1 className={`font-black italic text-4xl uppercase tracking-tight mb-2 ${textClass}`}>
+                        <h1 className={`font-black italic text-2xl sm:text-3xl md:text-4xl uppercase tracking-tight mb-2 ${textClass}`}>
                           {getCategoryName(currentCategory)}
                         </h1>
-                        <p className={`text-sm ${mutedClass}`}>
+                        <p className={`text-xs sm:text-sm ${mutedClass}`}>
                           {getCategoryDescription(currentCategory)}
                         </p>
                       </div>

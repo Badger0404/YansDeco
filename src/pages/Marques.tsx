@@ -95,15 +95,15 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
     <main className="min-h-screen pt-4">
       <section className="py-16 transition-colors duration-500 bg-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h1 className="font-black italic text-5xl uppercase tracking-tight mb-4 drop-shadow-lg">
-              <span className={isLight ? 'text-black' : 'text-white'}>{t('marques.title').split(' ')[0]}</span>{' '}
-              <span className="text-[#FF6B00]">{t('marques.title').split(' ').slice(1).join(' ')}</span>
+            <div className="text-center mb-12">
+            <h1 className="font-black italic text-3xl sm:text-4xl md:text-5xl uppercase tracking-tight mb-4 drop-shadow-lg">
+              <span className={isLight ? 'text-black' : 'text-white'}>{t('brands.title').split(' ')[0]}</span>{' '}
+              <span className="text-[#FF6B00]">{t('brands.title').split(' ').slice(1).join(' ')}</span>
             </h1>
-            <p className={`max-w-2xl mx-auto text-sm leading-relaxed drop-shadow-md ${
+            <p className={`max-w-2xl mx-auto text-xs sm:text-sm leading-relaxed drop-shadow-md ${
               isLight ? 'text-gray-700' : 'text-gray-300'
             }`}>
-              {t('marques.subtitle')}
+              {t('brands.subtitle')}
             </p>
           </div>
 
@@ -112,7 +112,7 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
               <p>Aucune marque disponible</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
               {brands.map((brand) => (
                 <div
                   key={brand.id}
@@ -136,7 +136,7 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
                   )}
                   
                   <div className={`mt-auto flex items-center gap-1 text-xs font-medium uppercase tracking-wide group-hover:translate-x-1 transition-all duration-300 ${isLight ? 'text-gray-900' : 'text-white'} group-hover:text-[#FF6B00]`}>
-                    <span>{t('marques.viewAll')}</span>
+                    <span>{t('brands.viewAll')}</span>
                     <span className="text-sm transition-transform duration-300 group-hover:translate-x-1">→</span>
                   </div>
                 </div>
