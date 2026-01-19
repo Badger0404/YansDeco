@@ -175,3 +175,67 @@ Preview:
 GitHub: https://github.com/Badger0404/YansDeco
 
 ================================================================================
+                            КАТАЛОГ (REAL DATA)
+================================================================================
+
+Структура каталога (6 категорий, 36 подкатегорий):
+
+1. Peinture & Finition / Краски и Финишные покрытия
+   - Peintures intérieures /érieures / Краски для внутренних и наружных работ
+   - Sous-couches & primaires / Грунтовки и праймеры
+   - Enduits de lissage / rebouchage / Шпатлевки для выравнивания
+   - Bandes à joints / Ленты для швов (серпянка)
+   - Bandes armées / Армирующие ленты
+   - Produits de finition / Финишные составы
+
+2. Colles & Mastics / Клеи и Мастики
+   - Colle à carrelage / Плиточный клей
+   - Colle à parquet / Клей для паркета
+   - Colle sol souple / Клей для мягких покрытий (ПВХ, линолеум)
+   - Colle pour carreaux de plâtre / Клей для гипсовых плит
+   - Colles en tube / Клеи в тубах
+   - Mastics acryliques / Акриловые герметики
+   - Mastics silicone / Силиконовые герметики
+   - Colles spéciales / Специальные клеи (ПУ, МС-полимеры)
+
+3. Outillage Peintre / Инструмент Маляра
+   - Rouleaux / Валики
+   - Manchons / Шубки для валиков
+   - Pinceaux / Кисти
+   - Brosses / Макловицы и широкие кисти
+   - Couteaux à enduire / Шпатели
+   - Platoirs & lames de lissage / Гладилки и шпатели-правила
+   - Bacs à peinture / Кюветки для краски
+   - Accessoires de protection / Средства защиты
+
+4. Outillage Carreleur / Инструмент Плиточника
+   - Disques diamant / Алмазные диски
+   - Croisillons / Крестики для плитки
+   - Systèmes de nivellement / Системы выравнивания (СВП)
+   - Spatules crantées / Зубчатые шпатели
+   - Taloche & platoirs / Терки и гладилки для затирки
+   - Accessoires de pose / Аксессуары для укладки плитки
+
+5. Préparation des sols / Подготовка Пола
+   - Ragréage / Нивелирующая смесь (ровнитель)
+   - Primaires d'accrochage / Адгезионные грунты (бетоноконтакт)
+   - Produits de réparation sol / Средства для ремонта пола
+   - Mortiers spécifiques / Специальные строительные смеси
+
+6. Fixation & Visserie / Крепеж и Метизы
+   - Visserie / Саморезы и шурупы
+   - Chevilles / Дюбели
+   - Fixations spéciales / Специальный крепеж
+   - Accessoires de pose / Монтажные аксессуары
+
+ИМПОРТ КАТАЛОГА:
+--------------------------------------------------------------------------------
+# Первый импорт (если категорий нет):
+node import-catalog.mjs
+
+# Переимпорт (удаляет старые и создаёт новые):
+node reimport-catalog.mjs
+
+Примечание: Файл names.json содержит переводы всех категорий на FR/EN/RU.
+
+================================================================================
