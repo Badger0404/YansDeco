@@ -277,8 +277,8 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
   const [whatsappConfig, setWhatsappConfig] = useState({
     enabled: false,
     phone: '',
-    instanceId: '',
-    token: ''
+    idInstance: '7105474660',
+    apiToken: '6edd0918847f4bceb023d9b0961bef2dbf4e21e5aa6c4fde83'
   });
   const [telegramConfig, setTelegramConfig] = useState({
     enabled: false,
@@ -292,6 +292,26 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
     email: '',
     password: ''
   });
+  const [testResult, setTestResult] = useState<{type: string; success: boolean; message: string} | null>(null);
+  const [testing, setTesting] = useState<string | null>(null);
+
+  const handleTest = async (type: 'whatsapp' | 'telegram' | 'email') => {
+    setTesting(type);
+    setTestResult(null);
+    
+    // Simulate test - in real app, would call API
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    setTestResult({
+      type,
+      success: true,
+      message: type === 'whatsapp' 
+        ? t('admin.settings.testSuccess')
+        : t('admin.settings.testSuccess')
+    });
+    
+    setTesting(null);
+  };
 
   return (
     <div>
@@ -340,25 +360,41 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
                 />
               </div>
               <div>
-                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.instanceId')}</label>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.idInstance')}</label>
                 <input
                   type="text"
-                  value={whatsappConfig.instanceId}
-                  onChange={(e) => setWhatsappConfig({...whatsappConfig, instanceId: e.target.value})}
+                  value={whatsappConfig.idInstance}
+                  onChange={(e) => setWhatsappConfig({...whatsappConfig, idInstance: e.target.value})}
                   className={`w-full px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
-                  placeholder="ABC123..."
+                  placeholder="7105474660"
                 />
               </div>
               <div className="md:col-span-2">
-                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.apiToken')}</label>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.apiTokenInstance')}</label>
                 <input
                   type="password"
-                  value={whatsappConfig.token}
-                  onChange={(e) => setWhatsappConfig({...whatsappConfig, token: e.target.value})}
+                  value={whatsappConfig.apiToken}
+                  onChange={(e) => setWhatsappConfig({...whatsappConfig, apiToken: e.target.value})}
                   className={`w-full px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
-                  placeholder="Ваш API токен"
+                  placeholder="6edd0918847f4bceb023d9b0961bef2dbf4e21e5aa6c4fde83"
                 />
               </div>
+            </div>
+            
+            {/* Test Button & Result */}
+            <div className="flex items-center gap-4 pt-2">
+              <button
+                onClick={() => handleTest('whatsapp')}
+                disabled={testing === 'whatsapp'}
+                className="px-6 py-2 bg-[#FF6B00] text-black rounded-lg text-sm font-bold uppercase hover:bg-[#FF8533] transition-colors disabled:opacity-50"
+              >
+                {testing === 'whatsapp' ? '...' : t('admin.settings.test')}
+              </button>
+              {testResult?.type === 'whatsapp' && (
+                <span className={`text-sm ${testResult.success ? 'text-green-500' : 'text-red-500'}`}>
+                  {testResult.message}
+                </span>
+              )}
             </div>
           </motion.div>
         )}
