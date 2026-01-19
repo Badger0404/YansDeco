@@ -169,21 +169,65 @@ Preview URL: https://preview.yans-deco.pages.dev
 API URL: https://yansdeco-api.andrey-gaffer.workers.dev/api
 
 ================================================================================
-ТЕКУЩИЕ ДАННЫЕ (ТЕСТОВЫЕ)
+ТЕКУЩИЕ ДАННЫЕ (РЕАЛЬНЫЙ КАТАЛОГ)
 ================================================================================
 
-Бренды:
-- ID 1: "Тест" (логотип загружен)
-- ID 2: "Новый Бренд"
+Основные категории (6):
+- ID 12: Peinture & Finition / Paint & Finishing / Краски и Финишные покрытия
+- ID 13: Colles & Mastics / Adhesives & Sealants / Клеи и Мастики
+- ID 14: Outillage Peintre / Painter's Tools / Инструмент Маляра
+- ID 15: Outillage Carreleur / Tiler's Tools / Инструмент Плиточника
+- ID 16: Préparation des sols / Floor Preparation / Подготовка Пола
+- ID 11: Fixation & Visserie / Fixings & Fasteners / Крепеж и Метизы
 
-Категории:
-- ID 7: "тестовая категория" (родительская)
-- ID 8: "тестовая подкатегория" (parent_id: 7)
-- ID 9: "Новая Категория" (родительская)
-- ID 10: "Новая Подкатегория" (parent_id: 9)
+Подкатегории (36):
+Peinture (6):
+- Peintures intérieures / extérieures / Interior / Exterior Paints / Краски для внутренних и наружных работ
+- Sous-couches & primaires / Undercoats & Primers / Грунтовки и праймеры
+- Enduits de lissage / rebouchage / Smoothing & Filler Compounds / Шпатлевки для выравнивания и заделки трещин
+- Bandes à joints / Joint Tapes / Ленты для швов (серпянка)
+- Bandes armées / Reinforced Corner Tapes / Армирующие ленты
+- Produits de finition / Finishing Products / Финишные составы
 
-Товары:
-- ID 4: "Nouveau Produit" - BRAND-NEW-001 - 199.99€ - brand_id: 2, category_id: 10, is_popular: 1
+Colles (8):
+- Colle à carrelage / Tile Adhesive / Плиточный клей
+- Colle à parquet / Parquet Adhesive / Клей для паркета
+- Colle sol souple (PVC, lino, moquette) / Resilient Flooring Adhesive / Клей для мягких покрытий
+- Colle pour carreaux de plâtre / Plaster Block Adhesive / Клей для гипсовых плит
+- Colles en tube / Cartridge Adhesives / Клеи в тубах
+- Mastics acryliques / Acrylic Sealants / Акриловые герметики
+- Mastics silicone / Silicone Sealants / Силиконовые герметики
+- Colles spéciales (polyuréthane, MS polymère) / Specialty Adhesives / Специальные клеи
+
+Outillage Peintre (8):
+- Rouleaux / Paint Rollers / Валики
+- Manchons / Roller Covers / Шубки для валиков
+- Pinceaux / Paint Brushes / Кисти
+- Brosses / Brushes / Макловицы и широкие кисти
+- Couteaux à enduire / Putty Knives / Spatulas / Шпатели
+- Platoirs & lames de lissage / Plastering Trowels & Smoothing Blades / Гладилки и шпатели-правила
+- Bacs à peinture / Paint Trays / Кюветки для краски
+- Accessoires de protection / Protection Accessories / Средства защиты
+
+Outillage Carreleur (6):
+- Disques diamant / Diamond Blades / Алмазные диски
+- Croisillons / Tile Spacers / Крестики для плитки
+- Systèmes de nivellement / Leveling Systems (SVP) / Системы выравнивания (СВП)
+- Spatules crantées / Notched Trowels / Зубчатые шпатели
+- Taloche & platoirs / Grouting Floats & Trowels / Терки и гладилки для затирки
+- Accessoires de pose carrelage / Tiling Accessories / Аксессуары для укладки плитки
+
+Préparation des sols (4):
+- Ragréage / Self-Leveling Compound / Нивелирующая смесь
+- Primaires d'accrochage / Bonding Primers / Адгезионные грунты
+- Produits de réparation sol / Floor Repair Products / Средства для ремонта пола
+- Mortiers spécifiques / Specific Mortars / Специальные строительные смеси
+
+Fixation & Visserie (4):
+- Visserie / Screws & Bolts / Саморезы и шурупы
+- Chevilles / Wall Plugs / Anchors / Дюбели
+- Fixations spéciales / Specialty Fixings / Специальный крепеж
+- Accessoires de pose / Installation Accessories / Монтажные аксессуары
 
 ================================================================================
 ЗАДАЧИ НА БУДУЩЕЕ
