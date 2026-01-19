@@ -64,29 +64,29 @@ const AdminSettings: React.FC = () => {
   const settingsSections: { id: SettingsSection; title: string; description: string; icon: React.ReactNode; color: string }[] = [
     {
       id: 'notifications',
-      title: 'Уведомления',
-      description: 'WhatsApp, Email и Telegram уведомления о заказах',
+      title: t('admin.settings.notifications'),
+      description: t('admin.settings.notificationsDesc'),
       icon: <Bell className="w-8 h-8" />,
       color: 'from-green-500/20 to-emerald-600/10'
     },
     {
       id: 'integrations',
-      title: 'Интеграции',
-      description: 'Подключение внешних сервисов и API',
+      title: t('admin.settings.integrations'),
+      description: t('admin.settings.integrationsDesc'),
       icon: <Globe className="w-8 h-8" />,
       color: 'from-blue-500/20 to-indigo-600/10'
     },
     {
       id: 'database',
-      title: 'База данных',
-      description: 'Управление данными и миграции',
+      title: t('admin.settings.database'),
+      description: t('admin.settings.databaseDesc'),
       icon: <Database className="w-8 h-8" />,
       color: 'from-purple-500/20 to-violet-600/10'
     },
     {
       id: 'security',
-      title: 'Безопасность',
-      description: 'Настройки безопасности и доступа',
+      title: t('admin.settings.security'),
+      description: t('admin.settings.securityDesc'),
       icon: <Shield className="w-8 h-8" />,
       color: 'from-red-500/20 to-rose-600/10'
     }
@@ -97,11 +97,11 @@ const AdminSettings: React.FC = () => {
       case 'notifications':
         return <NotificationsSettings textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} inputBgClass={inputBgClass} />;
       case 'integrations':
-        return <IntegrationsSettings isLight={isLight} textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} inputBgClass={inputBgClass} />;
+        return <IntegrationsSettings textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} inputBgClass={inputBgClass} />;
       case 'database':
-        return <DatabaseSettings isLight={isLight} textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} inputBgClass={inputBgClass} />;
+        return <DatabaseSettings textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} />;
       case 'security':
-        return <SecuritySettings isLight={isLight} textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} inputBgClass={inputBgClass} />;
+        return <SecuritySettings textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} />;
       default:
         return null;
     }
@@ -272,6 +272,8 @@ const AdminSettings: React.FC = () => {
 
 // ============ Notifications Settings ============
 const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; borderClass: string; inputBgClass: string}> = ({ textClass, mutedClass, borderClass, inputBgClass }) => {
+  const { t } = useTranslation();
+  
   const [whatsappConfig, setWhatsappConfig] = useState({
     enabled: false,
     phone: '',
@@ -294,7 +296,7 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
   return (
     <div>
       <h2 className={`font-bold italic text-xl uppercase tracking-wide mb-6 ${textClass}`}>
-        🔔 Уведомления о заказах
+        🔔 {t('admin.settings.orderNotifications')}
       </h2>
 
       {/* WhatsApp */}
@@ -305,8 +307,8 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
               <Smartphone className="w-6 h-6 text-green-500" />
             </div>
             <div>
-              <h3 className={`font-bold uppercase tracking-wide ${textClass}`}>WhatsApp</h3>
-              <p className={`text-xs ${mutedClass}`}>Уведомления через WhatsApp Business API</p>
+              <h3 className={`font-bold uppercase tracking-wide ${textClass}`}>{t('admin.settings.whatsapp')}</h3>
+              <p className={`text-xs ${mutedClass}`}>{t('admin.settings.whatsappDesc')}</p>
             </div>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
@@ -328,7 +330,7 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Номер телефона</label>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.phone')}</label>
                 <input
                   type="text"
                   value={whatsappConfig.phone}
@@ -338,7 +340,7 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
                 />
               </div>
               <div>
-                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Instance ID</label>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.instanceId')}</label>
                 <input
                   type="text"
                   value={whatsappConfig.instanceId}
@@ -348,7 +350,7 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
                 />
               </div>
               <div className="md:col-span-2">
-                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>API Token</label>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.apiToken')}</label>
                 <input
                   type="password"
                   value={whatsappConfig.token}
@@ -370,8 +372,8 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
               <MessageSquare className="w-6 h-6 text-blue-500" />
             </div>
             <div>
-              <h3 className={`font-bold uppercase tracking-wide ${textClass}`}>Telegram</h3>
-              <p className={`text-xs ${mutedClass}`}>Уведомления через Telegram Bot</p>
+              <h3 className={`font-bold uppercase tracking-wide ${textClass}`}>{t('admin.settings.telegram')}</h3>
+              <p className={`text-xs ${mutedClass}`}>{t('admin.settings.telegramDesc')}</p>
             </div>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
@@ -393,7 +395,7 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Bot Token</label>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.botToken')}</label>
                 <input
                   type="password"
                   value={telegramConfig.botToken}
@@ -403,7 +405,7 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
                 />
               </div>
               <div>
-                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Chat ID</label>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.chatId')}</label>
                 <input
                   type="text"
                   value={telegramConfig.chatId}
@@ -425,8 +427,8 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
               <Mail className="w-6 h-6 text-orange-500" />
             </div>
             <div>
-              <h3 className={`font-bold uppercase tracking-wide ${textClass}`}>Email</h3>
-              <p className={`text-xs ${mutedClass}`}>Уведомления на почту</p>
+              <h3 className={`font-bold uppercase tracking-wide ${textClass}`}>{t('admin.settings.email')}</h3>
+              <p className={`text-xs ${mutedClass}`}>{t('admin.settings.emailDesc')}</p>
             </div>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
@@ -448,7 +450,7 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>SMTP Host</label>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.smtpHost')}</label>
                 <input
                   type="text"
                   value={emailConfig.smtpHost}
@@ -458,7 +460,7 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
                 />
               </div>
               <div>
-                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>SMTP Port</label>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.smtpPort')}</label>
                 <input
                   type="text"
                   value={emailConfig.smtpPort}
@@ -468,7 +470,7 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
                 />
               </div>
               <div>
-                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Email</label>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.email')}</label>
                 <input
                   type="email"
                   value={emailConfig.email}
@@ -478,7 +480,7 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
                 />
               </div>
               <div>
-                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Пароль</label>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.smtpPassword')}</label>
                 <input
                   type="password"
                   value={emailConfig.password}
@@ -496,7 +498,7 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
       <div className="flex justify-end">
         <button className="bg-[#FF6B00] text-black px-8 py-3 rounded-xl font-bold uppercase tracking-wide hover:bg-[#FF8533] transition-colors flex items-center gap-2">
           <Save className="w-4 h-4" />
-          Сохранить настройки
+          {t('admin.settings.saveSettings')}
         </button>
       </div>
     </div>
@@ -504,11 +506,13 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
 };
 
 // ============ Integrations Settings ============
-const IntegrationsSettings: React.FC<{isLight: boolean; textClass: string; mutedClass: string; borderClass: string; inputBgClass: string}> = ({ textClass, mutedClass, borderClass, inputBgClass }) => {
+const IntegrationsSettings: React.FC<{textClass: string; mutedClass: string; borderClass: string; inputBgClass: string}> = ({ textClass, mutedClass, borderClass, inputBgClass }) => {
+  const { t } = useTranslation();
+  
   return (
     <div>
       <h2 className={`font-bold italic text-xl uppercase tracking-wide mb-6 ${textClass}`}>
-        🌐 Интеграции
+        🌐 {t('admin.settings.integrations')}
       </h2>
 
       <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
@@ -523,7 +527,7 @@ const IntegrationsSettings: React.FC<{isLight: boolean; textClass: string; muted
                 placeholder="Ваш Cloudflare API Token"
               />
               <button className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold uppercase hover:border-[#FF6B00] transition-colors">
-                Проверить
+                {t('admin.products.view')}
               </button>
             </div>
           </div>
@@ -531,7 +535,7 @@ const IntegrationsSettings: React.FC<{isLight: boolean; textClass: string; muted
       </div>
 
       <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
-        <h3 className={`font-bold uppercase tracking-wide mb-4 ${textClass}`}>Веб-сервисы</h3>
+        <h3 className={`font-bold uppercase tracking-wide mb-4 ${textClass}`}>Web Services</h3>
         <div className="space-y-4">
           {[
             { name: 'Cloudflare Workers', status: 'connected', icon: '☁️' },
@@ -545,7 +549,7 @@ const IntegrationsSettings: React.FC<{isLight: boolean; textClass: string; muted
               </div>
               <span className="flex items-center gap-2 text-green-500 text-sm font-bold uppercase">
                 <CheckCircle className="w-4 h-4" />
-                Подключено
+                {t('admin.settings.connected')}
               </span>
             </div>
           ))}
@@ -556,7 +560,8 @@ const IntegrationsSettings: React.FC<{isLight: boolean; textClass: string; muted
 };
 
 // ============ Database Settings ============
-const DatabaseSettings: React.FC<{isLight: boolean; textClass: string; mutedClass: string; borderClass: string; inputBgClass: string}> = ({ textClass, mutedClass, borderClass }) => {
+const DatabaseSettings: React.FC<{textClass: string; mutedClass: string; borderClass: string}> = ({ textClass, mutedClass, borderClass }) => {
+  const { t } = useTranslation();
   const [dbStats] = useState({
     tables: 12,
     totalRecords: 1247,
@@ -566,41 +571,41 @@ const DatabaseSettings: React.FC<{isLight: boolean; textClass: string; mutedClas
   return (
     <div>
       <h2 className={`font-bold italic text-xl uppercase tracking-wide mb-6 ${textClass}`}>
-        💾 База данных
+        💾 {t('admin.settings.database')}
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className={`p-5 border ${borderClass} rounded-xl text-center`}>
           <p className={`text-3xl font-black italic ${textClass}`}>{dbStats.tables}</p>
-          <p className={`text-xs ${mutedClass} mt-1`}>Таблиц</p>
+          <p className={`text-xs ${mutedClass} mt-1`}>{t('admin.settings.tables')}</p>
         </div>
         <div className={`p-5 border ${borderClass} rounded-xl text-center`}>
           <p className={`text-3xl font-black italic ${textClass}`}>{dbStats.totalRecords.toLocaleString()}</p>
-          <p className={`text-xs ${mutedClass} mt-1`}>Записей</p>
+          <p className={`text-xs ${mutedClass} mt-1`}>{t('admin.settings.records')}</p>
         </div>
         <div className={`p-5 border ${borderClass} rounded-xl text-center`}>
           <p className={`text-3xl font-black italic ${textClass}`}>{dbStats.dbSize}</p>
-          <p className={`text-xs ${mutedClass} mt-1`}>Размер БД</p>
+          <p className={`text-xs ${mutedClass} mt-1`}>{t('admin.settings.dbSize')}</p>
         </div>
       </div>
 
       <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
-        <h3 className={`font-bold uppercase tracking-wide mb-4 ${textClass}`}>Действия</h3>
+        <h3 className={`font-bold uppercase tracking-wide mb-4 ${textClass}`}>{t('admin.settings.saveSettings')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-xl text-left hover:border-[#FF6B00] transition-colors">
-            <p className={`font-bold ${textClass}`}>Экспорт данных</p>
+            <p className={`font-bold ${textClass}`}>{t('admin.settings.exportData')}</p>
             <p className={`text-xs ${mutedClass} mt-1`}>Скачать резервную копию базы данных</p>
           </button>
           <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-xl text-left hover:border-[#FF6B00] transition-colors">
-            <p className={`font-bold ${textClass}`}>Импорт данных</p>
+            <p className={`font-bold ${textClass}`}>{t('admin.settings.importData')}</p>
             <p className={`text-xs ${mutedClass} mt-1`}>Восстановить из резервной копии</p>
           </button>
           <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-xl text-left hover:border-[#FF6B00] transition-colors">
-            <p className={`font-bold ${textClass}`}>Очистка кеша</p>
+            <p className={`font-bold ${textClass}`}>{t('admin.settings.clearCache')}</p>
             <p className={`text-xs ${mutedClass} mt-1`}>Удалить временные данные</p>
           </button>
           <button className="p-4 border border-red-500/50 rounded-xl text-left hover:border-red-500 transition-colors">
-            <p className={`font-bold text-red-500`}>Сброс данных</p>
+            <p className={`font-bold text-red-500`}>{t('admin.settings.resetData')}</p>
             <p className={`text-xs text-red-400 mt-1`}>Удалить все данные (необратимо)</p>
           </button>
         </div>
@@ -610,7 +615,8 @@ const DatabaseSettings: React.FC<{isLight: boolean; textClass: string; mutedClas
 };
 
 // ============ Security Settings ============
-const SecuritySettings: React.FC<{isLight: boolean; textClass: string; mutedClass: string; borderClass: string; inputBgClass: string}> = ({ textClass, mutedClass, borderClass }) => {
+const SecuritySettings: React.FC<{textClass: string; mutedClass: string; borderClass: string}> = ({ textClass, mutedClass, borderClass }) => {
+  const { t } = useTranslation();
   const [settings, setSettings] = useState({
     twoFactor: false,
     sessionTimeout: '24',
@@ -620,13 +626,13 @@ const SecuritySettings: React.FC<{isLight: boolean; textClass: string; mutedClas
   return (
     <div>
       <h2 className={`font-bold italic text-xl uppercase tracking-wide mb-6 ${textClass}`}>
-        🛡️ Безопасность
+        🛡️ {t('admin.settings.security')}
       </h2>
 
       <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className={`font-bold uppercase tracking-wide ${textClass}`}>Двухфакторная аутентификация</h3>
+            <h3 className={`font-bold uppercase tracking-wide ${textClass}`}>{t('admin.settings.twoFactor')}</h3>
             <p className={`text-xs ${mutedClass} mt-1`}>Дополнительная защита аккаунта</p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
@@ -642,25 +648,25 @@ const SecuritySettings: React.FC<{isLight: boolean; textClass: string; mutedClas
       </div>
 
       <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
-        <h3 className={`font-bold uppercase tracking-wide mb-4 ${textClass}`}>Сессии</h3>
+        <h3 className={`font-bold uppercase tracking-wide mb-4 ${textClass}`}>Sessions</h3>
         <div className="mb-4">
-          <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Таймаут сессии</label>
+          <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>{t('admin.settings.sessionTimeout')}</label>
           <select
             value={settings.sessionTimeout}
             onChange={(e) => setSettings({...settings, sessionTimeout: e.target.value})}
             className={`w-full px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} bg-transparent`}
           >
-            <option value="1">1 час</option>
-            <option value="6">6 часов</option>
-            <option value="12">12 часов</option>
-            <option value="24">24 часа</option>
-            <option value="168">7 дней</option>
+            <option value="1">1 {t('admin.settings.hour')}</option>
+            <option value="6">6 {t('admin.settings.hours')}</option>
+            <option value="12">12 {t('admin.settings.hours')}</option>
+            <option value="24">24 {t('admin.settings.hours')}</option>
+            <option value="168">7 {t('admin.settings.days')}</option>
           </select>
         </div>
       </div>
 
       <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
-        <h3 className={`font-bold uppercase tracking-wide mb-4 ${textClass}`}>Журнал активности</h3>
+        <h3 className={`font-bold uppercase tracking-wide mb-4 ${textClass}`}>{t('admin.settings.activityLog')}</h3>
         <div className={`p-4 bg-black/5 rounded-lg max-h-48 overflow-y-auto`}>
           <p className={`text-xs ${mutedClass} font-mono`}>
             {`[2024-01-19 10:32:15] Admin login - IP: 192.168.1.1
