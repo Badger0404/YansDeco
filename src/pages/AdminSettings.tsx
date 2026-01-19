@@ -299,16 +299,35 @@ const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; bo
     setTesting(type);
     setTestResult(null);
     
-    // Simulate test - in real app, would call API
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
     
-    setTestResult({
-      type,
-      success: true,
-      message: type === 'whatsapp' 
-        ? t('admin.settings.testSuccess')
-        : t('admin.settings.testSuccess')
-    });
+    try {
+      if (type === 'whatsapp') {
+        const response = await fetch(`${API_URL}/notifications/test-whatsapp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            idInstance: whatsappConfig.idInstance,
+            apiTokenInstance: whatsappConfig.apiToken,
+            phone: whatsappConfig.phone
+          })
+        });
+        const data = await response.json();
+        setTestResult({
+          type,
+          success: data.success,
+          message: data.success 
+            ? t('admin.settings.testSuccess') 
+            : data.error || t('admin.settings.testError')
+        });
+      }
+    } catch (error: any) {
+      setTestResult({
+        type,
+        success: false,
+        message: error.message || t('admin.settings.testError')
+      });
+    }
     
     setTesting(null);
   };

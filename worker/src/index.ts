@@ -1930,6 +1930,71 @@ app.post('/api/orders', async (c) => {
   }
 });
 
+// ============ WHATSAPP TEST (Green-API) ============
+
+app.post('/api/notifications/test-whatsapp', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { idInstance, apiTokenInstance, phone } = body;
+
+    if (!idInstance || !apiTokenInstance) {
+      return c.json({ success: false, error: 'Missing idInstance or apiTokenInstance' }, { status: 400 });
+    }
+
+    // Test message
+    const testMessage = `📦 *NOUVELLE COMMANDE - Yan's Deco*
+--------------------------
+👤 **Client :** Jean Dupont (TEST)
+📞 **Tél :** +33 6 00 00 00 00
+📍 **Mode :** Livraison à domicile
+🏠 **Adresse :** 1 Rue Magnier Bédu, 95410 Groslay
+
+🛒 **Articles :**
+1. Colle à carrelage Bostik (25kg) x 4
+2. Peinture Dulary Mat (10L) x 2
+3. Kit de lissage L'outil Parfait x 1
+
+💰 **TOTAL :** 540,80 € (TTC)
+--------------------------
+⚙️ *Message système - Ne pas répondre*`;
+
+    // Send via Green-API REST API
+    const greenApiUrl = `https://api.green-api.com/waInstance${idInstance}/sendMessage/${apiTokenInstance}`;
+    
+    const chatId = phone ? `${phone.replace(/[^0-9]/g, '')}@c.us` : 'demo@c.us';
+    
+    const response = await fetch(greenApiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        chatId: chatId,
+        message: testMessage
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.idMessage) {
+      console.log('[WhatsApp] Test message sent successfully:', result.idMessage);
+      return c.json({ 
+        success: true, 
+        data: { 
+          messageId: result.idMessage,
+          status: 'sent'
+        }
+      });
+    } else {
+      console.error('[WhatsApp] Error sending:', result);
+      return c.json({ success: false, error: result.message || 'Failed to send WhatsApp message' }, { status: 500 });
+    }
+  } catch (error: any) {
+    console.error('[WhatsApp] Test error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
 // ============ ADMIN TRANSLATIONS API ============
 
 app.get('/api/admin/translations', async (c) => {
