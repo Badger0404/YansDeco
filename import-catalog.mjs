@@ -1,0 +1,144 @@
+const names = {
+  "categories": [
+    {
+      "fr": "Peinture & Finition",
+      "en": "Paint & Finishing",
+      "ru": "Краски и Финишные покрытия",
+      "subcategories": [
+        {"fr": "Peintures intérieures / extérieures", "en": "Interior / Exterior Paints", "ru": "Краски для внутренних и наружных работ"},
+        {"fr": "Sous-couches & primaires", "en": "Undercoats & Primers", "ru": "Грунтовки и праймеры"},
+        {"fr": "Enduits de lissage / rebouchage", "en": "Smoothing & Filler Compounds", "ru": "Шпатлевки для выравнивания и заделки трещин"},
+        {"fr": "Bandes à joints", "en": "Joint Tapes", "ru": "Ленты для швов (серпянка)"},
+        {"fr": "Bandes armées", "en": "Reinforced Corner Tapes", "ru": "Армирующие ленты"},
+        {"fr": "Produits de finition", "en": "Finishing Products", "ru": "Финишные составы"}
+      ]
+    },
+    {
+      "fr": "Colles & Mastics",
+      "en": "Adhesives & Sealants",
+      "ru": "Клеи и Мастики",
+      "subcategories": [
+        {"fr": "Colle à carrelage", "en": "Tile Adhesive", "ru": "Плиточный клей"},
+        {"fr": "Colle à parquet", "en": "Parquet Adhesive", "ru": "Клей для паркета"},
+        {"fr": "Colle sol souple (PVC, lino, moquette)", "en": "Resilient Flooring Adhesive (PVC, Lino, Carpet)", "ru": "Клей для мягких покрытий (ПВХ, линолеум, ковролин)"},
+        {"fr": "Colle pour carreaux de plâtre", "en": "Plaster Block Adhesive", "ru": "Клей для гипсовых плит"},
+        {"fr": "Colles en tube", "en": "Cartridge Adhesives", "ru": "Клеи в тубах"},
+        {"fr": "Mastics acryliques", "en": "Acrylic Sealants", "ru": "Акриловые герметики"},
+        {"fr": "Mastics silicone", "en": "Silicone Sealants", "ru": "Силиконовые герметики"},
+        {"fr": "Colles spéciales (polyuréthane, MS polymère)", "en": "Specialty Adhesives (PU, MS Polymer)", "ru": "Специальные клеи (ПУ, МС-полимеры)"}
+      ]
+    },
+    {
+      "fr": "Outillage Peintre",
+      "en": "Painter's Tools",
+      "ru": "Инструмент Маляра",
+      "subcategories": [
+        {"fr": "Rouleaux", "en": "Paint Rollers", "ru": "Валики"},
+        {"fr": "Manchons", "en": "Roller Covers", "ru": "Шубки для валиков"},
+        {"fr": "Pinceaux", "en": "Paint Brushes", "ru": "Кисти"},
+        {"fr": "Brosses", "en": "Brushes", "ru": "Макловицы и широкие кисти"},
+        {"fr": "Couteaux à enduire", "en": "Putty Knives / Spatulas", "ru": "Шпатели"},
+        {"fr": "Platoirs & lames de lissage", "en": "Plastering Trowels & Smoothing Blades", "ru": "Гладилки и шпатели-правила"},
+        {"fr": "Bacs à peinture", "en": "Paint Trays", "ru": "Кюветки для краски"},
+        {"fr": "Accessoires de protection", "en": "Protection Accessories", "ru": "Средства защиты и укрывочные материалы"}
+      ]
+    },
+    {
+      "fr": "Outillage Carreleur",
+      "en": "Tiler's Tools",
+      "ru": "Инструмент Плиточника",
+      "subcategories": [
+        {"fr": "Disques diamant", "en": "Diamond Blades", "ru": "Алмазные диски"},
+        {"fr": "Croisillons", "en": "Tile Spacers", "ru": "Крестики для плитки"},
+        {"fr": "Systèmes de nivellement", "en": "Leveling Systems (SVP)", "ru": "Системы выравнивания (СВП)"},
+        {"fr": "Spatules crantées", "en": "Notched Trowels", "ru": "Зубчатые шпатели"},
+        {"fr": "Taloche & platoirs", "en": "Grouting Floats & Trowels", "ru": "Терки и гладилки для затирки"},
+        {"fr": "Accessoires de pose carrelage", "en": "Tiling Accessories", "ru": "Аксессуары для укладки плитки"}
+      ]
+    },
+    {
+      "fr": "Préparation des sols",
+      "en": "Floor Preparation",
+      "ru": "Подготовка Пола",
+      "subcategories": [
+        {"fr": "Ragréage", "en": "Self-Leveling Compound", "ru": "Нивелирующая смесь (ровнитель)"},
+        {"fr": "Primaires d'accrochage", "en": "Bonding Primers", "ru": "Адгезионные грунты (бетоноконтакт)"},
+        {"fr": "Produits de réparation sol", "en": "Floor Repair Products", "ru": "Средства для ремонта пола"},
+        {"fr": "Mortiers spécifiques", "en": "Specific Mortars", "ru": "Специальные строительные смеси"}
+      ]
+    },
+    {
+      "fr": "Fixation & Visserie",
+      "en": "Fixings & Fasteners",
+      "ru": "Крепеж и Метизы",
+      "subcategories": [
+        {"fr": "Visserie", "en": "Screws & Bolts", "ru": "Саморезы и шурупы"},
+        {"fr": "Chevilles", "en": "Wall Plugs / Anchors", "ru": "Дюбели"},
+        {"fr": "Fixations spéciales", "en": "Specialty Fixings", "ru": "Специальный крепеж"},
+        {"fr": "Accessoires de pose", "en": "Installation Accessories", "ru": "Монтажные аксессуары"}
+      ]
+    }
+  ]
+};
+
+const API_URL = 'https://yansdeco-api.andrey-gaffer.workers.dev/api';
+const SLUG_MAP = {
+  'Peinture & Finition': 'peinture-finition',
+  'Colles & Mastics': 'colles-mastics',
+  "Outillage Peintre": 'outillage-peintre',
+  "Outillage Carreleur": 'outillage-carreleur',
+  'Préparation des sols': 'preparation-sols',
+  'Fixation & Visserie': 'fixation-visserie'
+};
+
+async function createCategory(category, parentId) {
+  const slug = SLUG_MAP[category.fr] || category.fr.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  
+  const response = await fetch(`${API_URL}/categories`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      slug,
+      name_ru: category.ru,
+      name_fr: category.fr,
+      name_en: category.en,
+      parent_id: parentId
+    })
+  });
+  
+  const data = await response.json();
+  console.log(`Created ${category.fr}:`, data.success ? data.data.id : data.error);
+  return data.data?.id;
+}
+
+async function createSubcategory(sub, parentId) {
+  const slug = sub.fr.toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 50);
+  
+  const response = await fetch(`${API_URL}/categories`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      slug,
+      name_ru: sub.ru,
+      name_fr: sub.fr,
+      name_en: sub.en,
+      parent_id: parentId
+    })
+  });
+  
+  const data = await response.json();
+  console.log(`  - Created ${sub.fr}:`, data.success ? data.data.id : data.error);
+}
+
+async function main() {
+  for (const category of names.categories) {
+    const id = await createCategory(category, null);
+    if (id && category.subcategories) {
+      for (const sub of category.subcategories) {
+        await createSubcategory(sub, id);
+      }
+    }
+  }
+}
+
+main().catch(console.error);
