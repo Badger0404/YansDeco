@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface MarquesProps {
@@ -75,26 +74,17 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
           className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110"
           onError={(e) => {
             e.currentTarget.style.display = 'none';
-            e.currentTarget.parentElement?.querySelector('.fallback-icon')?.classList.remove('hidden');
           }}
         />
       );
     }
-
-    return (
-      <div className={`fallback-icon w-full h-full flex items-center justify-center transition-colors duration-300 ${
-        isLight ? 'text-[#FF6B00]' : 'text-white'
-      }`}>
-        <Building2 className="w-16 h-16" strokeWidth={1.5} />
-      </div>
-    );
+    return null;
   };
 
   if (loading) {
     return (
       <main className="min-h-screen pt-4 flex items-center justify-center">
         <div className={`text-center ${isLight ? 'text-black' : 'text-white'}`}>
-          <Building2 className="w-12 h-12 mx-auto mb-4 animate-pulse text-[#FF6B00]" />
           <p>Chargement...</p>
         </div>
       </main>
@@ -119,7 +109,6 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
 
           {brands.length === 0 ? (
             <div className={`text-center py-12 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
-              <Building2 className="w-16 h-16 mx-auto mb-4 opacity-50" />
               <p>Aucune marque disponible</p>
             </div>
           ) : (
