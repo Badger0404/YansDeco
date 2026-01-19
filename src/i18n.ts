@@ -55,7 +55,7 @@ const fr = {
     products: "VOIR TOUS LES PRODUITS"
   },
   brands: {
-    title: "NOS MARQUES",
+    title: "Nos partenaires",
     subtitle: "Nous travaillons avec les plus grandes marques du secteur pour vous garantir qualité et fiabilité.",
     viewAll: "Voir tous les produits"
   },
@@ -437,7 +437,7 @@ const en = {
     products: "SEE ALL PRODUCTS"
   },
   brands: {
-    title: "OUR BRANDS",
+    title: "Our partners",
     subtitle: "We work with the biggest brands in the industry to guarantee you quality and reliability.",
     viewAll: "See all products"
   },
@@ -819,7 +819,7 @@ const ru = {
     products: "СМОТРЕТЬ ВСЕ ТОВАРЫ"
   },
   brands: {
-    title: "НАШИ БРЕНДЫ",
+    title: "Наши партнеры",
     subtitle: "Мы работаем с ведущими брендами отрасли, чтобы гарантировать вам качество и надёжность.",
     viewAll: "Смотреть все товары"
   },
