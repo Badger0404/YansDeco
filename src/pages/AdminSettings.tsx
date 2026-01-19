@@ -1,26 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronRight,
   Cloud,
-  Settings,
   CheckCircle,
-  Clock,
   LogOut,
   User,
   Bell,
+  MessageSquare,
+  Mail,
   Globe,
   Database,
-  Shield
+  Shield,
+  Smartphone,
+  Save
 } from 'lucide-react';
+
+type SettingsSection = 'notifications' | 'integrations' | 'database' | 'security';
 
 const AdminSettings: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [isLight, setIsLight] = useState(() => localStorage.getItem('site-theme') === 'light');
+  const [activeSection, setActiveSection] = useState<SettingsSection>('notifications');
 
   useEffect(() => {
     const handleThemeChange = () => {
@@ -42,6 +47,8 @@ const AdminSettings: React.FC = () => {
   const mutedClass = isLight ? 'text-zinc-600' : 'text-zinc-400';
   const borderClass = isLight ? 'border-black' : 'border-[#FF6B00]/20';
   const hoverBorderClass = 'hover:border-[#FF6B00]';
+  const cardBgClass = isLight ? 'bg-white/40' : 'bg-zinc-900/40';
+  const inputBgClass = isLight ? 'bg-white' : 'bg-black/50';
 
   const adminNavItems = [
     { id: 'products', label: t('admin.sections.products.title'), icon: <ChevronRight className="w-4 h-4" />, path: '/admin/products' },
@@ -54,45 +61,51 @@ const AdminSettings: React.FC = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Настройки будут добавлены здесь
-  // ========================================
-  
-  const settingsSections = [
+  const settingsSections: { id: SettingsSection; title: string; description: string; icon: React.ReactNode; color: string }[] = [
     {
       id: 'notifications',
       title: 'Уведомления',
-      icon: <Bell className="w-6 h-6" />,
-      description: 'Настройка WhatsApp, Email и Telegram уведомлений о заказах',
-      path: '/admin/settings/notifications',
-      status: 'pending'
+      description: 'WhatsApp, Email и Telegram уведомления о заказах',
+      icon: <Bell className="w-8 h-8" />,
+      color: 'from-green-500/20 to-emerald-600/10'
     },
     {
       id: 'integrations',
       title: 'Интеграции',
-      icon: <Globe className="w-6 h-6" />,
       description: 'Подключение внешних сервисов и API',
-      path: '/admin/settings/integrations',
-      status: 'pending'
+      icon: <Globe className="w-8 h-8" />,
+      color: 'from-blue-500/20 to-indigo-600/10'
     },
     {
       id: 'database',
       title: 'База данных',
-      icon: <Database className="w-6 h-6" />,
       description: 'Управление данными и миграции',
-      path: '/admin/settings/database',
-      status: 'pending'
+      icon: <Database className="w-8 h-8" />,
+      color: 'from-purple-500/20 to-violet-600/10'
     },
     {
       id: 'security',
       title: 'Безопасность',
-      icon: <Shield className="w-6 h-6" />,
       description: 'Настройки безопасности и доступа',
-      path: '/admin/settings/security',
-      status: 'pending'
+      icon: <Shield className="w-8 h-8" />,
+      color: 'from-red-500/20 to-rose-600/10'
     }
   ];
 
-  // ========================================
+  const renderSectionContent = () => {
+    switch (activeSection) {
+      case 'notifications':
+        return <NotificationsSettings textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} inputBgClass={inputBgClass} />;
+      case 'integrations':
+        return <IntegrationsSettings isLight={isLight} textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} inputBgClass={inputBgClass} />;
+      case 'database':
+        return <DatabaseSettings isLight={isLight} textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} inputBgClass={inputBgClass} />;
+      case 'security':
+        return <SecuritySettings isLight={isLight} textClass={textClass} mutedClass={mutedClass} borderClass={borderClass} inputBgClass={inputBgClass} />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -185,53 +198,479 @@ const AdminSettings: React.FC = () => {
             </p>
           </div>
 
-          {/* Секции настроек */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Секции настроек - стиль плиток админки */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
             {settingsSections.map((section, index) => (
               <motion.div
                 key={section.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                onClick={() => navigate(section.path)}
-                className={`relative p-5 bg-transparent border ${borderClass} ${hoverBorderClass} rounded-xl transition-all duration-500 group cursor-pointer`}
+                onClick={() => setActiveSection(section.id)}
+                className={`relative h-40 rounded-xl border cursor-pointer transition-all duration-500 group overflow-hidden ${
+                  activeSection === section.id 
+                    ? `border-[#FF6B00] shadow-[0_0_20px_rgba(255,107,0,0.3)]` 
+                    : `${borderClass} ${hoverBorderClass}`
+                }`}
               >
-                <div className={`mb-3 ${isLight ? 'text-[#FF6B00]' : 'text-[#FF6B00]'}`}>
-                  {section.icon}
+                <div className={`absolute inset-0 bg-gradient-to-br ${section.color} opacity-50 group-hover:opacity-100 transition-opacity duration-500`} />
+                <div className="absolute inset-0 backdrop-blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="relative z-10 flex flex-col items-center justify-center h-full p-5 text-center">
+                  <div className={`mb-3 transition-all duration-500 ${
+                    activeSection === section.id ? 'scale-110' : 'scale-100'
+                  } ${activeSection === section.id ? 'text-[#FF6B00]' : 'text-white'}`}>
+                    {section.icon}
+                  </div>
+                  
+                  <h3 className={`font-black italic text-xl uppercase tracking-tight mb-2 transition-all duration-300 ${
+                    activeSection === section.id ? 'text-white' : 'text-white'
+                  }`}>
+                    {section.title}
+                  </h3>
+
+                  <div className={`absolute bottom-3 left-3 right-3 transition-all duration-500 ${
+                    activeSection === section.id 
+                      ? 'opacity-100 translate-y-0' 
+                      : 'opacity-0 translate-y-3'
+                  }`}>
+                    <p className={`text-xs text-center bg-black/40 backdrop-blur-sm rounded-lg py-1.5 px-3 text-white`}>
+                      {section.description}
+                    </p>
+                  </div>
                 </div>
-                <h3 className={`font-bold italic text-lg uppercase tracking-wide mb-1 ${textClass}`}>
-                  {section.title}
-                </h3>
-                <p className={`text-sm ${mutedClass} mb-3`}>{section.description}</p>
-                <div className="flex items-center gap-2">
-                  {section.status === 'ready' ? (
-                    <>
-                      <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-                      <span className="text-xs text-green-500">Готово</span>
-                    </>
-                  ) : (
-                    <>
-                      <Clock className="w-3.5 h-3.5 text-yellow-500" />
-                      <span className="text-xs text-yellow-500">Скоро</span>
-                    </>
-                  )}
+
+                <div className={`absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-500 ${
+                  activeSection === section.id ? 'opacity-100' : ''
+                }`}>
+                  <div className={`absolute inset-0 rounded-xl border-2 ${
+                    activeSection === section.id ? 'border-[#FF6B00]/50' : 'border-white/30'
+                  }`} />
                 </div>
               </motion.div>
             ))}
           </div>
 
-          {/* Заглушка для контента */}
-          <div className={`mt-12 p-8 border ${borderClass} rounded-xl text-center`}>
-            <Settings className={`w-12 h-12 mx-auto mb-4 opacity-30 ${textClass}`} />
-            <p className={`text-lg ${mutedClass} mb-2`}>
-              Выберите раздел настроек слева
-            </p>
-            <p className={`text-sm ${mutedClass}`}>
-              Здесь будут доступны настройки уведомлений, интеграций и другие параметры системы
-            </p>
-          </div>
+          {/* Контент активной секции */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className={`p-6 border ${borderClass} rounded-xl ${cardBgClass}`}
+            >
+              {renderSectionContent()}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
+    </div>
+  );
+};
+
+// ============ Notifications Settings ============
+const NotificationsSettings: React.FC<{textClass: string; mutedClass: string; borderClass: string; inputBgClass: string}> = ({ textClass, mutedClass, borderClass, inputBgClass }) => {
+  const [whatsappConfig, setWhatsappConfig] = useState({
+    enabled: false,
+    phone: '',
+    instanceId: '',
+    token: ''
+  });
+  const [telegramConfig, setTelegramConfig] = useState({
+    enabled: false,
+    botToken: '',
+    chatId: ''
+  });
+  const [emailConfig, setEmailConfig] = useState({
+    enabled: true,
+    smtpHost: '',
+    smtpPort: '',
+    email: '',
+    password: ''
+  });
+
+  return (
+    <div>
+      <h2 className={`font-bold italic text-xl uppercase tracking-wide mb-6 ${textClass}`}>
+        🔔 Уведомления о заказах
+      </h2>
+
+      {/* WhatsApp */}
+      <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+              <Smartphone className="w-6 h-6 text-green-500" />
+            </div>
+            <div>
+              <h3 className={`font-bold uppercase tracking-wide ${textClass}`}>WhatsApp</h3>
+              <p className={`text-xs ${mutedClass}`}>Уведомления через WhatsApp Business API</p>
+            </div>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={whatsappConfig.enabled}
+              onChange={(e) => setWhatsappConfig({...whatsappConfig, enabled: e.target.checked})}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF6B00]"></div>
+          </label>
+        </div>
+
+        {whatsappConfig.enabled && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="space-y-4 mt-4 pt-4 border-t border-dashed border-gray-300 dark:border-gray-700"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Номер телефона</label>
+                <input
+                  type="text"
+                  value={whatsappConfig.phone}
+                  onChange={(e) => setWhatsappConfig({...whatsappConfig, phone: e.target.value})}
+                  className={`w-full px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                  placeholder="+33612345678"
+                />
+              </div>
+              <div>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Instance ID</label>
+                <input
+                  type="text"
+                  value={whatsappConfig.instanceId}
+                  onChange={(e) => setWhatsappConfig({...whatsappConfig, instanceId: e.target.value})}
+                  className={`w-full px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                  placeholder="ABC123..."
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>API Token</label>
+                <input
+                  type="password"
+                  value={whatsappConfig.token}
+                  onChange={(e) => setWhatsappConfig({...whatsappConfig, token: e.target.value})}
+                  className={`w-full px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                  placeholder="Ваш API токен"
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Telegram */}
+      <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+              <MessageSquare className="w-6 h-6 text-blue-500" />
+            </div>
+            <div>
+              <h3 className={`font-bold uppercase tracking-wide ${textClass}`}>Telegram</h3>
+              <p className={`text-xs ${mutedClass}`}>Уведомления через Telegram Bot</p>
+            </div>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={telegramConfig.enabled}
+              onChange={(e) => setTelegramConfig({...telegramConfig, enabled: e.target.checked})}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF6B00]"></div>
+          </label>
+        </div>
+
+        {telegramConfig.enabled && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="space-y-4 mt-4 pt-4 border-t border-dashed border-gray-300 dark:border-gray-700"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Bot Token</label>
+                <input
+                  type="password"
+                  value={telegramConfig.botToken}
+                  onChange={(e) => setTelegramConfig({...telegramConfig, botToken: e.target.value})}
+                  className={`w-full px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                  placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+                />
+              </div>
+              <div>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Chat ID</label>
+                <input
+                  type="text"
+                  value={telegramConfig.chatId}
+                  onChange={(e) => setTelegramConfig({...telegramConfig, chatId: e.target.value})}
+                  className={`w-full px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                  placeholder="-100123456789"
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Email */}
+      <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
+              <Mail className="w-6 h-6 text-orange-500" />
+            </div>
+            <div>
+              <h3 className={`font-bold uppercase tracking-wide ${textClass}`}>Email</h3>
+              <p className={`text-xs ${mutedClass}`}>Уведомления на почту</p>
+            </div>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={emailConfig.enabled}
+              onChange={(e) => setEmailConfig({...emailConfig, enabled: e.target.checked})}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF6B00]"></div>
+          </label>
+        </div>
+
+        {emailConfig.enabled && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="space-y-4 mt-4 pt-4 border-t border-dashed border-gray-300 dark:border-gray-700"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>SMTP Host</label>
+                <input
+                  type="text"
+                  value={emailConfig.smtpHost}
+                  onChange={(e) => setEmailConfig({...emailConfig, smtpHost: e.target.value})}
+                  className={`w-full px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                  placeholder="smtp.gmail.com"
+                />
+              </div>
+              <div>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>SMTP Port</label>
+                <input
+                  type="text"
+                  value={emailConfig.smtpPort}
+                  onChange={(e) => setEmailConfig({...emailConfig, smtpPort: e.target.value})}
+                  className={`w-full px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                  placeholder="587"
+                />
+              </div>
+              <div>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Email</label>
+                <input
+                  type="email"
+                  value={emailConfig.email}
+                  onChange={(e) => setEmailConfig({...emailConfig, email: e.target.value})}
+                  className={`w-full px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                  placeholder="info@yansdeco.fr"
+                />
+              </div>
+              <div>
+                <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Пароль</label>
+                <input
+                  type="password"
+                  value={emailConfig.password}
+                  onChange={(e) => setEmailConfig({...emailConfig, password: e.target.value})}
+                  className={`w-full px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Save Button */}
+      <div className="flex justify-end">
+        <button className="bg-[#FF6B00] text-black px-8 py-3 rounded-xl font-bold uppercase tracking-wide hover:bg-[#FF8533] transition-colors flex items-center gap-2">
+          <Save className="w-4 h-4" />
+          Сохранить настройки
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ============ Integrations Settings ============
+const IntegrationsSettings: React.FC<{isLight: boolean; textClass: string; mutedClass: string; borderClass: string; inputBgClass: string}> = ({ textClass, mutedClass, borderClass, inputBgClass }) => {
+  return (
+    <div>
+      <h2 className={`font-bold italic text-xl uppercase tracking-wide mb-6 ${textClass}`}>
+        🌐 Интеграции
+      </h2>
+
+      <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
+        <h3 className={`font-bold uppercase tracking-wide mb-4 ${textClass}`}>API Keys</h3>
+        <div className="space-y-4">
+          <div>
+            <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Cloudflare API Token</label>
+            <div className="flex gap-2">
+              <input
+                type="password"
+                className={`flex-1 px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                placeholder="Ваш Cloudflare API Token"
+              />
+              <button className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-bold uppercase hover:border-[#FF6B00] transition-colors">
+                Проверить
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
+        <h3 className={`font-bold uppercase tracking-wide mb-4 ${textClass}`}>Веб-сервисы</h3>
+        <div className="space-y-4">
+          {[
+            { name: 'Cloudflare Workers', status: 'connected', icon: '☁️' },
+            { name: 'Cloudflare D1', status: 'connected', icon: '🗄️' },
+            { name: 'Cloudflare R2', status: 'connected', icon: '📦' }
+          ].map((service, index) => (
+            <div key={index} className="flex items-center justify-between p-4 bg-black/5 rounded-lg">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{service.icon}</span>
+                <span className={`font-bold ${textClass}`}>{service.name}</span>
+              </div>
+              <span className="flex items-center gap-2 text-green-500 text-sm font-bold uppercase">
+                <CheckCircle className="w-4 h-4" />
+                Подключено
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============ Database Settings ============
+const DatabaseSettings: React.FC<{isLight: boolean; textClass: string; mutedClass: string; borderClass: string; inputBgClass: string}> = ({ textClass, mutedClass, borderClass }) => {
+  const [dbStats] = useState({
+    tables: 12,
+    totalRecords: 1247,
+    dbSize: '45.2 MB'
+  });
+
+  return (
+    <div>
+      <h2 className={`font-bold italic text-xl uppercase tracking-wide mb-6 ${textClass}`}>
+        💾 База данных
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className={`p-5 border ${borderClass} rounded-xl text-center`}>
+          <p className={`text-3xl font-black italic ${textClass}`}>{dbStats.tables}</p>
+          <p className={`text-xs ${mutedClass} mt-1`}>Таблиц</p>
+        </div>
+        <div className={`p-5 border ${borderClass} rounded-xl text-center`}>
+          <p className={`text-3xl font-black italic ${textClass}`}>{dbStats.totalRecords.toLocaleString()}</p>
+          <p className={`text-xs ${mutedClass} mt-1`}>Записей</p>
+        </div>
+        <div className={`p-5 border ${borderClass} rounded-xl text-center`}>
+          <p className={`text-3xl font-black italic ${textClass}`}>{dbStats.dbSize}</p>
+          <p className={`text-xs ${mutedClass} mt-1`}>Размер БД</p>
+        </div>
+      </div>
+
+      <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
+        <h3 className={`font-bold uppercase tracking-wide mb-4 ${textClass}`}>Действия</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-xl text-left hover:border-[#FF6B00] transition-colors">
+            <p className={`font-bold ${textClass}`}>Экспорт данных</p>
+            <p className={`text-xs ${mutedClass} mt-1`}>Скачать резервную копию базы данных</p>
+          </button>
+          <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-xl text-left hover:border-[#FF6B00] transition-colors">
+            <p className={`font-bold ${textClass}`}>Импорт данных</p>
+            <p className={`text-xs ${mutedClass} mt-1`}>Восстановить из резервной копии</p>
+          </button>
+          <button className="p-4 border border-gray-300 dark:border-gray-600 rounded-xl text-left hover:border-[#FF6B00] transition-colors">
+            <p className={`font-bold ${textClass}`}>Очистка кеша</p>
+            <p className={`text-xs ${mutedClass} mt-1`}>Удалить временные данные</p>
+          </button>
+          <button className="p-4 border border-red-500/50 rounded-xl text-left hover:border-red-500 transition-colors">
+            <p className={`font-bold text-red-500`}>Сброс данных</p>
+            <p className={`text-xs text-red-400 mt-1`}>Удалить все данные (необратимо)</p>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============ Security Settings ============
+const SecuritySettings: React.FC<{isLight: boolean; textClass: string; mutedClass: string; borderClass: string; inputBgClass: string}> = ({ textClass, mutedClass, borderClass }) => {
+  const [settings, setSettings] = useState({
+    twoFactor: false,
+    sessionTimeout: '24',
+    ipWhitelist: ''
+  });
+
+  return (
+    <div>
+      <h2 className={`font-bold italic text-xl uppercase tracking-wide mb-6 ${textClass}`}>
+        🛡️ Безопасность
+      </h2>
+
+      <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className={`font-bold uppercase tracking-wide ${textClass}`}>Двухфакторная аутентификация</h3>
+            <p className={`text-xs ${mutedClass} mt-1`}>Дополнительная защита аккаунта</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={settings.twoFactor}
+              onChange={(e) => setSettings({...settings, twoFactor: e.target.checked})}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF6B00]"></div>
+          </label>
+        </div>
+      </div>
+
+      <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
+        <h3 className={`font-bold uppercase tracking-wide mb-4 ${textClass}`}>Сессии</h3>
+        <div className="mb-4">
+          <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>Таймаут сессии</label>
+          <select
+            value={settings.sessionTimeout}
+            onChange={(e) => setSettings({...settings, sessionTimeout: e.target.value})}
+            className={`w-full px-4 py-3 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} bg-transparent`}
+          >
+            <option value="1">1 час</option>
+            <option value="6">6 часов</option>
+            <option value="12">12 часов</option>
+            <option value="24">24 часа</option>
+            <option value="168">7 дней</option>
+          </select>
+        </div>
+      </div>
+
+      <div className={`p-5 border ${borderClass} rounded-xl mb-6`}>
+        <h3 className={`font-bold uppercase tracking-wide mb-4 ${textClass}`}>Журнал активности</h3>
+        <div className={`p-4 bg-black/5 rounded-lg max-h-48 overflow-y-auto`}>
+          <p className={`text-xs ${mutedClass} font-mono`}>
+            {`[2024-01-19 10:32:15] Admin login - IP: 192.168.1.1
+[2024-01-19 10:32:18] Settings accessed - IP: 192.168.1.1
+[2024-01-19 10:35:42] Product updated #123 - IP: 192.168.1.1
+[2024-01-19 11:01:33] New order #456 - IP: 192.168.1.45
+[2024-01-19 11:15:00] Database backup created - IP: system`}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
