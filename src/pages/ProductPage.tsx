@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -41,10 +41,15 @@ const ProductPage: React.FC<ProductPageProps> = ({ theme }) => {
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const { addItem } = useCart();
+  const fetched = useRef<string>('');
 
   const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
   useEffect(() => {
+    const key = productId || '';
+    if (fetched.current === key) return;
+    fetched.current = key;
+    
     if (productId) {
       fetchProduct(productId);
     } else {

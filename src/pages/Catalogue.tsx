@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -32,10 +32,13 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const fetched = useRef(false);
 
   const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
   useEffect(() => {
+    if (fetched.current) return;
+    fetched.current = true;
     fetchCategories();
   }, []);
 

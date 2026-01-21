@@ -11,7 +11,8 @@
     "brands": "Marques",
     "services": "Services",
     "calculators": "Calculateurs",
-    "contact": "Contact"
+    "contact": "Contact",
+    "legal": "Infos Légales"
   },
   "home": {
     "popular": "★ Populaires",
@@ -339,7 +340,8 @@
       "parent": "Catégorie parente",
       "order": "Ordre d'affichage",
       "icon": "Icône",
-      "noCategories": "Aucune catégorie trouvée"
+      "noCategories": "Aucune catégorie trouvée",
+      "subcategory": "Sous-catégories de produits"
     },
     "brands": {
       "title": "Gestion des Marques",
@@ -379,5 +381,45 @@
       "light": "Mode clair",
       "dark": "Mode sombre"
     }
+  },
+  "legal": {
+    "title": "Informations Légales",
+    "subtitle": "Conditions générales et protection des données",
+    "comingSoon": "Ce contenu sera bientôt disponible.",
+    "lastUpdated": "Dernière mise à jour : Janvier 2026"
+  },
+  "stock": {
+    "warehouseTerminal": "Terminal de Stock",
+    "warehouseSubtitle": "Gestion des mouvements de stock par scan de codes-barres",
+    "reception": "Réception",
+    "cashSale": "Vente Comptoir",
+    "quantity": "Quantité",
+    "currentStock": "Stock actuel",
+    "willBe": "Sera",
+    "price": "Prix",
+    "addStock": "Ajouter au stock",
+    "sellCash": "Vente au comptoir",
+    "scanTitle": "Scanner le code-barres",
+    "scanSubtitle": "Pointer la caméra sur le code-barres du produit",
+    "positionCode": "Positionnez le code dans le cadre",
+    "scanHint": "Utilisez la lampe de poche si nécessaire pour un meilleur éclairage",
+    "scan_success": "Produit identifié avec succès",
+    "scanAgain": "Scanner à nouveau",
+    "scanProduct": "Scanner un produit",
+    "productNotFound": "Produit non trouvé avec ce code-barres",
+    "scanError": "Erreur lors du scan",
+    "retry": "Réessayer",
+    "receptionSuccess": "Stock ajouté avec succès",
+    "cashSaleSuccess": "Vente comptoir enregistrée",
+    "operationError": "Erreur lors de l'opération",
+    "adminRequired": "Accès administrateur requis pour les ventes au comptoir",
+    "help": "Aide",
+    "helpScan": "Scannez le code-barres du produit pour le sélectionner",
+    "helpReception": "En mode Réception, entrez la quantité reçue et validez",
+    "helpCash": "Pour les ventes au comptoir, scannez et validez la vente",
+    "recentOperations": "Opérations récentes",
+    "newStock": "Nouveau stock",
+    "pcs": "pcs",
+    "product": "Produit"
   }
 }

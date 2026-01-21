@@ -229,7 +229,7 @@ const AdminContent: React.FC = () => {
           <div className="p-6">
             {activeTab === 'slides' && (
               <div>
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                   <h2 className="text-xl font-semibold">{t('admin.content.slidesHero')}</h2>
                   <button
                     onClick={() => setEditingSlide({ title_ru: '', title_fr: '', title_en: '', subtitle_ru: '', subtitle_fr: '', subtitle_en: '', is_active: true })}
@@ -328,7 +328,7 @@ const AdminContent: React.FC = () => {
                         />
                       </div>
                     </div>
-                    <div className="flex justify-end mt-4 gap-2">
+                    <div className="flex flex-col sm:flex-row justify-end mt-4 gap-2">
                       <button
                         onClick={() => setEditingSlide(null)}
                         className="flex items-center bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
@@ -464,7 +464,7 @@ const AdminContent: React.FC = () => {
                         />
                       </div>
                     </div>
-                    <div className="flex justify-end mt-4 gap-2">
+                    <div className="flex flex-col sm:flex-row justify-end mt-4 gap-2">
                       <button
                         onClick={() => setEditingMaterial(null)}
                         className="flex items-center bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"

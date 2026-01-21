@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 
 interface MarquesProps {
   theme: 'dark' | 'light';
@@ -18,14 +17,16 @@ interface Brand {
 
 const Marques: React.FC<MarquesProps> = ({ theme }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const isLight = theme === 'light';
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
+  const fetched = useRef(false);
 
   const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
   useEffect(() => {
+    if (fetched.current) return;
+    fetched.current = true;
     fetchBrands();
   }, []);
 
@@ -63,24 +64,6 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
 
   const mutedClass = isLight ? 'text-gray-600' : 'text-gray-400';
 
-  const cardClass = `rounded-2xl p-6 transition-all duration-1000 cursor-pointer border border-transparent hover:border-[#FF6B00] flex flex-col items-center bg-transparent group hover:scale-[1.05]`;
-
-  const renderBrandImage = (brand: Brand) => {
-    if (brand.logo_url && brand.logo_url.trim() !== '') {
-      return (
-        <img
-          src={brand.logo_url}
-          alt={`Logo ${brand.name}`}
-          className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110"
-          onError={(e) => {
-            e.currentTarget.style.display = 'none';
-          }}
-        />
-      );
-    }
-    return null;
-  };
-
   if (loading) {
     return (
       <main className="min-h-screen pt-4 flex items-center justify-center">
@@ -112,34 +95,57 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
               <p>Aucune marque disponible</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
               {brands.map((brand) => (
-                <div
+                <a
                   key={brand.id}
-                  className={cardClass}
-                  onClick={() => navigate(`/marques/${brand.id}`)}
+                  href={`/marques/${brand.id}`}
+                  className={`
+                    group relative flex flex-col items-center justify-center
+                    h-[160px] sm:h-[180px] md:h-[200px]
+                    p-2 sm:p-3 md:p-4
+                    rounded-lg sm:rounded-xl
+                    border transition-all duration-300
+                    ${isLight 
+                      ? 'border-gray-200 hover:border-[#FF6B00] bg-white' 
+                      : 'border-white/10 hover:border-[#FF6B00] bg-transparent'
+                    }
+                    hover:shadow-[0_0_20px_rgba(255,107,0,0.2)]
+                  `}
                 >
-                  <div className="w-24 h-24 flex items-center justify-center mb-4">
-                    {renderBrandImage(brand)}
-                  </div>
-                  
-                  <h3 className={`text-center font-bold text-lg uppercase tracking-wide mb-2 transition-colors duration-300 ${
-                    isLight ? 'text-black' : 'text-white'
-                  }`}>
+                  {brand.logo_url && brand.logo_url.trim() !== '' && (
+                    <img
+                      src={brand.logo_url}
+                      alt={`Logo ${brand.name}`}
+                      className="
+                        max-h-[80px] sm:max-h-[95px] md:max-h-[110px]
+                        w-auto object-contain
+                        mb-2 sm:mb-2 md:mb-3
+                        transition-transform duration-300
+                        group-hover:scale-105
+                      "
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  )}
+
+                  <h3 className={`
+                    text-center font-bold uppercase tracking-wide
+                    text-xs sm:text-sm md:text-base
+                    transition-colors duration-300
+                    ${isLight ? 'text-black' : 'text-white'}
+                    group-hover:text-[#FF6B00]
+                  `}>
                     {getBrandName(brand)}
                   </h3>
-                  
+
                   {brand.product_count !== undefined && brand.product_count > 0 && (
-                    <span className={`text-xs ${mutedClass} mb-2`}>
+                    <span className={`text-[10px] sm:text-xs ${mutedClass} mt-1`}>
                       {brand.product_count} {brand.product_count === 1 ? 'produit' : 'produits'}
                     </span>
                   )}
-                  
-                  <div className={`mt-auto flex items-center gap-1 text-xs font-medium uppercase tracking-wide group-hover:translate-x-1 transition-all duration-300 ${isLight ? 'text-gray-900' : 'text-white'} group-hover:text-[#FF6B00]`}>
-                    <span>{t('brands.viewAll')}</span>
-                    <span className="text-sm transition-transform duration-300 group-hover:translate-x-1">→</span>
-                  </div>
-                </div>
+                </a>
               ))}
             </div>
           )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -49,10 +49,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ theme }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const fetched = useRef<string>('');
 
   const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
   useEffect(() => {
+    const key = `${categoryId}-${subcategoryId}`;
+    if (fetched.current === key) return;
+    fetched.current = key;
+    
     if (categoryId) {
       fetchData(parseInt(categoryId), subcategoryId ? parseInt(subcategoryId) : null);
     }

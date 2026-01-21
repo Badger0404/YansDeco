@@ -48,7 +48,8 @@ const Footer: React.FC<FooterProps> = ({ theme }) => {
   const footerLinks = [
     { label: t('nav.home'), path: '/' },
     { label: t('nav.catalogue'), path: '/catalogue' },
-    { label: t('nav.calculators'), path: '/calculateurs' }
+    { label: t('nav.calculators'), path: '/calculateurs' },
+    { label: t('nav.legal'), path: '/legal' }
   ];
 
   const socialLinks = [

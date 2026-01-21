@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -41,14 +41,17 @@ const BrandPublic: React.FC<BrandPublicProps> = ({ theme }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const fetched = useRef<string>('');
 
   const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
   useEffect(() => {
-    if (id) {
-      fetchBrand(id);
-      fetchProducts(id);
-    }
+    if (!id || fetched.current === id) return;
+    fetched.current = id;
+    setLoading(true);
+    setError('');
+    fetchBrand(id);
+    fetchProducts(id);
   }, [id]);
 
   const fetchBrand = async (brandId: string) => {

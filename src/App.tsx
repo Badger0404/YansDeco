@@ -16,6 +16,7 @@ import ProductDetail from './pages/ProductDetail';
 import ProductPage from './pages/ProductPage';
 import Profile from './pages/Profile';
 import Checkout from './pages/Checkout';
+import Legal from './pages/Legal';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProducts from './pages/AdminProducts';
 import AddProduct from './pages/AddProduct';
@@ -49,14 +50,24 @@ const bgLight = '/assets/bg/bg-light.png';
 const AnimatedRoutes: React.FC<{ theme: Theme }> = ({ theme }) => {
   const location = useLocation();
 
+  useEffect(() => {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+    });
+  }, [location.pathname, location.search]);
+
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="popLayout">
       <motion.div
         key={location.pathname}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.15, ease: 'easeOut' }}
+        className="will-change-transform"
       >
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home theme={theme} />} />
@@ -70,6 +81,7 @@ const AnimatedRoutes: React.FC<{ theme: Theme }> = ({ theme }) => {
           <Route path="/services" element={<Services theme={theme} />} />
           <Route path="/calculateurs" element={<Calculateurs theme={theme} />} />
           <Route path="/contact" element={<Contact theme={theme} />} />
+          <Route path="/legal" element={<Legal theme={theme} />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/admin" element={<AdminDashboard />}>
@@ -91,6 +103,7 @@ const AnimatedRoutes: React.FC<{ theme: Theme }> = ({ theme }) => {
             <Route path="calculators" element={<AdminCalculators />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="content" element={<AdminContent />} />
+            <Route path="warehouse" element={<div className="p-8 text-center text-zinc-400">Warehouse Terminal - Страница временно недоступна</div>} />
           </Route>
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/products/:id" element={<ProductDetailAdmin />} />
@@ -107,6 +120,8 @@ const AnimatedRoutes: React.FC<{ theme: Theme }> = ({ theme }) => {
           <Route path="/admin/calculators" element={<AdminCalculators />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/content" element={<AdminContent />} />
+          <Route path="/admin/warehouse" element={<div className="p-8 text-center text-zinc-400">Warehouse Terminal - Страница временно недоступна</div>} />
+          <Route path="/v-terminal" element={<div className="p-8 text-center text-zinc-400">Warehouse Terminal - Страница временно недоступна</div>} />
         </Routes>
       </motion.div>
     </AnimatePresence>
@@ -118,7 +133,7 @@ const App: React.FC = () => {
     return (localStorage.getItem('site-theme') as Theme) || 'dark';
   });
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith('/admin');
+  const isAdmin = location.pathname.startsWith('/admin') || location.pathname.startsWith('/v-terminal');
 
   useEffect(() => {
     localStorage.setItem('site-theme', theme);
@@ -155,7 +170,7 @@ const App: React.FC = () => {
             }} />}
             {isAdmin && <AdminHeader />}
             <ScrollToTop />
-            <main className="relative z-10">
+            <main className={`relative z-10 ${isAdmin ? 'pt-16 sm:pt-20' : ''}`}>
               <AnimatedRoutes theme={theme} />
             </main>
             {!isAdmin && <Footer theme={theme} />}

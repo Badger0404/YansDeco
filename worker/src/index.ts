@@ -59,21 +59,21 @@ app.get('/api/health', async (c) => {
   try {
     let dbStatus = 'ok';
     let r2Status = 'ok';
-    
+
     // Check D1
     try {
       await c.env.DB.prepare('SELECT 1').first();
     } catch (e) {
       dbStatus = 'error';
     }
-    
+
     // Check R2 - just verify bucket is accessible
     try {
       await c.env.ASSETS.list({ limit: 1 });
     } catch (e) {
       r2Status = 'error';
     }
-    
+
     return c.json({
       success: true,
       status: 'healthy',
@@ -97,23 +97,23 @@ app.get('/api/health', async (c) => {
 app.get('/images/*', async (c) => {
   const path = c.req.path.replace('/images/', '');
   console.log('[Images] Requested path:', path);
-  
+
   if (!path) {
     return c.json({ success: false, error: 'Path required' }, { status: 400 });
   }
-  
+
   try {
     const object = await c.env.ASSETS.get(path);
     console.log('[Images] Found object:', object ? 'yes' : 'no');
-    
+
     if (!object) {
       return c.json({ success: false, error: 'Image not found', path }, { status: 404 });
     }
-    
+
     const headers = new Headers();
     object.writeHttpMetadata(headers);
     headers.set('Cache-Control', 'public, max-age=31536000');
-    
+
     return new Response(object.body, {
       headers,
     });
@@ -156,26 +156,26 @@ app.get('/api/brands/:id', async (c) => {
   const { results } = await c.env.DB.prepare(
     `SELECT id, name, logo_url, description_ru, description_fr, description_en FROM brands WHERE id = ?`
   ).bind(id).all();
-  
+
   if (results.length === 0) {
     return c.json({ success: false, error: 'Brand not found' }, { status: 404 });
   }
-  
+
   return c.json({ success: true, data: results[0] });
 });
 
 app.get('/api/brands/:id/products', async (c) => {
   const id = c.req.param('id');
-  
+
   // First check if brand exists
   const { results: brandCheck } = await c.env.DB.prepare(
     `SELECT id FROM brands WHERE id = ?`
   ).bind(id).all();
-  
+
   if (brandCheck.length === 0) {
     return c.json({ success: false, error: 'Brand not found' }, { status: 404 });
   }
-  
+
   // Get products for this brand with category info
   const { results: products } = await c.env.DB.prepare(`
     SELECT 
@@ -194,7 +194,7 @@ app.get('/api/brands/:id/products', async (c) => {
     WHERE p.brand_id = ?
     ORDER BY p.created_at DESC
   `).bind(id).all();
-  
+
   return c.json({ success: true, data: products });
 });
 
@@ -266,6 +266,17 @@ app.delete('/api/brands/:id', async (c) => {
   }
 });
 
+app.delete('/api/brands/:id/logo', async (c) => {
+  const id = c.req.param('id');
+  try {
+    await c.env.DB.prepare(`UPDATE brands SET logo_url = NULL WHERE id = ?`)
+      .bind(id).run();
+    return c.json({ success: true });
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, { status: 400 });
+  }
+});
+
 // ==================== PRODUCTS API ====================
 
 app.get('/api/products', async (c) => {
@@ -287,6 +298,22 @@ app.get('/api/products/:id', async (c) => {
   const id = c.req.param('id');
   const { results } = await c.env.DB.prepare(`
     SELECT 
+      p.id, p.sku, p.price, p.stock, p.is_popular, p.announcement_date, p.image_url, p.created_at,
+      p.name_ru, p.desc_ru,
+      p.name_fr, p.desc_fr,
+      p.name_en, p.desc_en,
+      b.name as brand_name
+    FROM products p
+    LEFT JOIN brands b ON p.brand_id = b.id
+    WHERE p.id = ?
+  `).bind(id).all();
+  return c.json({ success: true, data: results[0] });
+});
+
+app.get('/api/admin/products/:id', async (c) => {
+  const id = c.req.param('id');
+  const { results } = await c.env.DB.prepare(`
+    SELECT 
       p.*,
       b.name as brand_name
     FROM products p
@@ -298,7 +325,7 @@ app.get('/api/products/:id', async (c) => {
 
 app.post('/api/products', async (c) => {
   console.log('[Products] POST /api/products - Starting request');
-  
+
   let body;
   try {
     body = await c.req.json();
@@ -309,26 +336,29 @@ app.post('/api/products', async (c) => {
   }
 
   const {
-    sku, price, stock, brand_id, category_id, is_popular, announcement_date, image_url,
+    sku,
+    barcode,
+    price, stock, brand_id, category_id, is_popular, announcement_date, image_url,
     name_ru, desc_ru, name_fr, desc_fr, name_en, desc_en
   } = body;
 
-  console.log('[Products] Parsed fields:', { sku, price, stock, brand_id, category_id, is_popular });
+  console.log('[Products] Parsed fields:', { sku, barcode, price, stock, brand_id, category_id, is_popular });
 
   try {
     console.log('[Products] Inserting product with SKU:', sku, 'price:', price);
-    
+
     const insertResult = await c.env.DB.prepare(`
-      INSERT INTO products (sku, price, stock, brand_id, category_id, is_popular, announcement_date, image_url, name_ru, name_fr, name_en, desc_ru, desc_fr, desc_en)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO products (sku, barcode, price, stock, brand_id, category_id, is_popular, announcement_date, image_url, name_ru, name_fr, name_en, desc_ru, desc_fr, desc_en)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
-      sku, 
-      price, 
-      stock || 0, 
-      brand_id || null, 
-      category_id || null, 
-      is_popular ? 1 : 0, 
-      announcement_date || null, 
+      sku,
+      barcode || null,
+      price,
+      stock || 0,
+      brand_id || null,
+      category_id || null,
+      is_popular ? 1 : 0,
+      announcement_date || null,
       image_url || null,
       name_ru || null,
       name_fr || null,
@@ -367,7 +397,7 @@ app.put('/api/products/:id', async (c) => {
           desc_ru = ?, desc_fr = ?, desc_en = ?
       WHERE id = ?
     `).bind(
-      sku, price, stock, brand_id || null, category_id || null, is_popular ? 1 : 0, 
+      sku, price, stock, brand_id || null, category_id || null, is_popular ? 1 : 0,
       announcement_date || null, image_url || null,
       name_ru || null, name_fr || null, name_en || null,
       desc_ru || null, desc_fr || null, desc_en || null,
@@ -387,6 +417,205 @@ app.delete('/api/products/:id', async (c) => {
   const id = c.req.param('id');
   const { success } = await c.env.DB.prepare(`DELETE FROM products WHERE id = ?`).bind(id).run();
   return c.json({ success });
+});
+
+app.delete('/api/products/:id/image', async (c) => {
+  const id = c.req.param('id');
+  try {
+    await c.env.DB.prepare(`UPDATE products SET image_url = NULL, updated_at = datetime('now') WHERE id = ?`)
+      .bind(id).run();
+    return c.json({ success: true });
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, { status: 400 });
+  }
+});
+
+// ==================== PRODUCTS API - BARCODE & SKU UPDATE ====================
+
+app.put('/api/products/:id/barcode', async (c) => {
+  const id = c.req.param('id');
+  const body = await c.req.json();
+  const { barcode } = body;
+
+  try {
+    await c.env.DB.prepare(`UPDATE products SET barcode = ?, updated_at = datetime('now') WHERE id = ?`)
+      .bind(barcode || null, id).run();
+    return c.json({ success: true });
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, { status: 400 });
+  }
+});
+
+app.get('/api/products/by-barcode/:barcode', async (c) => {
+  const barcode = c.req.param('barcode');
+  const { results } = await c.env.DB.prepare(`
+    SELECT p.*, b.name as brand_name
+    FROM products p
+    LEFT JOIN brands b ON p.brand_id = b.id
+    WHERE p.barcode = ?
+  `).bind(barcode).all();
+
+  if (results.length === 0) {
+    return c.json({ success: false, error: 'Product not found' }, { status: 404 });
+  }
+
+  return c.json({ success: true, data: results[0] });
+});
+
+// ==================== WAREHOUSE MANAGEMENT API ====================
+
+app.post('/api/admin/stock/in', async (c) => {
+  const body = await c.req.json();
+  const { product_id, quantity, comment } = body;
+
+  if (!product_id || !quantity || quantity <= 0) {
+    return c.json({ success: false, error: 'Invalid parameters' }, { status: 400 });
+  }
+
+  try {
+    await c.env.DB.prepare(`UPDATE products SET stock = stock + ?, updated_at = datetime('now') WHERE id = ?`)
+      .bind(quantity, product_id).run();
+
+    await c.env.DB.prepare(`
+      INSERT INTO stock_logs (product_id, type, quantity, comment)
+      VALUES (?, 'IN', ?, ?)
+    `).bind(product_id, quantity, comment || null).run();
+
+    const { results } = await c.env.DB.prepare(`SELECT stock FROM products WHERE id = ?`).bind(product_id).all();
+
+    return c.json({ success: true, data: { product_id, new_stock: results[0].stock } });
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, { status: 400 });
+  }
+});
+
+app.post('/api/admin/stock/out', async (c) => {
+  const body = await c.req.json();
+  const { product_id, quantity, comment } = body;
+
+  if (!product_id || !quantity || quantity <= 0) {
+    return c.json({ success: false, error: 'Invalid parameters' }, { status: 400 });
+  }
+
+  try {
+    const { results: productCheck } = await c.env.DB.prepare(`SELECT stock FROM products WHERE id = ?`).bind(product_id).all();
+    if (productCheck.length === 0) {
+      return c.json({ success: false, error: 'Product not found' }, { status: 404 });
+    }
+
+    const currentStock = productCheck[0].stock;
+    if (currentStock < quantity) {
+      return c.json({ success: false, error: 'Insufficient stock' }, { status: 400 });
+    }
+
+    await c.env.DB.prepare(`UPDATE products SET stock = stock - ?, updated_at = datetime('now') WHERE id = ?`)
+      .bind(quantity, product_id).run();
+
+    await c.env.DB.prepare(`
+      INSERT INTO stock_logs (product_id, type, quantity, comment)
+      VALUES (?, 'OUT', ?, ?)
+    `).bind(product_id, quantity, comment || 'Списание').run();
+
+    const { results } = await c.env.DB.prepare(`SELECT stock FROM products WHERE id = ?`).bind(product_id).all();
+
+    return c.json({ success: true, data: { product_id, new_stock: results[0].stock } });
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, { status: 400 });
+  }
+});
+
+app.post('/api/admin/stock/cash', async (c) => {
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ADMIN.')) {
+    return c.json({ success: false, error: 'Admin access required' }, { status: 403 });
+  }
+
+  const body = await c.req.json();
+  const { product_id, quantity = 1, order_id, total_amount } = body;
+
+  if (!product_id || !order_id) {
+    return c.json({ success: false, error: 'Product ID and Order ID are required' }, { status: 400 });
+  }
+
+  try {
+    const { results: productCheck } = await c.env.DB.prepare(`SELECT stock, price FROM products WHERE id = ?`).bind(product_id).all();
+    if (productCheck.length === 0) {
+      return c.json({ success: false, error: 'Product not found' }, { status: 404 });
+    }
+
+    const currentStock = productCheck[0].stock;
+    if (currentStock < quantity) {
+      return c.json({ success: false, error: 'Insufficient stock' }, { status: 400 });
+    }
+
+    const amount = total_amount || (productCheck[0].price * quantity);
+
+    await c.env.DB.prepare(`UPDATE products SET stock = stock - ?, updated_at = datetime('now') WHERE id = ?`)
+      .bind(quantity, product_id).run();
+
+    await c.env.DB.prepare(`
+      INSERT INTO stock_logs (product_id, type, quantity, comment)
+      VALUES (?, 'SALE_CASH', ?, ?)
+    `).bind(product_id, quantity, `Наличная продажа: ${order_id}`).run();
+
+    await c.env.DB.prepare(`
+      INSERT INTO internal_sales (order_id, total_amount)
+      VALUES (?, ?)
+      ON CONFLICT(order_id) DO UPDATE SET total_amount = excluded.total_amount
+    `).bind(order_id, amount).run();
+
+    const { results } = await c.env.DB.prepare(`SELECT stock FROM products WHERE id = ?`).bind(product_id).all();
+
+    return c.json({ success: true, data: { product_id, new_stock: results[0].stock, order_id, amount } });
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, { status: 400 });
+  }
+});
+
+app.get('/api/admin/stock/logs', async (c) => {
+  const limit = parseInt(c.req.query('limit') || '100');
+  const offset = parseInt(c.req.query('offset') || '0');
+  const productId = c.req.query('product_id');
+
+  let query = `
+    SELECT sl.*, p.sku, p.name_fr, p.name_ru
+    FROM stock_logs sl
+    JOIN products p ON sl.product_id = p.id
+  `;
+  const bindings: any[] = [];
+
+  if (productId) {
+    query += ' WHERE sl.product_id = ?';
+    bindings.push(productId);
+  }
+
+  query += ' ORDER BY sl.created_at DESC LIMIT ? OFFSET ?';
+  bindings.push(limit, offset);
+
+  const { results } = await c.env.DB.prepare(query).bind(...bindings).all();
+
+  return c.json({ success: true, data: results });
+});
+
+app.get('/api/admin/stock/internal-sales', async (c) => {
+  const limit = parseInt(c.req.query('limit') || '100');
+  const offset = parseInt(c.req.query('offset') || '0');
+
+  const { results } = await c.env.DB.prepare(`
+    SELECT * FROM internal_sales ORDER BY created_at DESC LIMIT ? OFFSET ?
+  `).bind(limit, offset).all();
+
+  return c.json({ success: true, data: results });
+});
+
+app.get('/api/admin/stock/history/:productId', async (c) => {
+  const productId = c.req.param('productId');
+
+  const { results } = await c.env.DB.prepare(`
+    SELECT * FROM stock_logs WHERE product_id = ? ORDER BY created_at DESC
+  `).bind(productId).all();
+
+  return c.json({ success: true, data: results });
 });
 
 // ==================== SERVICES API ====================
@@ -431,18 +660,18 @@ app.get('/api/services/:id', async (c) => {
             sort_order, is_active, created_at, updated_at
      FROM services WHERE id = ?`
   ).bind(id).all();
-  
+
   if (results.length === 0) {
     return c.json({ success: false, error: 'Service not found' }, { status: 404 });
   }
-  
+
   return c.json({ success: true, data: results[0] });
 });
 
 app.post('/api/services', async (c) => {
   try {
     const body = await c.req.json();
-    const { 
+    const {
       key, icon, icon_emoji, icon_url, gradient_from, gradient_to,
       tags_ru, tags_fr, tags_en,
       title_ru, title_fr, title_en,
@@ -488,7 +717,7 @@ app.put('/api/services/:id', async (c) => {
   const id = c.req.param('id');
   try {
     const body = await c.req.json();
-    const { 
+    const {
       key, icon, icon_emoji, icon_url, gradient_from, gradient_to,
       tags_ru, tags_fr, tags_en,
       title_ru, title_fr, title_en,
@@ -541,17 +770,23 @@ app.options('/api/translate', async (c) => {
 });
 
 app.post('/api/translate', async (c) => {
+  console.log('[TRANSLATE] Request received');
   const body = await c.req.json();
-  const { text, tags, sourceLang, targetLangs } = body;
+  const { text, description, tags, sourceLang, targetLangs } = body;
 
-  if ((!text || !tags) && !Array.isArray(targetLangs)) {
-    return c.json({ success: false, error: 'Missing text/tags or targetLangs' }, { status: 400 });
+  console.log('[TRANSLATE] Body:', { text, description: description?.substring(0, 50), tags, sourceLang, targetLangs });
+
+  // Updated validation: allow text without tags, as long as targetLangs is provided
+  if (!text || !Array.isArray(targetLangs) || targetLangs.length === 0) {
+    console.log('[TRANSLATE] Validation failed');
+    return c.json({ success: false, error: 'Missing text or targetLangs' }, { status: 400 });
   }
+  console.log('[TRANSLATE] Validation passed');
 
   if (!c.env.AI) {
-    return c.json({ 
-      success: false, 
-      error: 'AI service not configured. Add AI binding in Cloudflare dashboard.' 
+    return c.json({
+      success: false,
+      error: 'AI service not configured. Add AI binding in Cloudflare dashboard.'
     }, { status: 500 });
   }
 
@@ -566,11 +801,51 @@ app.post('/api/translate', async (c) => {
 
   for (const lang of targetLangs) {
     const targetLangName = langNames[lang] || 'English';
-    
+
     try {
       let prompt = '';
-      
-      if (text && tags) {
+
+      // Handle product name translation
+      if (tags === 'product_name') {
+        const hasDescription = description && description.trim().length > 0;
+
+        if (hasDescription) {
+          prompt = `You are a professional translator for a building materials store.
+
+Translate from ${sourceLangName} to ${targetLangName}.
+
+### EXAMPLE FORMAT:
+Input Name: "Краска белая"
+Input Description: "Матовая краска для стен.\nВысокое качество."
+Output JSON:
+{"name": "Peinture blanche", "description": "Peinture mate pour murs.\\nHaute qualité."}
+
+### YOUR TASK:
+Product name:
+${text}
+
+Product description:
+${description}
+
+IMPORTANT:
+1. Return ONLY valid JSON.
+2. Use "\\n" for newlines in the description.
+3. Translate both "name" and "description".
+4. Return format: {"name": "...", "description": "..."}
+
+No markdown, no explanations, only JSON.`;
+        } else {
+          prompt = `You are a professional translator for a building materials store.
+
+Translate this product name from ${sourceLangName} to ${targetLangName}:
+${text}
+
+Return ONLY valid JSON:
+{"name": "translated name here"}
+
+No markdown, no explanations, only JSON.`;
+        }
+      } else if (text && tags) {
         prompt = `You are a professional translator for a decoration and building materials store. 
         
 Translate from ${sourceLangName} to ${targetLangName}.
@@ -599,34 +874,52 @@ Keep tags as a comma-separated list in the same order.`;
         prompt = `You are a professional translator for a decoration and building materials store. Translate from ${sourceLangName} to ${targetLangName}. Keep the same tone and format. Return ONLY valid JSON: {"description": "..."}. If there's no description to translate, return empty string for description.`;
       }
 
+      console.log(`[TRANSLATE] Calling AI for ${lang}, has description:`, !!description);
       const response = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
         messages: [
-          { role: 'system', content: 'You are a professional translator. Return ONLY valid JSON, no markdown.' },
+          { role: 'system', content: 'You are a professional translator. Return ONLY valid JSON, no markdown, no code blocks.' },
           { role: 'user', content: prompt }
         ],
-        max_tokens: 512,
+        max_tokens: 1024,
       });
+      console.log(`[TRANSLATE] AI response for ${lang}:`, typeof response, response);
 
-      let translated: { description: string; tags: string } = { description: '', tags: '' };
-      
+      let translated: { name?: string; description?: string; tags?: string } = {};
+
+      const getJSON = (str: string) => {
+        const match = str.match(/\{[\s\S]*\}/);
+        return match ? match[0] : str;
+      };
+
       if (typeof response === 'object' && response.response) {
+        const jsonStr = getJSON(response.response);
         try {
-          translated = JSON.parse(response.response);
+          translated = JSON.parse(jsonStr);
         } catch {
-          const cleaned = response.response.replace(/```json\s*|\s*```/g, '');
-          translated = JSON.parse(cleaned);
+          const cleaned = jsonStr.replace(/```json\s*|\s*```/g, '');
+          try {
+            translated = JSON.parse(cleaned);
+          } catch (e) {
+            console.error(`[TRANSLATE] Failed to parse JSON for ${lang}:`, e, jsonStr);
+          }
         }
       } else {
         const textContent = typeof response === 'object' ? JSON.stringify(response) : response;
+        const jsonStr = getJSON(textContent);
         try {
-          translated = JSON.parse(textContent);
-        } catch {
-          translated = { description: '', tags: '' };
+          translated = JSON.parse(jsonStr);
+        } catch (e) {
+          console.error(`[TRANSLATE] Failed to parse JSON for ${lang}:`, e, jsonStr);
         }
       }
 
+      // Build response based on what was translated
+      console.log(`[TRANSLATE] Parsed for ${lang}:`, {
+        name: translated?.name,
+        description: translated?.description?.substring?.(0, 50)
+      });
       results[lang] = {
-        name: '',
+        name: (translated.name || '').trim(),
         description: (translated.description || '').replace(/\\n/g, '\n'),
         tags: translated.tags || ''
       };
@@ -660,8 +953,8 @@ app.post('/api/upload', async (c) => {
 
     const publicUrl = `https://yasndeco-api.andrey-gaffer.workers.dev/images/${path}`;
 
-    return c.json({ 
-      success: true, 
+    return c.json({
+      success: true,
       data: { url: publicUrl, path, filename: fileName }
     });
   } catch (error: any) {
@@ -673,7 +966,7 @@ app.post('/api/upload', async (c) => {
 
 app.get('/api/categories', async (c) => {
   const parentId = c.req.query('parent_id');
-  
+
   let query = `
     SELECT 
       id, slug, icon, image_url, parent_id, sort_order, created_at,
@@ -681,16 +974,16 @@ app.get('/api/categories', async (c) => {
       desc_ru, desc_fr, desc_en
     FROM categories
   `;
-  
+
   const bindings: any[] = [];
-  
+
   if (parentId) {
     query += ' WHERE parent_id = ?';
     bindings.push(parentId);
   }
-  
+
   query += ' ORDER BY sort_order';
-  
+
   const { results } = await c.env.DB.prepare(query).bind(...bindings).all();
   return c.json({ success: true, data: results });
 });
@@ -705,26 +998,26 @@ app.get('/api/categories/:id', async (c) => {
     FROM categories 
     WHERE id = ?
   `).bind(id).all();
-  
+
   if (results.length === 0) {
     return c.json({ success: false, error: 'Category not found' }, { status: 404 });
   }
-  
+
   return c.json({ success: true, data: results[0] });
 });
 
 app.get('/api/categories/:id/products', async (c) => {
   const id = c.req.param('id');
-  
+
   // First check if category exists
   const { results: categoryCheck } = await c.env.DB.prepare(
     `SELECT id FROM categories WHERE id = ?`
   ).bind(id).all();
-  
+
   if (categoryCheck.length === 0) {
     return c.json({ success: false, error: 'Category not found' }, { status: 404 });
   }
-  
+
   // Get all category IDs (current category and all subcategories)
   const { results: categoryIds } = await c.env.DB.prepare(`
     WITH RECURSIVE category_tree AS (
@@ -735,10 +1028,10 @@ app.get('/api/categories/:id/products', async (c) => {
     )
     SELECT id FROM category_tree
   `).bind(id).all();
-  
+
   const categoryIdList = categoryIds.map((row: any) => row.id);
   const placeholders = categoryIdList.map(() => '?').join(',');
-  
+
   // Get products for this category and its subcategories
   const { results: products } = await c.env.DB.prepare(`
     SELECT 
@@ -757,7 +1050,7 @@ app.get('/api/categories/:id/products', async (c) => {
     WHERE p.category_id IN (${placeholders})
     ORDER BY p.created_at DESC
   `).bind(...categoryIdList).all();
-  
+
   return c.json({ success: true, data: products });
 });
 
@@ -985,7 +1278,7 @@ app.get('/api/site-config', async (c) => {
     SELECT key, value_ru, value_fr, value_en, type
     FROM site_config
   `).all();
-  
+
   const config: Record<string, any> = {};
   results.forEach(item => {
     config[item.key] = {
@@ -995,7 +1288,7 @@ app.get('/api/site-config', async (c) => {
       type: item.type
     };
   });
-  
+
   return c.json({ success: true, data: config });
 });
 
@@ -1046,31 +1339,57 @@ app.post('/api/migrate', async (c) => {
     FOREIGN KEY (parent_id) REFERENCES categories(id)
 );
 
-CREATE TABLE IF NOT EXISTS products (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    sku TEXT UNIQUE NOT NULL,
-    price DECIMAL(10, 2) NOT NULL DEFAULT 0,
-    stock INTEGER DEFAULT 0,
-    brand_id INTEGER,
-    category_id INTEGER,
-    is_popular INTEGER DEFAULT 0,
-    announcement_date TEXT,
-    image_url TEXT,
-    name_ru TEXT,
-    name_fr TEXT,
-    name_en TEXT,
-    desc_ru TEXT,
-    desc_fr TEXT,
-    desc_en TEXT,
-    created_at TEXT DEFAULT (datetime('now')),
-    updated_at TEXT DEFAULT (datetime('now')),
-    FOREIGN KEY (brand_id) REFERENCES brands(id),
-    FOREIGN KEY (category_id) REFERENCES categories(id)
-);
+  CREATE TABLE IF NOT EXISTS products (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      sku TEXT UNIQUE NOT NULL,
+      barcode TEXT UNIQUE,
+      price DECIMAL(10, 2) NOT NULL DEFAULT 0,
+      stock INTEGER DEFAULT 0,
+      brand_id INTEGER,
+      category_id INTEGER,
+      is_popular INTEGER DEFAULT 0,
+      announcement_date TEXT,
+      image_url TEXT,
+      name_ru TEXT,
+      name_fr TEXT,
+      name_en TEXT,
+      desc_ru TEXT,
+      desc_fr TEXT,
+      desc_en TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (brand_id) REFERENCES brands(id),
+      FOREIGN KEY (category_id) REFERENCES categories(id)
+  );
 
-CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
-CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
-CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand_id);
+  CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
+  CREATE INDEX IF NOT EXISTS idx_products_barcode ON products(barcode);
+  CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
+  CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand_id);
+
+  CREATE TABLE IF NOT EXISTS stock_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      product_id INTEGER NOT NULL,
+      type TEXT NOT NULL CHECK(type IN ('IN', 'OUT', 'SALE_OFFICIAL', 'SALE_CASH')),
+      quantity INTEGER NOT NULL,
+      comment TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_stock_logs_product ON stock_logs(product_id);
+  CREATE INDEX IF NOT EXISTS idx_stock_logs_type ON stock_logs(type);
+  CREATE INDEX IF NOT EXISTS idx_stock_logs_created ON stock_logs(created_at);
+
+  CREATE TABLE IF NOT EXISTS internal_sales (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      order_id TEXT UNIQUE NOT NULL,
+      total_amount DECIMAL(10, 2) NOT NULL DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_internal_sales_order ON internal_sales(order_id);
+  CREATE INDEX IF NOT EXISTS idx_internal_sales_created ON internal_sales(created_at);
 
 CREATE TABLE IF NOT EXISTS services (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1298,16 +1617,16 @@ CREATE TABLE IF NOT EXISTS site_config (
 
 app.get('/api/cart', async (c) => {
   const sessionId = c.req.header('X-Session-ID');
-  
+
   if (!sessionId) {
     return c.json({ success: true, data: { sessionId: '', items: [], totalItems: 0, totalPrice: 0 } });
   }
-  
+
   try {
     const { results } = await c.env.DB.prepare(`
       SELECT * FROM carts WHERE id = ?
     `).bind(sessionId).all();
-    
+
     if (results.length > 0) {
       const cart = results[0];
       return c.json({
@@ -1320,7 +1639,7 @@ app.get('/api/cart', async (c) => {
         }
       });
     }
-    
+
     return c.json({ success: true, data: { sessionId, items: [], totalItems: 0, totalPrice: 0 } });
   } catch (error: any) {
     console.error('[Cart] Get error:', error.message);
@@ -1330,18 +1649,18 @@ app.get('/api/cart', async (c) => {
 
 app.post('/api/cart', async (c) => {
   const sessionId = c.req.header('X-Session-ID');
-  
+
   if (!sessionId) {
     return c.json({ success: false, error: 'Session ID required' }, { status: 400 });
   }
-  
+
   try {
     const body = await c.req.json();
     const { items } = body;
-    
+
     const totalItems = items.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
     const totalPrice = items.reduce((sum: number, item: any) => sum + (item.price * (item.quantity || 1)), 0);
-    
+
     await c.env.DB.prepare(`
       INSERT INTO carts (id, user_session, items, total_items, total_price, updated_at)
       VALUES (?, ?, ?, ?, ?, datetime('now'))
@@ -1351,7 +1670,7 @@ app.post('/api/cart', async (c) => {
         total_price = excluded.total_price,
         updated_at = datetime('now')
     `).bind(sessionId, sessionId, JSON.stringify(items), totalItems, totalPrice).run();
-    
+
     return c.json({
       success: true,
       data: { sessionId, items, totalItems, totalPrice }
@@ -1364,14 +1683,14 @@ app.post('/api/cart', async (c) => {
 
 app.delete('/api/cart', async (c) => {
   const sessionId = c.req.header('X-Session-ID');
-  
+
   if (!sessionId) {
     return c.json({ success: true, data: { sessionId: '', items: [], totalItems: 0, totalPrice: 0 } });
   }
-  
+
   try {
     await c.env.DB.prepare(`DELETE FROM carts WHERE id = ?`).bind(sessionId).run();
-    
+
     return c.json({
       success: true,
       data: { sessionId: '', items: [], totalItems: 0, totalPrice: 0 }
@@ -1388,30 +1707,30 @@ app.post('/api/clients/register', async (c) => {
   try {
     const body = await c.req.json();
     const { name, phone, email, password } = body;
-    
+
     if (!name || !email || !password) {
       return c.json({ success: false, error: 'Name, email and password are required' }, { status: 400 });
     }
-    
+
     const existingClient = await c.env.DB.prepare(
       'SELECT id FROM clients WHERE email = ?'
     ).bind(email).first();
-    
+
     if (existingClient) {
       return c.json({ success: false, error: 'Email already registered' }, { status: 400 });
     }
-    
+
     const passwordHash = await hashPassword(password);
-    
+
     const result = await c.env.DB.prepare(`
       INSERT INTO clients (name, phone, email, password_hash, created_at)
       VALUES (?, ?, ?, ?, datetime('now'))
     `).bind(name, phone || null, email, passwordHash).run();
-    
+
     const clientId = result.meta?.last_row_id;
-    
+
     const token = generateToken(clientId.toString());
-    
+
     return c.json({
       success: true,
       data: {
@@ -1435,31 +1754,31 @@ app.post('/api/clients/login', async (c) => {
   try {
     const body = await c.req.json();
     const { email, password } = body;
-    
+
     if (!email || !password) {
       return c.json({ success: false, error: 'Email and password are required' }, { status: 400 });
     }
-    
+
     const client = await c.env.DB.prepare(
       'SELECT * FROM clients WHERE email = ? AND is_active = 1'
     ).bind(email).first();
-    
+
     if (!client) {
       return c.json({ success: false, error: 'Invalid credentials' }, { status: 401 });
     }
-    
+
     const passwordValid = await verifyPassword(password, client.password_hash);
-    
+
     if (!passwordValid) {
       return c.json({ success: false, error: 'Invalid credentials' }, { status: 401 });
     }
-    
+
     await c.env.DB.prepare(`
       UPDATE clients SET last_login = datetime('now') WHERE id = ?
     `).bind(client.id).run();
-    
+
     const token = generateToken(client.id.toString());
-    
+
     return c.json({
       success: true,
       data: {
@@ -1485,15 +1804,15 @@ app.post('/api/clients/google', async (c) => {
   try {
     const body = await c.req.json();
     const { googleId, name, email, avatarUrl } = body;
-    
+
     if (!googleId || !email) {
       return c.json({ success: false, error: 'Google ID and email are required' }, { status: 400 });
     }
-    
+
     let client = await c.env.DB.prepare(
       'SELECT * FROM clients WHERE google_id = ? OR email = ?'
     ).bind(googleId, email).first();
-    
+
     if (client) {
       await c.env.DB.prepare(`
         UPDATE clients SET last_login = datetime('now'), google_id = ?, avatar_url = ? WHERE id = ?
@@ -1503,7 +1822,7 @@ app.post('/api/clients/google', async (c) => {
         INSERT INTO clients (name, email, google_id, avatar_url, created_at, last_login)
         VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))
       `).bind(name || email.split('@')[0], email, googleId, avatarUrl || null).run();
-      
+
       client = {
         id: result.meta?.last_row_id,
         name: name || email.split('@')[0],
@@ -1513,9 +1832,9 @@ app.post('/api/clients/google', async (c) => {
         last_login: new Date().toISOString()
       };
     }
-    
+
     const token = generateToken(client.id.toString());
-    
+
     return c.json({
       success: true,
       data: {
@@ -1540,25 +1859,25 @@ app.post('/api/clients/google', async (c) => {
 app.get('/api/clients/me', async (c) => {
   const authHeader = c.req.header('Authorization');
   const token = authHeader?.replace('Bearer ', '');
-  
+
   if (!token) {
     return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   try {
     const clientId = verifyToken(token);
     if (!clientId) {
       return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
     }
-    
+
     const client = await c.env.DB.prepare(
       'SELECT id, name, phone, email, avatar_url, created_at, last_login FROM clients WHERE id = ? AND is_active = 1'
     ).bind(parseInt(clientId)).first();
-    
+
     if (!client) {
       return c.json({ success: false, error: 'Client not found' }, { status: 404 });
     }
-    
+
     return c.json({ success: true, data: { client } });
   } catch (error: any) {
     console.error('[Client] Get profile error:', error.message);
@@ -1569,24 +1888,24 @@ app.get('/api/clients/me', async (c) => {
 app.put('/api/clients/me', async (c) => {
   const authHeader = c.req.header('Authorization');
   const token = authHeader?.replace('Bearer ', '');
-  
+
   if (!token) {
     return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   try {
     const clientId = verifyToken(token);
     if (!clientId) {
       return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
     }
-    
+
     const body = await c.req.json();
     const { name, phone } = body;
-    
+
     await c.env.DB.prepare(`
       UPDATE clients SET name = ?, phone = ? WHERE id = ?
     `).bind(name, phone || null, parseInt(clientId)).run();
-    
+
     return c.json({ success: true, message: 'Profile updated' });
   } catch (error: any) {
     console.error('[Client] Update profile error:', error.message);
@@ -1597,26 +1916,26 @@ app.put('/api/clients/me', async (c) => {
 app.get('/api/clients/me/orders', async (c) => {
   const authHeader = c.req.header('Authorization');
   const token = authHeader?.replace('Bearer ', '');
-  
+
   if (!token) {
     return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   try {
     const clientId = verifyToken(token);
     if (!clientId) {
       return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
     }
-    
+
     const { results } = await c.env.DB.prepare(`
       SELECT * FROM orders WHERE client_id = ? ORDER BY created_at DESC
     `).bind(parseInt(clientId)).all();
-    
+
     const orders = results.map(order => ({
       ...order,
       items: JSON.parse(order.items || '[]')
     }));
-    
+
     return c.json({ success: true, data: { orders } });
   } catch (error: any) {
     console.error('[Client] Get orders error:', error.message);
@@ -1627,21 +1946,21 @@ app.get('/api/clients/me/orders', async (c) => {
 app.get('/api/clients/me/addresses', async (c) => {
   const authHeader = c.req.header('Authorization');
   const token = authHeader?.replace('Bearer ', '');
-  
+
   if (!token) {
     return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   try {
     const clientId = verifyToken(token);
     if (!clientId) {
       return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
     }
-    
+
     const { results } = await c.env.DB.prepare(`
       SELECT * FROM client_addresses WHERE client_id = ? ORDER BY is_default DESC, created_at DESC
     `).bind(parseInt(clientId)).all();
-    
+
     return c.json({ success: true, data: { addresses: results } });
   } catch (error: any) {
     console.error('[Client] Get addresses error:', error.message);
@@ -1652,34 +1971,34 @@ app.get('/api/clients/me/addresses', async (c) => {
 app.post('/api/clients/me/addresses', async (c) => {
   const authHeader = c.req.header('Authorization');
   const token = authHeader?.replace('Bearer ', '');
-  
+
   if (!token) {
     return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   try {
     const clientId = verifyToken(token);
     if (!clientId) {
       return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
     }
-    
+
     const body = await c.req.json();
     const { type, name, address, city, postal_code, country, phone, is_default } = body;
-    
+
     if (is_default) {
       await c.env.DB.prepare(`
         UPDATE client_addresses SET is_default = 0 WHERE client_id = ?
       `).bind(parseInt(clientId)).run();
     }
-    
+
     const result = await c.env.DB.prepare(`
       INSERT INTO client_addresses (client_id, type, name, address, city, postal_code, country, phone, is_default, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
     `).bind(parseInt(clientId), type || 'shipping', name, address, city, postal_code, country, phone || null, is_default ? 1 : 0).run();
-    
-    return c.json({ 
-      success: true, 
-      data: { 
+
+    return c.json({
+      success: true,
+      data: {
         address: {
           id: result.meta?.last_row_id,
           client_id: parseInt(clientId),
@@ -1692,7 +2011,7 @@ app.post('/api/clients/me/addresses', async (c) => {
           phone,
           is_default: is_default ? 1 : 0
         }
-      } 
+      }
     });
   } catch (error: any) {
     console.error('[Client] Add address error:', error.message);
@@ -1704,34 +2023,34 @@ app.put('/api/clients/me/addresses/:id', async (c) => {
   const authHeader = c.req.header('Authorization');
   const token = authHeader?.replace('Bearer ', '');
   const addressId = c.req.param('id');
-  
+
   if (!token) {
     return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   try {
     const clientId = verifyToken(token);
     if (!clientId) {
       return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
     }
-    
+
     const body = await c.req.json();
     const { type, name, address, city, postal_code, country, phone, is_default } = body;
-    
+
     const existing = await c.env.DB.prepare(`
       SELECT id FROM client_addresses WHERE id = ? AND client_id = ?
     `).bind(parseInt(addressId), parseInt(clientId)).first();
-    
+
     if (!existing) {
       return c.json({ success: false, error: 'Address not found' }, { status: 404 });
     }
-    
+
     if (is_default) {
       await c.env.DB.prepare(`
         UPDATE client_addresses SET is_default = 0 WHERE client_id = ?
       `).bind(parseInt(clientId)).run();
     }
-    
+
     await c.env.DB.prepare(`
       UPDATE client_addresses 
       SET type = ?, name = ?, address = ?, city = ?, postal_code = ?, country = ?, phone = ?, is_default = ?
@@ -1748,7 +2067,7 @@ app.put('/api/clients/me/addresses/:id', async (c) => {
       parseInt(addressId),
       parseInt(clientId)
     ).run();
-    
+
     return c.json({ success: true, message: 'Address updated' });
   } catch (error: any) {
     console.error('[Client] Update address error:', error.message);
@@ -1760,21 +2079,21 @@ app.delete('/api/clients/me/addresses/:id', async (c) => {
   const authHeader = c.req.header('Authorization');
   const token = authHeader?.replace('Bearer ', '');
   const addressId = c.req.param('id');
-  
+
   if (!token) {
     return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   try {
     const clientId = verifyToken(token);
     if (!clientId) {
       return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
     }
-    
+
     await c.env.DB.prepare(`
       DELETE FROM client_addresses WHERE id = ? AND client_id = ?
     `).bind(parseInt(addressId), parseInt(clientId)).run();
-    
+
     return c.json({ success: true, message: 'Address deleted' });
   } catch (error: any) {
     console.error('[Client] Delete address error:', error.message);
@@ -1785,42 +2104,42 @@ app.delete('/api/clients/me/addresses/:id', async (c) => {
 app.put('/api/clients/me/password', async (c) => {
   const authHeader = c.req.header('Authorization');
   const token = authHeader?.replace('Bearer ', '');
-  
+
   if (!token) {
     return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   try {
     const clientId = verifyToken(token);
     if (!clientId) {
       return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
     }
-    
+
     const body = await c.req.json();
     const { currentPassword, newPassword } = body;
-    
+
     if (!currentPassword || !newPassword || newPassword.length < 6) {
       return c.json({ success: false, error: 'Invalid password data' }, { status: 400 });
     }
-    
+
     const client = await c.env.DB.prepare(`
       SELECT password_hash FROM clients WHERE id = ?
     `).bind(parseInt(clientId)).first();
-    
+
     if (!client) {
       return c.json({ success: false, error: 'Client not found' }, { status: 404 });
     }
-    
+
     const isValid = await verifyPassword(currentPassword, client.password_hash);
     if (!isValid) {
       return c.json({ success: false, error: 'Current password is incorrect' }, { status: 400 });
     }
-    
+
     const newHash = await hashPassword(newPassword);
     await c.env.DB.prepare(`
       UPDATE clients SET password_hash = ? WHERE id = ?
     `).bind(newHash, parseInt(clientId)).run();
-    
+
     return c.json({ success: true, message: 'Password updated' });
   } catch (error: any) {
     console.error('[Client] Update password error:', error.message);
@@ -1839,7 +2158,7 @@ app.get('/api/admin/clients', async (c) => {
       FROM clients c
       ORDER BY c.created_at DESC
     `).all();
-    
+
     return c.json({ success: true, data: { clients: results } });
   } catch (error: any) {
     console.error('[Admin] Get clients error:', error.message);
@@ -1849,7 +2168,7 @@ app.get('/api/admin/clients', async (c) => {
 
 app.get('/api/admin/clients/:id', async (c) => {
   const clientId = c.req.param('id');
-  
+
   try {
     const client = await c.env.DB.prepare(`
       SELECT c.*, 
@@ -1857,31 +2176,31 @@ app.get('/api/admin/clients/:id', async (c) => {
              (SELECT SUM(total_price) FROM orders WHERE client_id = c.id) as total_spent
       FROM clients c WHERE c.id = ?
     `).bind(parseInt(clientId)).first();
-    
+
     if (!client) {
       return c.json({ success: false, error: 'Client not found' }, { status: 404 });
     }
-    
+
     const { results: orders } = await c.env.DB.prepare(`
       SELECT * FROM orders WHERE client_id = ? ORDER BY created_at DESC
     `).bind(parseInt(clientId)).all();
-    
+
     const ordersWithItems = orders.map(order => ({
       ...order,
       items: JSON.parse(order.items || '[]')
     }));
-    
+
     const { results: addresses } = await c.env.DB.prepare(`
       SELECT * FROM client_addresses WHERE client_id = ? ORDER BY is_default DESC, created_at DESC
     `).bind(parseInt(clientId)).all();
-    
-    return c.json({ 
-      success: true, 
-      data: { 
-        client, 
+
+    return c.json({
+      success: true,
+      data: {
+        client,
         orders: ordersWithItems,
-        addresses 
-      } 
+        addresses
+      }
     });
   } catch (error: any) {
     console.error('[Admin] Get client details error:', error.message);
@@ -1892,32 +2211,32 @@ app.get('/api/admin/clients/:id', async (c) => {
 app.post('/api/orders', async (c) => {
   const authHeader = c.req.header('Authorization');
   const token = authHeader?.replace('Bearer ', '');
-  
+
   if (!token) {
     return c.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   try {
     const clientId = verifyToken(token);
     if (!clientId) {
       return c.json({ success: false, error: 'Invalid token' }, { status: 401 });
     }
-    
+
     const body = await c.req.json();
     const { items, totalPrice, shippingAddress, notes } = body;
-    
+
     const result = await c.env.DB.prepare(`
       INSERT INTO orders (client_id, items, total_price, status, shipping_address, notes, created_at)
       VALUES (?, ?, ?, 'completed', ?, ?, datetime('now'))
     `).bind(parseInt(clientId), JSON.stringify(items), totalPrice, JSON.stringify(shippingAddress), notes || null).run();
-    
+
     const orderId = result.meta?.last_row_id;
-    
+
     await c.env.DB.prepare(`DELETE FROM carts WHERE user_session = ?`).bind(`client_${clientId}`).run();
-    
-    return c.json({ 
-      success: true, 
-      data: { 
+
+    return c.json({
+      success: true,
+      data: {
         order: {
           id: orderId,
           items,
@@ -1925,7 +2244,7 @@ app.post('/api/orders', async (c) => {
           status: 'completed',
           created_at: new Date().toISOString()
         }
-      } 
+      }
     });
   } catch (error: any) {
     console.error('[Order] Create error:', error.message);
@@ -1963,9 +2282,9 @@ app.post('/api/notifications/test-whatsapp', async (c) => {
 
     // Send via Green-API REST API
     const greenApiUrl = `https://api.green-api.com/waInstance${idInstance}/sendMessage/${apiTokenInstance}`;
-    
+
     const chatId = phone ? `${phone.replace(/[^0-9]/g, '')}@c.us` : 'demo@c.us';
-    
+
     const response = await fetch(greenApiUrl, {
       method: 'POST',
       headers: {
@@ -1981,9 +2300,9 @@ app.post('/api/notifications/test-whatsapp', async (c) => {
 
     if (result.idMessage) {
       console.log('[WhatsApp] Test message sent successfully:', result.idMessage);
-      return c.json({ 
-        success: true, 
-        data: { 
+      return c.json({
+        success: true,
+        data: {
           messageId: result.idMessage,
           status: 'sent'
         }
@@ -2009,7 +2328,7 @@ app.get('/api/system-check', async (c) => {
 
     // Get current time in French format
     const now = new Date();
-    const dateTimeFR = now.toLocaleString('fr-FR', { 
+    const dateTimeFR = now.toLocaleString('fr-FR', {
       timeZone: 'Europe/Paris',
       day: '2-digit',
       month: '2-digit',
@@ -2119,7 +2438,7 @@ app.get('/api/admin/translations', async (c) => {
     const { results } = await c.env.DB.prepare(`
       SELECT * FROM translations ORDER BY namespace, key
     `).all();
-    
+
     return c.json({ success: true, data: { translations: results } });
   } catch (error: any) {
     console.error('[Admin] Get translations error:', error.message);
@@ -2129,16 +2448,16 @@ app.get('/api/admin/translations', async (c) => {
 
 app.get('/api/admin/translations/:id', async (c) => {
   const id = c.req.param('id');
-  
+
   try {
     const translation = await c.env.DB.prepare(`
       SELECT * FROM translations WHERE id = ?
     `).bind(parseInt(id)).first();
-    
+
     if (!translation) {
       return c.json({ success: false, error: 'Translation not found' }, { status: 404 });
     }
-    
+
     return c.json({ success: true, data: { translation } });
   } catch (error: any) {
     console.error('[Admin] Get translation error:', error.message);
@@ -2150,11 +2469,11 @@ app.post('/api/admin/translations', async (c) => {
   try {
     const body = await c.req.json();
     const { key, namespace, value_ru, value_fr, value_en, description, is_active } = body;
-    
+
     if (!key) {
       return c.json({ success: false, error: 'Key is required' }, { status: 400 });
     }
-    
+
     const result = await c.env.DB.prepare(`
       INSERT INTO translations (key, namespace, value_ru, value_fr, value_en, description, is_active, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
@@ -2167,12 +2486,12 @@ app.post('/api/admin/translations', async (c) => {
       description || '',
       is_active !== false ? 1 : 0
     ).run();
-    
+
     const newId = result.meta?.last_row_id;
-    
-    return c.json({ 
-      success: true, 
-      data: { 
+
+    return c.json({
+      success: true,
+      data: {
         translation: {
           id: newId,
           key,
@@ -2183,7 +2502,7 @@ app.post('/api/admin/translations', async (c) => {
           description: description || '',
           is_active: is_active !== false ? 1 : 0
         }
-      } 
+      }
     });
   } catch (error: any) {
     console.error('[Admin] Create translation error:', error.message);
@@ -2193,19 +2512,19 @@ app.post('/api/admin/translations', async (c) => {
 
 app.put('/api/admin/translations/:id', async (c) => {
   const id = c.req.param('id');
-  
+
   try {
     const body = await c.req.json();
     const { key, namespace, value_ru, value_fr, value_en, description, is_active } = body;
-    
+
     const existing = await c.env.DB.prepare(`
       SELECT id FROM translations WHERE id = ?
     `).bind(parseInt(id)).first();
-    
+
     if (!existing) {
       return c.json({ success: false, error: 'Translation not found' }, { status: 404 });
     }
-    
+
     await c.env.DB.prepare(`
       UPDATE translations 
       SET key = ?, namespace = ?, value_ru = ?, value_fr = ?, value_en = ?, 
@@ -2221,7 +2540,7 @@ app.put('/api/admin/translations/:id', async (c) => {
       is_active !== false ? 1 : 0,
       parseInt(id)
     ).run();
-    
+
     return c.json({ success: true, message: 'Translation updated' });
   } catch (error: any) {
     console.error('[Admin] Update translation error:', error.message);
@@ -2231,23 +2550,114 @@ app.put('/api/admin/translations/:id', async (c) => {
 
 app.delete('/api/admin/translations/:id', async (c) => {
   const id = c.req.param('id');
-  
+
   try {
     const existing = await c.env.DB.prepare(`
       SELECT id FROM translations WHERE id = ?
     `).bind(parseInt(id)).first();
-    
+
     if (!existing) {
       return c.json({ success: false, error: 'Translation not found' }, { status: 404 });
     }
-    
+
     await c.env.DB.prepare(`
       DELETE FROM translations WHERE id = ?
     `).bind(parseInt(id)).run();
-    
+
     return c.json({ success: true, message: 'Translation deleted' });
   } catch (error: any) {
     console.error('[Admin] Delete translation error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+// ============ LEGAL DOCUMENTS ============
+
+// Get legal documents (public)
+app.get('/api/legal', async (c) => {
+  try {
+    // Create table if not exists
+    await c.env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS legal_documents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL UNIQUE,
+        content_fr TEXT DEFAULT '',
+        content_en TEXT DEFAULT '',
+        content_ru TEXT DEFAULT '',
+        updated_at TEXT DEFAULT datetime('now')
+      )
+    `).run();
+
+    // Get all legal documents
+    const documents = await c.env.DB.prepare(`
+      SELECT type, content_fr, content_en, content_ru, updated_at
+      FROM legal_documents
+    `).all();
+
+    const result: Record<string, any> = {};
+
+    for (const doc of documents.results as any[]) {
+      result[doc.type] = {
+        fr: doc.content_fr || '',
+        en: doc.content_en || '',
+        ru: doc.content_ru || '',
+        updated_at: doc.updated_at
+      };
+    }
+
+    return c.json({
+      success: true,
+      data: result
+    });
+  } catch (error: any) {
+    console.error('[Legal] Get documents error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+// Save legal documents (admin)
+app.post('/api/admin/legal', async (c) => {
+  try {
+    // Create table if not exists
+    await c.env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS legal_documents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT NOT NULL UNIQUE,
+        content_fr TEXT DEFAULT '',
+        content_en TEXT DEFAULT '',
+        content_ru TEXT DEFAULT '',
+        updated_at TEXT DEFAULT datetime('now')
+      )
+    `).run();
+
+    const body = await c.req.json();
+    const {
+      mentions_fr, mentions_en, mentions_ru,
+      cgv_fr, cgv_en, cgv_ru,
+      privacy_fr, privacy_en, privacy_ru
+    } = body;
+
+    const documents = [
+      { type: 'mentions', fr: mentions_fr, en: mentions_en, ru: mentions_ru },
+      { type: 'cgv', fr: cgv_fr, en: cgv_en, ru: cgv_ru },
+      { type: 'privacy', fr: privacy_fr, en: privacy_en, ru: privacy_ru }
+    ];
+
+    for (const doc of documents) {
+      await c.env.DB.prepare(`
+        INSERT INTO legal_documents (type, content_fr, content_en, content_ru, updated_at)
+        VALUES (?, ?, ?, ?, datetime('now'))
+        ON CONFLICT(type) DO UPDATE SET
+          content_fr = excluded.content_fr,
+          content_en = excluded.content_en,
+          content_ru = excluded.content_ru,
+          updated_at = datetime('now')
+      `).bind(doc.type, doc.fr || '', doc.en || '', doc.ru || '').run();
+    }
+
+    return c.json({ success: true, message: 'Legal documents saved' });
+  } catch (error: any) {
+    console.error('[Admin] Save legal error:', error.message);
     return c.json({ success: false, error: error.message }, { status: 500 });
   }
 });

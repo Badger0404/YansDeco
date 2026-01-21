@@ -11,7 +11,8 @@
     "brands": "Brands",
     "services": "Services",
     "calculators": "Calculators",
-    "contact": "Contact"
+    "contact": "Contact",
+    "legal": "Legal Info"
   },
   "home": {
     "popular": "★ Popular",
@@ -381,5 +382,11 @@
       "light": "Light mode",
       "dark": "Dark mode"
     }
+  },
+  "legal": {
+    "title": "Legal Information",
+    "subtitle": "Terms of service and privacy policy",
+    "comingSoon": "This content will be available soon.",
+    "lastUpdated": "Last updated: January 2026"
   }
 }

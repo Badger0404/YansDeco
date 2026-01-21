@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -30,6 +30,7 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [popularProducts, setPopularProducts] = useState<Product[]>([]);
   const [loadingPopular, setLoadingPopular] = useState(true);
+  const fetched = useRef(false);
 
   const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
@@ -47,6 +48,8 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
   }, []);
 
   useEffect(() => {
+    if (fetched.current) return;
+    fetched.current = true;
     fetchPopularProducts();
   }, []);
 

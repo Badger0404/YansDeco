@@ -1,25 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ChevronRight, 
   Upload, 
   Plus,
-  Package,
-  Tag,
-  Award,
-  Globe,
-  Calculator,
-  Settings,
   RefreshCw,
-  LogOut,
-  User,
   Sparkles,
   X,
   Check,
   Camera
 } from 'lucide-react';
+import BarcodeScanner from '../components/BarcodeScanner';
 
 interface Brand {
   id: number;
@@ -39,7 +32,6 @@ interface Category {
 const EditProduct: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
   const { id } = useParams();
   
   const [isLight, setIsLight] = useState(() => localStorage.getItem('site-theme') === 'light');
@@ -53,6 +45,7 @@ const EditProduct: React.FC = () => {
   }, []);
 
   const [sku, setSku] = useState('');
+  const [barcode, setBarcode] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
   const [isPopular, setIsPopular] = useState(false);
@@ -85,6 +78,7 @@ const EditProduct: React.FC = () => {
 
   const [focusedField, setFocusedField] = useState<{ lang: string; field: 'name' | 'description' } | null>(null);
   const [translatingField, setTranslatingField] = useState<{ lang: string; field: 'name' | 'description' } | null>(null);
+  const [showScanner, setShowScanner] = useState(false);
 
   useEffect(() => {
     fetchBrands();
@@ -97,11 +91,12 @@ const EditProduct: React.FC = () => {
   const fetchProduct = async (productId: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/products/${productId}`);
+      const response = await fetch(`${API_URL}/admin/products/${productId}`);
       const data = await response.json();
       if (data.success) {
         const product = data.data;
         setSku(product.sku || '');
+        setBarcode(product.barcode || '');
         setPrice(product.price ? product.price.toString() : '');
         setStock(product.stock ? product.stock.toString() : '');
         setIsPopular(product.is_popular === 1);
@@ -125,7 +120,10 @@ const EditProduct: React.FC = () => {
     }
   };
 
-
+  const handleBarcodeScan = (scannedBarcode: string) => {
+    setBarcode(scannedBarcode);
+    setShowScanner(false);
+  };
 
   const fetchCategories = async () => {
     try {
@@ -363,6 +361,13 @@ const EditProduct: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
+        if (barcode.trim()) {
+          await fetch(`${API_URL}/products/${id}/barcode`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ barcode: barcode.trim() })
+          });
+        }
         setSuccess('Product updated successfully!');
         setTimeout(() => {
           navigate('/admin/products');
@@ -381,18 +386,6 @@ const EditProduct: React.FC = () => {
   const borderClass = isLight ? 'border-black' : 'border-[#FF6B00]/20';
   const textClass = isLight ? 'text-zinc-900' : 'text-white';
   const inputBgClass = isLight ? 'bg-white' : 'bg-black/50';
-  const headerBgClass = isLight ? 'bg-white/95 border-gray-200' : 'bg-black/95 border-white/10';
-
-  const adminNavItems = [
-    { id: 'products', label: t('admin.sections.products.title'), icon: <Package className="w-4 h-4" />, path: '/admin/products' },
-    { id: 'categories', label: t('admin.sections.categories.title'), icon: <Tag className="w-4 h-4" />, path: '/admin/categories' },
-    { id: 'brands', label: t('admin.sections.brands.title'), icon: <Award className="w-4 h-4" />, path: '/admin/brands' },
-    { id: 'translations', label: t('admin.sections.translations.title'), icon: <Globe className="w-4 h-4" />, path: '/admin/translations' },
-    { id: 'calculators', label: t('admin.sections.calculators.title'), icon: <Calculator className="w-4 h-4" />, path: '/admin/calculators' },
-    { id: 'settings', label: t('admin.sections.settings.title'), icon: <Settings className="w-4 h-4" />, path: '/admin/settings' },
-  ];
-
-  const isActive = (path: string) => location.pathname === path;
 
   if (isLoading) {
     return (
@@ -404,62 +397,22 @@ const EditProduct: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      <header className={`w-full flex items-center justify-between px-4 sm:px-6 lg:px-10 py-3 border-b fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${headerBgClass}`}>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate('/admin/products')}
-            className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${
-              isLight ? 'text-gray-500 hover:text-[#FF6B00]' : 'text-zinc-500 hover:text-[#FF6B00]'
-            }`}
-          >
-            <ChevronRight className="w-3.5 h-3.5 rotate-180" />
-            {t('admin.backToProducts')}
-          </button>
-          <div className={`h-4 w-px ${isLight ? 'bg-gray-300' : 'bg-white/10'}`} />
-          
-          <nav className="hidden md:flex items-center gap-1">
-            {adminNavItems.map((item) => (
-              <Link
-                key={item.id}
-                to={item.path}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 ${
-                  isActive(item.path)
-                    ? isLight ? 'bg-[#FF6B00] text-black' : 'bg-[#FF6B00] text-black'
-                    : isLight ? 'text-gray-600 hover:bg-gray-100 hover:text-[#FF6B00]' : 'text-zinc-400 hover:bg-white/5 hover:text-[#FF6B00]'
-                }`}
-              >
-                {item.icon}
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-[#FF6B00] flex items-center justify-center">
-              <User className="w-3.5 h-3.5 text-black" />
-            </div>
+      <main className="pt-4 pb-12">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-6">
             <button
-              onClick={() => navigate('/')}
-              className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${
+              onClick={() => navigate('/admin/products')}
+              className={`mb-3 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
                 isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-zinc-400 hover:text-[#FF6B00]'
               }`}
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{t('admin.logout')}</span>
+              <ChevronRight className="w-4 h-4 rotate-180" />
+              {t('admin.backToProducts')}
             </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="pt-20 pb-12">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
-            <h1 className={`font-black italic text-3xl md:text-4xl uppercase tracking-tight ${textClass}`}>
+            <h1 className={`font-black italic text-2xl md:text-4xl uppercase tracking-tight ${textClass}`}>
               Modifier le produit
             </h1>
-            <p className={`text-sm ${mutedClass} mt-1`}>
+            <p className={`text-sm ${mutedClass} mt-1 hidden sm:block`}>
               Modifiez les informations du produit
             </p>
           </div>
@@ -491,7 +444,7 @@ const EditProduct: React.FC = () => {
                 Informations de base
               </h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
                     SKU *
@@ -503,6 +456,29 @@ const EditProduct: React.FC = () => {
                     className={`w-full px-4 py-2.5 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
                     placeholder="SKU-12345"
                   />
+                </div>
+                
+                <div>
+                  <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
+                    Barcode
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={barcode}
+                      onChange={(e) => setBarcode(e.target.value)}
+                      className={`w-full px-4 py-2.5 pr-12 border ${borderClass} rounded-lg text-sm focus:outline-none focus:border-[#FF6B00] ${textClass} ${inputBgClass}`}
+                      placeholder="1234567890123"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowScanner(true)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-[#FF6B00]/20 hover:bg-[#FF6B00]/40 rounded-lg transition-colors"
+                      title="Сканировать штрихкод"
+                    >
+                      <Camera className="w-4 h-4 text-[#FF6B00]" />
+                    </button>
+                  </div>
                 </div>
                 
                 <div>
@@ -542,7 +518,7 @@ const EditProduct: React.FC = () => {
                 <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
                   Marque
                 </label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <select
                     value={brandId || ''}
                     onChange={(e) => setBrandId(e.target.value ? parseInt(e.target.value) : null)}
@@ -557,7 +533,7 @@ const EditProduct: React.FC = () => {
                   </select>
                   <button
                     onClick={() => setShowBrandModal(true)}
-                    className={`px-4 py-2.5 border ${borderClass} rounded-lg text-sm font-bold uppercase tracking-wide transition-colors ${textClass} hover:border-[#FF6B00] flex items-center gap-1`}
+                    className={`px-4 py-2.5 border ${borderClass} rounded-lg text-sm font-bold uppercase tracking-wide transition-colors ${textClass} hover:border-[#FF6B00] flex items-center gap-1 whitespace-nowrap`}
                   >
                     <Plus className="w-4 h-4" />
                     Nouveau
@@ -635,8 +611,19 @@ const EditProduct: React.FC = () => {
                       className="max-h-64 mx-auto rounded-lg"
                     />
                     <button
-                      onClick={() => { setImagePreview(''); setImageUrl(''); }}
-                      className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white hover:bg-red-600"
+                      onClick={async () => {
+                        if (confirm('Êtes-vous sûr de vouloir supprimer cette image?')) {
+                          try {
+                            await fetch(`${API_URL}/products/${id}/image`, { method: 'DELETE' });
+                            setImagePreview('');
+                            setImageUrl('');
+                          } catch (err) {
+                            setError('Failed to delete image');
+                          }
+                        }
+                      }}
+                      className="absolute -top-2 -right-2 p-1.5 bg-red-500 rounded-full text-white hover:bg-red-600"
+                      title="Supprimer l'image"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -830,8 +817,8 @@ const EditProduct: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-6 border-t border-white/10">
-              <label className={`flex items-center gap-3 cursor-pointer ${textClass}`}>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10">
+              <label className={`flex items-center gap-3 cursor-pointer order-2 sm:order-1 ${textClass}`}>
                 <input
                   type="checkbox"
                   checked={isPopular}
@@ -843,17 +830,17 @@ const EditProduct: React.FC = () => {
                 </span>
               </label>
 
-              <div className="flex gap-4">
+              <div className="flex gap-3 order-1 sm:order-2 w-full sm:w-auto">
               <button
                 onClick={() => navigate('/admin/products')}
-                className={`px-6 py-3 border ${borderClass} rounded-lg text-sm font-bold uppercase tracking-wide transition-colors ${textClass} hover:border-[#FF6B00]`}
+                className={`flex-1 sm:flex-none px-6 py-3 border ${borderClass} rounded-lg text-sm font-bold uppercase tracking-wide transition-colors ${textClass} hover:border-[#FF6B00]`}
               >
                 Annuler
               </button>
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="px-8 py-3 bg-[#FF6B00] text-black rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-[#FF8533] transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="flex-1 sm:flex-none px-8 py-3 bg-[#FF6B00] text-black rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-[#FF8533] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isSaving ? (
                   <>
@@ -935,6 +922,12 @@ const EditProduct: React.FC = () => {
           </div>
         )}
       </AnimatePresence>
+
+      <BarcodeScanner
+        isOpen={showScanner}
+        onClose={() => setShowScanner(false)}
+        onScan={handleBarcodeScan}
+      />
     </div>
   );
 };

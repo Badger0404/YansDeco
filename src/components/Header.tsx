@@ -59,7 +59,8 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
     { key: 'marques', label: t('nav.brands'), path: '/marques' },
     { key: 'services', label: t('nav.services'), path: '/services' },
     { key: 'calculateurs', label: t('nav.calculators'), path: '/calculateurs' },
-    { key: 'contact', label: t('nav.contact'), path: '/contact' }
+    { key: 'contact', label: t('nav.contact'), path: '/contact' },
+    { key: 'legal', label: t('nav.legal'), path: '/legal' }
   ];
 
   const navigate = useNavigate();
