@@ -89,7 +89,38 @@ app.get('/api/health', async (c) => {
       success: false,
       status: 'unhealthy',
       error: error.message
-    }, { status: 500 });
+}, { status: 500 });
+  }
+});
+
+// Migration endpoint to fix slogans table
+app.post('/api/admin/migrate/slogans', async (c) => {
+  try {
+    // Drop old table if exists with bad schema
+    await c.env.DB.prepare(`DROP TABLE IF EXISTS slogans`).run();
+    
+    // Create table with proper schema (key quoted, CURRENT_TIMESTAMP for dates)
+    await c.env.DB.prepare(`
+      CREATE TABLE slogans (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        "key" TEXT UNIQUE,
+        title_ru TEXT DEFAULT '',
+        title_fr TEXT DEFAULT '',
+        title_en TEXT DEFAULT '',
+        content_ru TEXT DEFAULT '',
+        content_fr TEXT DEFAULT '',
+        content_en TEXT DEFAULT '',
+        image_url TEXT DEFAULT '',
+        is_active INTEGER DEFAULT 1,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+
+    return c.json({ success: true, message: 'Slogans table recreated' });
+  } catch (error: any) {
+    console.error('[Migration] Error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
   }
 });
 
@@ -146,7 +177,7 @@ function generateSlug(text: string): string {
 
 app.get('/api/brands', async (c) => {
   const { results } = await c.env.DB.prepare(
-    `SELECT id, name, logo_url, description_ru, description_fr, description_en FROM brands ORDER BY name`
+    `SELECT id, name, logo_url, description_ru, description_fr, description_en, hide_name, bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity FROM brands ORDER BY name`
   ).all();
   return c.json({ success: true, data: results });
 });
@@ -154,7 +185,7 @@ app.get('/api/brands', async (c) => {
 app.get('/api/brands/:id', async (c) => {
   const id = c.req.param('id');
   const { results } = await c.env.DB.prepare(
-    `SELECT id, name, logo_url, description_ru, description_fr, description_en FROM brands WHERE id = ?`
+    `SELECT id, name, logo_url, description_ru, description_fr, description_en, hide_name, bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity FROM brands WHERE id = ?`
   ).bind(id).all();
 
   if (results.length === 0) {
@@ -200,7 +231,7 @@ app.get('/api/brands/:id/products', async (c) => {
 
 app.post('/api/brands', async (c) => {
   const body = await c.req.json();
-  const { name, logo_url, description_ru, description_fr, description_en } = body;
+  const { name, logo_url, description_ru, description_fr, description_en, hide_name, bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity } = body;
 
   if (!name) {
     return c.json({ success: false, error: 'Name is required' }, { status: 400 });
@@ -208,8 +239,8 @@ app.post('/api/brands', async (c) => {
 
   try {
     const { success, error } = await c.env.DB.prepare(
-      `INSERT INTO brands (name, logo_url, description_ru, description_fr, description_en) VALUES (?, ?, ?, ?, ?)`
-    ).bind(name, logo_url || null, description_ru || null, description_fr || null, description_en || null).run();
+      `INSERT INTO brands (name, logo_url, description_ru, description_fr, description_en, hide_name, bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(name, logo_url || null, description_ru || null, description_fr || null, description_en || null, hide_name ? 1 : 0, bg_light_color || null, bg_light_opacity || null, bg_light_enabled ? 1 : 0, bg_dark_color || null, bg_dark_opacity || null, bg_dark_enabled ? 1 : 0, border_light_enabled ? 1 : 0, border_light_color || null, border_light_opacity || 100, border_dark_enabled ? 1 : 0, border_dark_color || null, border_dark_opacity || 100).run();
 
     if (!success) {
       return c.json({ success: false, error: error?.message }, { status: 400 });
@@ -229,7 +260,7 @@ app.post('/api/brands', async (c) => {
 app.put('/api/brands/:id', async (c) => {
   const id = c.req.param('id');
   const body = await c.req.json();
-  const { name, logo_url, description_ru, description_fr, description_en } = body;
+  const { name, logo_url, description_ru, description_fr, description_en, hide_name, bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity } = body;
 
   if (!name) {
     return c.json({ success: false, error: 'Name is required' }, { status: 400 });
@@ -237,8 +268,8 @@ app.put('/api/brands/:id', async (c) => {
 
   try {
     await c.env.DB.prepare(
-      `UPDATE brands SET name = ?, logo_url = ?, description_ru = ?, description_fr = ?, description_en = ? WHERE id = ?`
-    ).bind(name, logo_url || null, description_ru || null, description_fr || null, description_en || null, id).run();
+      `UPDATE brands SET name = ?, logo_url = ?, description_ru = ?, description_fr = ?, description_en = ?, hide_name = ?, bg_light_color = ?, bg_light_opacity = ?, bg_light_enabled = ?, bg_dark_color = ?, bg_dark_opacity = ?, bg_dark_enabled = ?, border_light_enabled = ?, border_light_color = ?, border_light_opacity = ?, border_dark_enabled = ?, border_dark_color = ?, border_dark_opacity = ? WHERE id = ?`
+    ).bind(name, logo_url || null, description_ru || null, description_fr || null, description_en || null, hide_name ? 1 : 0, bg_light_color || null, bg_light_opacity || null, bg_light_enabled ? 1 : 0, bg_dark_color || null, bg_dark_opacity || null, bg_dark_enabled ? 1 : 0, border_light_enabled ? 1 : 0, border_light_color || null, border_light_opacity || 100, border_dark_enabled ? 1 : 0, border_dark_color || null, border_dark_opacity || 100, id).run();
 
     const { results } = await c.env.DB.prepare(
       `SELECT * FROM brands WHERE id = ?`
@@ -384,20 +415,20 @@ app.put('/api/products/:id', async (c) => {
   const id = c.req.param('id');
   const body = await c.req.json();
   const {
-    sku, price, stock, brand_id, category_id, is_popular, announcement_date, image_url,
+    sku, barcode, price, stock, brand_id, category_id, is_popular, announcement_date, image_url,
     name_ru, desc_ru, name_fr, desc_fr, name_en, desc_en
   } = body;
 
   try {
     const updateResult = await c.env.DB.prepare(`
       UPDATE products 
-      SET sku = ?, price = ?, stock = ?, brand_id = ?, category_id = ?, is_popular = ?, 
+      SET sku = ?, barcode = ?, price = ?, stock = ?, brand_id = ?, category_id = ?, is_popular = ?, 
           announcement_date = ?, image_url = ?, updated_at = datetime('now'),
           name_ru = ?, name_fr = ?, name_en = ?,
           desc_ru = ?, desc_fr = ?, desc_en = ?
       WHERE id = ?
     `).bind(
-      sku, price, stock, brand_id || null, category_id || null, is_popular ? 1 : 0,
+      sku, barcode || null, price, stock, brand_id || null, category_id || null, is_popular ? 1 : 0,
       announcement_date || null, image_url || null,
       name_ru || null, name_fr || null, name_en || null,
       desc_ru || null, desc_fr || null, desc_en || null,
@@ -772,14 +803,14 @@ app.options('/api/translate', async (c) => {
 app.post('/api/translate', async (c) => {
   console.log('[TRANSLATE] Request received');
   const body = await c.req.json();
-  const { text, description, tags, sourceLang, targetLangs } = body;
+  const { text, description, tags, fields, sourceLang, targetLangs } = body;
 
-  console.log('[TRANSLATE] Body:', { text, description: description?.substring(0, 50), tags, sourceLang, targetLangs });
+  console.log('[TRANSLATE] Body:', { text, description: description?.substring(0, 50), tags, fields, sourceLang, targetLangs });
 
-  // Updated validation: allow text without tags, as long as targetLangs is provided
-  if (!text || !Array.isArray(targetLangs) || targetLangs.length === 0) {
+  // Updated validation: allow text or fields, as long as targetLangs is provided
+  if ((!text && !fields) || !Array.isArray(targetLangs) || targetLangs.length === 0) {
     console.log('[TRANSLATE] Validation failed');
-    return c.json({ success: false, error: 'Missing text or targetLangs' }, { status: 400 });
+    return c.json({ success: false, error: 'Missing text/fields or targetLangs' }, { status: 400 });
   }
   console.log('[TRANSLATE] Validation passed');
 
@@ -797,7 +828,7 @@ app.post('/api/translate', async (c) => {
   };
 
   const sourceLangName = langNames[sourceLang] || 'Russian';
-  const results: Record<string, { name: string; description: string; tags: string }> = {};
+  const results: any = {};
 
   for (const lang of targetLangs) {
     const targetLangName = langNames[lang] || 'English';
@@ -805,8 +836,20 @@ app.post('/api/translate', async (c) => {
     try {
       let prompt = '';
 
-      // Handle product name translation
-      if (tags === 'product_name') {
+      if (fields) {
+        prompt = `You are a professional translator for a decoration and building materials store.
+Translate from ${sourceLangName} to ${targetLangName}.
+Return ONLY valid JSON with the same keys as the input fields.
+
+Fields to translate:
+${JSON.stringify(fields, null, 2)}
+
+IMPORTANT:
+1. Return ONLY valid JSON.
+2. Maintain the exact same keys.
+3. Translate the values.
+4. No markdown, no explanations, only JSON.`;
+      } else if (tags === 'product_name') {
         const hasDescription = description && description.trim().length > 0;
 
         if (hasDescription) {
@@ -874,7 +917,7 @@ Keep tags as a comma-separated list in the same order.`;
         prompt = `You are a professional translator for a decoration and building materials store. Translate from ${sourceLangName} to ${targetLangName}. Keep the same tone and format. Return ONLY valid JSON: {"description": "..."}. If there's no description to translate, return empty string for description.`;
       }
 
-      console.log(`[TRANSLATE] Calling AI for ${lang}, has description:`, !!description);
+      console.log(`[TRANSLATE] Calling AI for ${lang}, has fields:`, !!fields);
       const response = await c.env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
         messages: [
           { role: 'system', content: 'You are a professional translator. Return ONLY valid JSON, no markdown, no code blocks.' },
@@ -882,9 +925,8 @@ Keep tags as a comma-separated list in the same order.`;
         ],
         max_tokens: 1024,
       });
-      console.log(`[TRANSLATE] AI response for ${lang}:`, typeof response, response);
 
-      let translated: { name?: string; description?: string; tags?: string } = {};
+      let translated: any = {};
 
       const getJSON = (str: string) => {
         const match = str.match(/\{[\s\S]*\}/);
@@ -913,16 +955,15 @@ Keep tags as a comma-separated list in the same order.`;
         }
       }
 
-      // Build response based on what was translated
-      console.log(`[TRANSLATE] Parsed for ${lang}:`, {
-        name: translated?.name,
-        description: translated?.description?.substring?.(0, 50)
-      });
-      results[lang] = {
-        name: (translated.name || '').trim(),
-        description: (translated.description || '').replace(/\\n/g, '\n'),
-        tags: translated.tags || ''
-      };
+      if (fields) {
+        results[lang] = translated;
+      } else {
+        results[lang] = {
+          name: (translated.name || '').trim(),
+          description: (translated.description || '').replace(/\\n/g, '\n'),
+          tags: translated.tags || ''
+        };
+      }
     } catch (err: any) {
       return c.json({ success: false, error: err.message }, 500);
     }
@@ -968,21 +1009,35 @@ app.get('/api/categories', async (c) => {
   const parentId = c.req.query('parent_id');
 
   let query = `
+    WITH RECURSIVE category_tree AS (
+      SELECT id, id as root_id FROM categories
+      UNION ALL
+      SELECT c.id, ct.root_id FROM categories c
+      JOIN category_tree ct ON c.parent_id = ct.id
+    ),
+    product_counts AS (
+      SELECT ct.root_id, COUNT(p.id) as count
+      FROM category_tree ct
+      LEFT JOIN products p ON p.category_id = ct.id
+      GROUP BY ct.root_id
+    )
     SELECT 
-      id, slug, icon, image_url, parent_id, sort_order, created_at,
-      name_ru, name_fr, name_en,
-      desc_ru, desc_fr, desc_en
-    FROM categories
+      c.id, c.slug, c.icon, c.image_url, c.parent_id, c.sort_order, c.created_at,
+      c.name_ru, c.name_fr, c.name_en,
+      c.desc_ru, c.desc_fr, c.desc_en,
+      COALESCE(pc.count, 0) as product_count
+    FROM categories c
+    LEFT JOIN product_counts pc ON c.id = pc.root_id
   `;
 
   const bindings: any[] = [];
 
   if (parentId) {
-    query += ' WHERE parent_id = ?';
+    query += ' WHERE c.parent_id = ?';
     bindings.push(parentId);
   }
 
-  query += ' ORDER BY sort_order';
+  query += ' ORDER BY c.sort_order';
 
   const { results } = await c.env.DB.prepare(query).bind(...bindings).all();
   return c.json({ success: true, data: results });
@@ -1210,6 +1265,138 @@ app.delete('/api/hero-slides/:id', async (c) => {
   return c.json({ success });
 });
 
+// ==================== SLIDES (SLOGANS) API ====================
+
+app.get('/api/admin/slides', async (c) => {
+  const { results } = await c.env.DB.prepare(`
+    SELECT id, "key", slide_index, 
+           label_ru, label_fr, label_en,
+           title_ru, title_fr, title_en,
+           content_ru, content_fr, content_en,
+           is_active, created_at, updated_at,
+           label_size, label_weight, label_transform, label_tracking, label_color,
+           title_size, title_weight, title_italic, title_transform, title_color,
+           content_size, content_weight, content_color
+    FROM slides 
+    ORDER BY slide_index
+  `).all();
+  return c.json({ success: true, data: results });
+});
+
+app.post('/api/admin/slides', async (c) => {
+  try {
+    const body = await c.req.json();
+    const {
+      id, key, slide_index,
+      label_ru, label_fr, label_en,
+      title_ru, title_fr, title_en,
+      content_ru, content_fr, content_en,
+      is_active,
+      label_size, label_weight, label_transform, label_tracking, label_color,
+      title_size, title_weight, title_italic, title_transform, title_color,
+      content_size, content_weight, content_color
+    } = body;
+
+    if (id) {
+      await c.env.DB.prepare(`
+        UPDATE slides SET
+          "key" = ?, slide_index = ?,
+          label_ru = ?, label_fr = ?, label_en = ?,
+          title_ru = ?, title_fr = ?, title_en = ?,
+          content_ru = ?, content_fr = ?, content_en = ?,
+          is_active = ?,
+          label_size = ?, label_weight = ?, label_transform = ?, label_tracking = ?, label_color = ?,
+          title_size = ?, title_weight = ?, title_italic = ?, title_transform = ?, title_color = ?,
+          content_size = ?, content_weight = ?, content_color = ?,
+          updated_at = datetime('now')
+        WHERE id = ?
+      `).bind(
+        key, slide_index,
+        label_ru || '', label_fr || '', label_en || '',
+        title_ru || '', title_fr || '', title_en || '',
+        content_ru || '', content_fr || '', content_en || '',
+        is_active !== false ? 1 : 0,
+        label_size || 'text-xs', label_weight || 'font-bold', label_transform || 'uppercase', label_tracking || 'tracking-widest', label_color || '#FF6B00',
+        title_size || 'text-4xl', title_weight || 'font-black', title_italic ? 1 : 0, title_transform || 'uppercase', title_color || '#FFFFFF',
+        content_size || 'text-sm', content_weight || 'font-normal', content_color || '#9CA3AF',
+        id
+      ).run();
+    } else {
+      await c.env.DB.prepare(`
+        INSERT INTO slides (
+          "key", slide_index,
+          label_ru, label_fr, label_en,
+          title_ru, title_fr, title_en,
+          content_ru, content_fr, content_en,
+          is_active,
+          label_size, label_weight, label_transform, label_tracking, label_color,
+          title_size, title_weight, title_italic, title_transform, title_color,
+          content_size, content_weight, content_color
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(
+        key, slide_index,
+        label_ru || '', label_fr || '', label_en || '',
+        title_ru || '', title_fr || '', title_en || '',
+        content_ru || '', content_fr || '', content_en || '',
+        is_active !== false ? 1 : 0,
+        label_size || 'text-xs', label_weight || 'font-bold', label_transform || 'uppercase', label_tracking || 'tracking-widest', label_color || '#FF6B00',
+        title_size || 'text-4xl', title_weight || 'font-black', title_italic ? 1 : 0, title_transform || 'uppercase', title_color || '#FFFFFF',
+        content_size || 'text-sm', content_weight || 'font-normal', content_color || '#9CA3AF'
+      ).run();
+    }
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error('[Slides POST] Error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 400 });
+  }
+});
+
+// Migration endpoint for slides table
+app.post('/api/admin/migrate/slides', async (c) => {
+  try {
+    await c.env.DB.prepare(`DROP TABLE IF EXISTS slides`).run();
+    
+    await c.env.DB.prepare(`
+      CREATE TABLE slides (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        "key" TEXT UNIQUE,
+        slide_index INTEGER NOT NULL,
+        label_ru TEXT DEFAULT '',
+        label_fr TEXT DEFAULT '',
+        label_en TEXT DEFAULT '',
+        title_ru TEXT DEFAULT '',
+        title_fr TEXT DEFAULT '',
+        title_en TEXT DEFAULT '',
+        content_ru TEXT DEFAULT '',
+        content_fr TEXT DEFAULT '',
+        content_en TEXT DEFAULT '',
+        is_active INTEGER DEFAULT 1,
+        label_size TEXT DEFAULT 'text-xs',
+        label_weight TEXT DEFAULT 'font-bold',
+        label_transform TEXT DEFAULT 'uppercase',
+        label_tracking TEXT DEFAULT 'tracking-widest',
+        label_color TEXT DEFAULT '#FF6B00',
+        title_size TEXT DEFAULT 'text-4xl',
+        title_weight TEXT DEFAULT 'font-black',
+        title_italic INTEGER DEFAULT 0,
+        title_transform TEXT DEFAULT 'uppercase',
+        title_color TEXT DEFAULT '#FFFFFF',
+        content_size TEXT DEFAULT 'text-sm',
+        content_weight TEXT DEFAULT 'font-normal',
+        content_color TEXT DEFAULT '#9CA3AF',
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+
+    return c.json({ success: true, message: 'Slides table created' });
+  } catch (error: any) {
+    console.error('[Slides Migration] Error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
 // ==================== CALCULATOR MATERIALS API ====================
 
 app.get('/api/calculator-materials', async (c) => {
@@ -1280,7 +1467,7 @@ app.get('/api/site-config', async (c) => {
   `).all();
 
   const config: Record<string, any> = {};
-  results.forEach(item => {
+  results.forEach((item: any) => {
     config[item.key] = {
       ru: item.value_ru,
       fr: item.value_fr,
@@ -1319,6 +1506,19 @@ app.post('/api/migrate', async (c) => {
       description_ru TEXT,
       description_fr TEXT,
       description_en TEXT,
+      hide_name INTEGER DEFAULT 0,
+      bg_light_color TEXT,
+      bg_light_opacity INTEGER,
+      bg_light_enabled INTEGER DEFAULT 0,
+      bg_dark_color TEXT,
+      bg_dark_opacity INTEGER,
+      bg_dark_enabled INTEGER DEFAULT 0,
+      border_light_enabled INTEGER DEFAULT 0,
+      border_light_color TEXT,
+      border_light_opacity INTEGER DEFAULT 100,
+      border_dark_enabled INTEGER DEFAULT 0,
+      border_dark_color TEXT,
+      border_dark_opacity INTEGER DEFAULT 100,
       created_at TEXT DEFAULT (datetime('now'))
   );
 
@@ -1931,7 +2131,7 @@ app.get('/api/clients/me/orders', async (c) => {
       SELECT * FROM orders WHERE client_id = ? ORDER BY created_at DESC
     `).bind(parseInt(clientId)).all();
 
-    const orders = results.map(order => ({
+    const orders = results.map((order: any) => ({
       ...order,
       items: JSON.parse(order.items || '[]')
     }));
@@ -2185,7 +2385,7 @@ app.get('/api/admin/clients/:id', async (c) => {
       SELECT * FROM orders WHERE client_id = ? ORDER BY created_at DESC
     `).bind(parseInt(clientId)).all();
 
-    const ordersWithItems = orders.map(order => ({
+    const ordersWithItems = orders.map((order: any) => ({
       ...order,
       items: JSON.parse(order.items || '[]')
     }));
@@ -2567,6 +2767,155 @@ app.delete('/api/admin/translations/:id', async (c) => {
     return c.json({ success: true, message: 'Translation deleted' });
   } catch (error: any) {
     console.error('[Admin] Delete translation error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+// ============ SLOGANS ============
+
+// Get all slogans (public - only active)
+app.get('/api/slogans', async (c) => {
+  try {
+    await c.env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS slogans (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        "key" TEXT UNIQUE,
+        title_ru TEXT DEFAULT '',
+        title_fr TEXT DEFAULT '',
+        title_en TEXT DEFAULT '',
+        content_ru TEXT DEFAULT '',
+        content_fr TEXT DEFAULT '',
+        content_en TEXT DEFAULT '',
+        image_url TEXT DEFAULT '',
+        is_active INTEGER DEFAULT 1,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+
+    const slogans = await c.env.DB.prepare(`
+      SELECT * FROM slogans WHERE is_active = 1 ORDER BY id DESC
+    `).all();
+
+    return c.json({
+      success: true,
+      data: slogans.results
+    });
+  } catch (error: any) {
+    console.error('[Slogans] Get error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+// Get all slogans (admin)
+app.get('/api/admin/slogans', async (c) => {
+  try {
+    await c.env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS slogans (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        "key" TEXT UNIQUE,
+        title_ru TEXT DEFAULT '',
+        title_fr TEXT DEFAULT '',
+        title_en TEXT DEFAULT '',
+        content_ru TEXT DEFAULT '',
+        content_fr TEXT DEFAULT '',
+        content_en TEXT DEFAULT '',
+        image_url TEXT DEFAULT '',
+        is_active INTEGER DEFAULT 1,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+
+    const slogans = await c.env.DB.prepare(`
+      SELECT * FROM slogans ORDER BY id DESC
+    `).all();
+
+    return c.json({
+      success: true,
+      data: slogans.results
+    });
+  } catch (error: any) {
+    console.error('[Admin] Get slogans error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+// Create slogan
+app.post('/api/admin/slogans', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { key, title_ru, title_fr, title_en, content_ru, content_fr, content_en, image_url, is_active } = body;
+
+    const result = await c.env.DB.prepare(`
+      INSERT INTO slogans ("key", title_ru, title_fr, title_en, content_ru, content_fr, content_en, image_url, is_active, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+    `).bind(
+      key || null,
+      title_ru || '',
+      title_fr || '',
+      title_en || '',
+      content_ru || '',
+      content_fr || '',
+      content_en || '',
+      image_url || '',
+      is_active !== false ? 1 : 0
+    ).run();
+
+    return c.json({
+      success: true,
+      data: { id: result.meta?.last_row_id }
+    });
+  } catch (error: any) {
+    console.error('[Admin] Create slogan error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+// Update slogan
+app.put('/api/admin/slogans/:id', async (c) => {
+  const id = c.req.param('id');
+  try {
+    const body = await c.req.json();
+    const { key, title_ru, title_fr, title_en, content_ru, content_fr, content_en, image_url, is_active } = body;
+
+    await c.env.DB.prepare(`
+      UPDATE slogans 
+      SET "key" = ?, title_ru = ?, title_fr = ?, title_en = ?, 
+          content_ru = ?, content_fr = ?, content_en = ?, 
+          image_url = ?, is_active = ?, updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(
+      key || null,
+      title_ru || '',
+      title_fr || '',
+      title_en || '',
+      content_ru || '',
+      content_fr || '',
+      content_en || '',
+      image_url || '',
+      is_active !== false ? 1 : 0,
+      parseInt(id)
+    ).run();
+
+    return c.json({ success: true, message: 'Slogan updated' });
+  } catch (error: any) {
+    console.error('[Admin] Update slogan error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+// Delete slogan
+app.delete('/api/admin/slogans/:id', async (c) => {
+  const id = c.req.param('id');
+  try {
+    await c.env.DB.prepare(`
+      DELETE FROM slogans WHERE id = ?
+    `).bind(parseInt(id)).run();
+
+    return c.json({ success: true, message: 'Slogan deleted' });
+  } catch (error: any) {
+    console.error('[Admin] Delete slogan error:', error.message);
     return c.json({ success: false, error: error.message }, { status: 500 });
   }
 });

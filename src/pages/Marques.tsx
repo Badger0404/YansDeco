@@ -14,6 +14,18 @@ interface Brand {
   description_en: string | null;
   product_count?: number;
   hide_name?: boolean;
+  bg_light_color?: string | null;
+  bg_light_opacity?: number | null;
+  bg_light_enabled?: boolean;
+  bg_dark_color?: string | null;
+  bg_dark_opacity?: number | null;
+  bg_dark_enabled?: boolean;
+  border_light_enabled?: boolean;
+  border_light_color?: string | null;
+  border_light_opacity?: number | null;
+  border_dark_enabled?: boolean;
+  border_dark_color?: string | null;
+  border_dark_opacity?: number | null;
 }
 
 const Marques: React.FC<MarquesProps> = ({ theme }) => {
@@ -108,11 +120,28 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
                     rounded-lg sm:rounded-xl
                     border transition-all duration-300
                     ${isLight 
-                      ? 'border-gray-200 hover:border-[#FF6B00] bg-transparent' 
-                      : 'border-white/10 hover:border-[#FF6B00] bg-transparent'
+                      ? 'hover:border-[#FF6B00]' 
+                      : 'hover:border-[#FF6B00]'
                     }
                     hover:shadow-[0_0_20px_rgba(255,107,0,0.2)]
                   `}
+                  style={{
+                    backgroundColor: isLight 
+                      ? (brand.bg_light_enabled && brand.bg_light_color 
+                          ? `${brand.bg_light_color}${Math.round((brand.bg_light_opacity || 50) * 2.55).toString(16).padStart(2, '0')}`
+                          : 'transparent')
+                      : (brand.bg_dark_enabled && brand.bg_dark_color
+                          ? `${brand.bg_dark_color}${Math.round((brand.bg_dark_opacity || 50) * 2.55).toString(16).padStart(2, '0')}`
+                          : 'transparent'),
+                    borderColor: isLight
+                      ? (brand.border_light_enabled && brand.border_light_color 
+                          ? `${brand.border_light_color}${Math.round((brand.border_light_opacity || 100) * 2.55).toString(16).padStart(2, '0')}`
+                          : 'transparent')
+                      : (brand.border_dark_enabled && brand.border_dark_color
+                          ? `${brand.border_dark_color}${Math.round((brand.border_dark_opacity || 100) * 2.55).toString(16).padStart(2, '0')}`
+                          : 'transparent'),
+                    borderWidth: ((isLight && brand.border_light_enabled) || (!isLight && brand.border_dark_enabled)) ? '2px' : '1px'
+                  }}
                 >
                   {brand.logo_url && brand.logo_url.trim() !== '' && (
                     <img

@@ -23,6 +23,18 @@ interface Brand {
   description_fr: string | null;
   description_en: string | null;
   hide_name: boolean;
+  bg_light_color: string | null;
+  bg_light_opacity: number | null;
+  bg_light_enabled: boolean;
+  bg_dark_color: string | null;
+  bg_dark_opacity: number | null;
+  bg_dark_enabled: boolean;
+  border_light_enabled: boolean;
+  border_light_color: string | null;
+  border_light_opacity: number | null;
+  border_dark_enabled: boolean;
+  border_dark_color: string | null;
+  border_dark_opacity: number | null;
 }
 
 const AdminBrands: React.FC = () => {
@@ -41,6 +53,18 @@ const AdminBrands: React.FC = () => {
   const [logoUrl, setLogoUrl] = useState('');
   const [logoPreview, setLogoPreview] = useState('');
   const [hideName, setHideName] = useState(false);
+  const [bgLightEnabled, setBgLightEnabled] = useState(false);
+  const [bgLightColor, setBgLightColor] = useState('#FF6B00');
+  const [bgLightOpacity, setBgLightOpacity] = useState(50);
+  const [bgDarkEnabled, setBgDarkEnabled] = useState(false);
+  const [bgDarkColor, setBgDarkColor] = useState('#FF6B00');
+  const [bgDarkOpacity, setBgDarkOpacity] = useState(50);
+  const [borderLightEnabled, setBorderLightEnabled] = useState(false);
+  const [borderLightColor, setBorderLightColor] = useState('#FF6B00');
+  const [borderLightOpacity, setBorderLightOpacity] = useState(100);
+  const [borderDarkEnabled, setBorderDarkEnabled] = useState(false);
+  const [borderDarkColor, setBorderDarkColor] = useState('#FF6B00');
+  const [borderDarkOpacity, setBorderDarkOpacity] = useState(100);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -98,6 +122,18 @@ const AdminBrands: React.FC = () => {
     setLogoUrl(brand.logo_url || '');
     setLogoPreview(brand.logo_url || '');
     setHideName(brand.hide_name || false);
+    setBgLightEnabled(brand.bg_light_enabled || false);
+    setBgLightColor(brand.bg_light_color || '#FF6B00');
+    setBgLightOpacity(brand.bg_light_opacity || 50);
+    setBgDarkEnabled(brand.bg_dark_enabled || false);
+    setBgDarkColor(brand.bg_dark_color || '#FF6B00');
+    setBgDarkOpacity(brand.bg_dark_opacity || 50);
+    setBorderLightEnabled(brand.border_light_enabled || false);
+    setBorderLightColor(brand.border_light_color || '#FF6B00');
+    setBorderLightOpacity(brand.border_light_opacity || 100);
+    setBorderDarkEnabled(brand.border_dark_enabled || false);
+    setBorderDarkColor(brand.border_dark_color || '#FF6B00');
+    setBorderDarkOpacity(brand.border_dark_opacity || 100);
     setTranslations({
       ru: { description: brand.description_ru || '' },
       fr: { description: brand.description_fr || '' },
@@ -256,7 +292,19 @@ const AdminBrands: React.FC = () => {
             description_ru: translations.ru.description,
             description_fr: translations.fr.description,
             description_en: translations.en.description,
-            hide_name: hideName
+            hide_name: hideName,
+            bg_light_color: bgLightEnabled ? bgLightColor : null,
+            bg_light_opacity: bgLightEnabled ? bgLightOpacity : null,
+            bg_light_enabled: bgLightEnabled,
+            bg_dark_color: bgDarkEnabled ? bgDarkColor : null,
+            bg_dark_opacity: bgDarkEnabled ? bgDarkOpacity : null,
+            bg_dark_enabled: bgDarkEnabled,
+            border_light_enabled: borderLightEnabled,
+            border_light_color: borderLightEnabled ? borderLightColor : null,
+            border_light_opacity: borderLightEnabled ? borderLightOpacity : null,
+            border_dark_enabled: borderDarkEnabled,
+            border_dark_color: borderDarkEnabled ? borderDarkColor : null,
+            border_dark_opacity: borderDarkEnabled ? borderDarkOpacity : null
           })
         }
       );
@@ -591,6 +639,218 @@ const AdminBrands: React.FC = () => {
                 <label htmlFor="hideName" className={`text-sm ${textClass}`}>
                   Не показувати назву на плитці (логотип буде "парити")
                 </label>
+              </div>
+
+              <div className="mb-4 p-4 border border-dashed border-[#FF6B00]/30 rounded-lg">
+                <h4 className={`font-bold text-sm uppercase tracking-wide mb-3 ${textClass}`}>Світла тема</h4>
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    type="checkbox"
+                    id="bgLightEnabled"
+                    checked={bgLightEnabled}
+                    onChange={(e) => setBgLightEnabled(e.target.checked)}
+                    className="w-4 h-4 rounded border-[#FF6B00] text-[#FF6B00] focus:ring-[#FF6B00]"
+                  />
+                  <label htmlFor="bgLightEnabled" className={`text-sm ${textClass}`}>
+                    Увімкнути заливку фону
+                  </label>
+                </div>
+                {bgLightEnabled && (
+                  <div className="flex flex-col gap-3 ml-6">
+                    <div className="flex items-center gap-3">
+                      <label className={`text-xs ${mutedClass}`}>Колір:</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={bgLightColor}
+                          onChange={(e) => setBgLightColor(e.target.value)}
+                          className="w-8 h-8 rounded cursor-pointer border border-zinc-600"
+                        />
+                        <input
+                          type="text"
+                          value={bgLightColor}
+                          onChange={(e) => setBgLightColor(e.target.value)}
+                          className={`w-20 px-2 py-1 text-xs border ${borderClass} rounded ${textClass} ${inputBgClass}`}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <label className={`text-xs ${mutedClass}`}>Прозорість:</label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={bgLightOpacity}
+                        onChange={(e) => setBgLightOpacity(Number(e.target.value))}
+                        className="flex-1 h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <span className={`text-xs w-10 ${textClass}`}>{bgLightOpacity}%</span>
+                    </div>
+                    <div 
+                      className="h-8 rounded border border-zinc-600" 
+                      style={{ backgroundColor: `${bgLightColor}${Math.round(bgLightOpacity * 2.55).toString(16).padStart(2, '0')}` }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="mb-4 p-4 border border-dashed border-[#FF6B00]/30 rounded-lg">
+                <h4 className={`font-bold text-sm uppercase tracking-wide mb-3 ${textClass}`}>Темна тема</h4>
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    type="checkbox"
+                    id="bgDarkEnabled"
+                    checked={bgDarkEnabled}
+                    onChange={(e) => setBgDarkEnabled(e.target.checked)}
+                    className="w-4 h-4 rounded border-[#FF6B00] text-[#FF6B00] focus:ring-[#FF6B00]"
+                  />
+                  <label htmlFor="bgDarkEnabled" className={`text-sm ${textClass}`}>
+                    Увімкнути заливку фону
+                  </label>
+                </div>
+                {bgDarkEnabled && (
+                  <div className="flex flex-col gap-3 ml-6">
+                    <div className="flex items-center gap-3">
+                      <label className={`text-xs ${mutedClass}`}>Колір:</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={bgDarkColor}
+                          onChange={(e) => setBgDarkColor(e.target.value)}
+                          className="w-8 h-8 rounded cursor-pointer border border-zinc-600"
+                        />
+                        <input
+                          type="text"
+                          value={bgDarkColor}
+                          onChange={(e) => setBgDarkColor(e.target.value)}
+                          className={`w-20 px-2 py-1 text-xs border ${borderClass} rounded ${textClass} ${inputBgClass}`}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <label className={`text-xs ${mutedClass}`}>Прозорість:</label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={bgDarkOpacity}
+                        onChange={(e) => setBgDarkOpacity(Number(e.target.value))}
+                        className="flex-1 h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <span className={`text-xs w-10 ${textClass}`}>{bgDarkOpacity}%</span>
+                    </div>
+                    <div 
+                      className="h-8 rounded border border-zinc-600" 
+                      style={{ backgroundColor: `${bgDarkColor}${Math.round(bgDarkOpacity * 2.55).toString(16).padStart(2, '0')}` }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="mb-4 p-4 border border-dashed border-[#FF6B00]/30 rounded-lg">
+                <h4 className={`font-bold text-sm uppercase tracking-wide mb-3 ${textClass}`}>Рамка - Світла тема</h4>
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    type="checkbox"
+                    id="borderLightEnabled"
+                    checked={borderLightEnabled}
+                    onChange={(e) => setBorderLightEnabled(e.target.checked)}
+                    className="w-4 h-4 rounded border-[#FF6B00] text-[#FF6B00] focus:ring-[#FF6B00]"
+                  />
+                  <label htmlFor="borderLightEnabled" className={`text-sm ${textClass}`}>
+                    Увімкнути рамку
+                  </label>
+                </div>
+                {borderLightEnabled && (
+                  <div className="flex flex-col gap-3 ml-6">
+                    <div className="flex items-center gap-3">
+                      <label className={`text-xs ${mutedClass}`}>Колір:</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={borderLightColor}
+                          onChange={(e) => setBorderLightColor(e.target.value)}
+                          className="w-8 h-8 rounded cursor-pointer border border-zinc-600"
+                        />
+                        <input
+                          type="text"
+                          value={borderLightColor}
+                          onChange={(e) => setBorderLightColor(e.target.value)}
+                          className={`w-20 px-2 py-1 text-xs border ${borderClass} rounded ${textClass} ${inputBgClass}`}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <label className={`text-xs ${mutedClass}`}>Прозорість:</label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={borderLightOpacity}
+                        onChange={(e) => setBorderLightOpacity(Number(e.target.value))}
+                        className="flex-1 h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <span className={`text-xs w-10 ${textClass}`}>{borderLightOpacity}%</span>
+                    </div>
+                    <div 
+                      className="w-full h-8 rounded border-2" 
+                      style={{ borderColor: `${borderLightColor}${Math.round(borderLightOpacity * 2.55).toString(16).padStart(2, '0')}` }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="mb-4 p-4 border border-dashed border-[#FF6B00]/30 rounded-lg">
+                <h4 className={`font-bold text-sm uppercase tracking-wide mb-3 ${textClass}`}>Рамка - Темна тема</h4>
+                <div className="flex items-center gap-2 mb-3">
+                  <input
+                    type="checkbox"
+                    id="borderDarkEnabled"
+                    checked={borderDarkEnabled}
+                    onChange={(e) => setBorderDarkEnabled(e.target.checked)}
+                    className="w-4 h-4 rounded border-[#FF6B00] text-[#FF6B00] focus:ring-[#FF6B00]"
+                  />
+                  <label htmlFor="borderDarkEnabled" className={`text-sm ${textClass}`}>
+                    Увімкнути рамку
+                  </label>
+                </div>
+                {borderDarkEnabled && (
+                  <div className="flex flex-col gap-3 ml-6">
+                    <div className="flex items-center gap-3">
+                      <label className={`text-xs ${mutedClass}`}>Колір:</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={borderDarkColor}
+                          onChange={(e) => setBorderDarkColor(e.target.value)}
+                          className="w-8 h-8 rounded cursor-pointer border border-zinc-600"
+                        />
+                        <input
+                          type="text"
+                          value={borderDarkColor}
+                          onChange={(e) => setBorderDarkColor(e.target.value)}
+                          className={`w-20 px-2 py-1 text-xs border ${borderClass} rounded ${textClass} ${inputBgClass}`}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <label className={`text-xs ${mutedClass}`}>Прозорість:</label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={borderDarkOpacity}
+                        onChange={(e) => setBorderDarkOpacity(Number(e.target.value))}
+                        className="flex-1 h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <span className={`text-xs w-10 ${textClass}`}>{borderDarkOpacity}%</span>
+                    </div>
+                    <div 
+                      className="w-full h-8 rounded border-2" 
+                      style={{ borderColor: `${borderDarkColor}${Math.round(borderDarkOpacity * 2.55).toString(16).padStart(2, '0')}` }}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3 pt-6 mt-4 border-t border-gray-200 dark:border-white/10">
