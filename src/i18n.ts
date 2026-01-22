@@ -20,10 +20,11 @@ const fr = {
   home: {
     popular: "★ Populaires",
     comingSoon: "Produits bientôt disponibles",
+    /*
     slider: {
       slide1: {
         label: "LIVRAISON EXPRESS DISPONIBLE",
-        title: "MATÉRIAUX DE CONSTRUCTION AVEC LIVRAISON RAPIDE",
+        title: "MATERIAUX DE CONSTRUCTION AVEC LIVRAISON RAPIDE",
         description: "Basé à Groslay, nous servons les professionnels et particuliers à Montmorency et dans toute l'Île-de-France. Qualité industrielle, service local. Nos prix vous surprendront agréablement."
       },
       slide2: {
@@ -37,6 +38,7 @@ const fr = {
         description: "Des revêtements aux outils, tout pour vos projets"
       }
     },
+    */
     cta: {
       calculate: "Calculer mes besoins",
       quote: "Demander un devis"
@@ -52,7 +54,8 @@ const fr = {
     title: "Nos Rayons",
     subtitle: "Du bâtiment à la rénovation, toute une gamme de matériaux, outillage et accessoires pour les professionnels et les particuliers.",
     back: "← RETOUR",
-    products: "VOIR TOUS LES PRODUITS"
+    products: "VOIR TOUS LES PRODUITS",
+    products_count: "produits"
   },
   brands: {
     title: "Nos partenaires",
@@ -214,6 +217,17 @@ const fr = {
         description: "Paramètres des formules et calculs",
         addNew: "Nouveau Calculateur"
       },
+      slogans: {
+        title: "SLOGANS",
+        description: "Gestion des slogans et bannières du site",
+        slideTitle: "PREMIER SLIDE - TEXTE PRINCIPAL",
+        slideSubtitle: "Modifiez les 3 lignes du premier slide",
+        savedToMain: "Modifications sauvegardées !",
+        slide1: "Slide 1",
+        slide2: "Slide 2",
+        slide3: "Slide 3",
+        pageDesc: "Édition des 3 diapositives de la page d'accueil : badge, titre et description"
+      },
       settings: {
         title: "PARAMÈTRES",
         description: "Paramètres généraux et Cloud",
@@ -269,7 +283,49 @@ const fr = {
         hour: "heure",
         hours: "heures",
         days: "jours"
-      }
+      },
+      preview: "APERÇU",
+      previewSubtitle: "Voyez les changements en temps réel",
+      saveAndUpdate: "SAUVEGARDER & METTRE À JOUR",
+      previewNote: "Les changements sont appliqués immédiatement après la sauvegarde",
+      content: {
+        title: "Gestion du Contenu",
+        backToDashboard: "← Retour au tableau de bord",
+        loading: "Chargement...",
+        slidesHero: "Slides Hero",
+        materialsCalculator: "Matériaux Calculateur",
+        siteConfig: "Configuration du Site",
+        slogans: "Slogans",
+        addSlide: "Ajouter un Slide",
+        editSlide: "Modifier le Slide",
+        newSlide: "Nouveau Slide",
+        addMaterial: "Ajouter un Matériau",
+        editMaterial: "Modifier le Matériau",
+        newMaterial: "Nouveau Matériau",
+        addSlogan: "Ajouter un Slogan",
+        editSlogan: "Modifier le Slogan",
+        newSlogan: "Nouveau Slogan",
+        badge: "Badge",
+        labelTitle: "Titre",
+        subtitle: "Sous-titre",
+        content: "Contenu",
+        image: "Image",
+        order: "Ordre",
+        active: "Actif",
+        actions: "Actions",
+        save: "Enregistrer",
+        cancel: "Annuler",
+        yes: "Oui",
+        no: "Non",
+        languageFr: "Français",
+        languageEn: "Anglais",
+        languageRu: "Russe",
+        confirmDeleteSlide: "Êtes-vous sûr de vouloir supprimer ce slide ?",
+        confirmDeleteMaterial: "Êtes-vous sûr de vouloir supprimer ce matériau ?",
+        confirmDeleteSlogan: "Êtes-vous sûr de vouloir supprimer ce slogan ?",
+        configSaved: "Configuration enregistrée avec succès !",
+        saveConfig: "Enregistrer la configuration"
+      },
     },
     quickActions: {
       title: "Actions Rapides",
@@ -485,6 +541,7 @@ const en = {
   home: {
     popular: "★ Popular",
     comingSoon: "Products coming soon",
+    /*
     slider: {
       slide1: {
         label: "EXPRESS DELIVERY AVAILABLE",
@@ -502,6 +559,7 @@ const en = {
         description: "From coatings to tools, everything for your projects"
       }
     },
+    */
     cta: {
       calculate: "Calculate my needs",
       quote: "Request a quote"
@@ -517,7 +575,8 @@ const en = {
     title: "Our Departments",
     subtitle: "From construction to renovation, a full range of materials, tools and accessories for professionals and individuals.",
     back: "← BACK",
-    products: "SEE ALL PRODUCTS"
+    products: "SEE ALL PRODUCTS",
+    products_count: "products"
   },
   brands: {
     title: "Our partners",
@@ -679,6 +738,17 @@ const en = {
         description: "Formula and calculation settings",
         addNew: "New Calculator"
       },
+      slogans: {
+        title: "SLOGANS",
+        description: "Management of site slogans and banners",
+        slideTitle: "FIRST SLIDE - MAIN TEXT",
+        slideSubtitle: "Edit the 3 lines of the first slide",
+        savedToMain: "Changes saved!",
+        slide1: "Slide 1",
+        slide2: "Slide 2",
+        slide3: "Slide 3",
+        pageDesc: "Editing 3 slides of the homepage: badge, title and description"
+      },
       settings: {
         title: "SETTINGS",
         description: "General settings and Cloud",
@@ -734,7 +804,49 @@ const en = {
         hour: "hour",
         hours: "hours",
         days: "days"
-      }
+      },
+      preview: "PREVIEW",
+      previewSubtitle: "See changes in real time",
+      saveAndUpdate: "SAVE & UPDATE",
+      previewNote: "Changes are applied immediately after saving",
+      content: {
+        title: "Content Management",
+        backToDashboard: "← Back to dashboard",
+        loading: "Loading...",
+        slidesHero: "Hero Slides",
+        materialsCalculator: "Calculator Materials",
+        siteConfig: "Site Configuration",
+        slogans: "Slogans",
+        addSlide: "Add Slide",
+        editSlide: "Edit Slide",
+        newSlide: "New Slide",
+        addMaterial: "Add Material",
+        editMaterial: "Edit Material",
+        newMaterial: "New Material",
+        addSlogan: "Add Slogan",
+        editSlogan: "Edit Slogan",
+        newSlogan: "New Slogan",
+        badge: "Badge",
+        labelTitle: "Title",
+        subtitle: "Subtitle",
+        content: "Content",
+        image: "Image",
+        order: "Order",
+        active: "Active",
+        actions: "Actions",
+        save: "Save",
+        cancel: "Cancel",
+        yes: "Yes",
+        no: "No",
+        languageFr: "French",
+        languageEn: "English",
+        languageRu: "Russian",
+        confirmDeleteSlide: "Are you sure you want to delete this slide?",
+        confirmDeleteMaterial: "Are you sure you want to delete this material?",
+        confirmDeleteSlogan: "Are you sure you want to delete this slogan?",
+        configSaved: "Configuration saved successfully!",
+        saveConfig: "Save configuration"
+      },
     },
     quickActions: {
       title: "Quick Actions",
@@ -950,6 +1062,7 @@ const ru = {
   home: {
     popular: "★ Популярные",
     comingSoon: "Товары скоро появятся",
+    /*
     slider: {
       slide1: {
         label: "ДОСТУПНА ЭКСПРЕСС-ДОСТАВКА",
@@ -967,6 +1080,7 @@ const ru = {
         description: "От покрытий до инструментов - всё для ваших проектов"
       }
     },
+    */
     cta: {
       calculate: "Рассчитать потребности",
       quote: "Запросить смету"
@@ -982,7 +1096,8 @@ const ru = {
     title: "Наши разделы",
     subtitle: "От строительства до ремонта - полный ассортимент материалов, инструментов и аксессуаров.",
     back: "← НАЗАД",
-    products: "СМОТРЕТЬ ВСЕ ТОВАРЫ"
+    products: "СМОТРЕТЬ ВСЕ ТОВАРЫ",
+    products_count: "товаров"
   },
   brands: {
     title: "Наши партнеры",
@@ -1144,6 +1259,16 @@ const ru = {
         description: "Настройки формул и расчётов",
         addNew: "Новый калькулятор"
       },
+      slogans: {
+        title: "СЛОГАНЫ",
+        description: "Управление слоганами и баннерами сайта",
+        slideTitle: "ПЕРВЫЙ СЛАЙД - ОСНОВНОЙ ТЕКСТ",
+        slideSubtitle: "Измените 3 строки первого слайна",
+        savedToMain: "Изменения сохранены!",
+        slide1: "Слайд 1",
+        slide2: "Слайд 2",
+        slide3: "Слайд 3"
+      },
       settings: {
         title: "НАСТРОЙКИ",
         description: "Общие настройки и Клауд",
@@ -1199,7 +1324,52 @@ const ru = {
         hour: "час",
         hours: "часов",
         days: "дней"
-      }
+      },
+      preview: "ПРЕВЬЮ",
+      previewSubtitle: "Смотрите изменения в реальном времени",
+      saveAndUpdate: "СОХРАНИТЬ И ОБНОВИТЬ",
+      previewNote: "Изменения применяются сразу после сохранения",
+      content: {
+        title: "Управление контентом",
+        backToDashboard: "← Назад в панель",
+        loading: "Загрузка...",
+        slidesHero: "Слайды Hero",
+        materialsCalculator: "Материалы калькулятора",
+        siteConfig: "Конфигурация сайта",
+        slogans: "Слоганы",
+        slideTitle: "ПЕРВЫЙ СЛАЙД - ОСНОВНОЙ ТЕКСТ",
+        slideSubtitle: "Измените 3 строки первого слайна",
+        savedToMain: "Изменения сохранены!",
+        addSlide: "Добавить слайд",
+        editSlide: "Изменить слайд",
+        newSlide: "Новый слайд",
+        addMaterial: "Добавить материал",
+        editMaterial: "Изменить материал",
+        newMaterial: "Новый материал",
+        addSlogan: "Добавить слоган",
+        editSlogan: "Изменить слоган",
+        newSlogan: "Новый слоган",
+        badge: "Бейдж",
+        labelTitle: "Заголовок",
+        subtitle: "Подзаголовок",
+        content: "Контент",
+        image: "Изображение",
+        order: "Порядок",
+        active: "Активен",
+        actions: "Действия",
+        save: "Сохранить",
+        cancel: "Отмена",
+        yes: "Да",
+        no: "Нет",
+        languageFr: "Французский",
+        languageEn: "Английский",
+        languageRu: "Русский",
+        confirmDeleteSlide: "Вы уверены, что хотите удалить этот слайд?",
+        confirmDeleteMaterial: "Вы уверены, что хотите удалить этот материал?",
+        confirmDeleteSlogan: "Вы уверены, что хотите удалить этот слоган?",
+        configSaved: "Конфигурация успешно сохранена!",
+        saveConfig: "Сохранить конфигурацию"
+      },
     },
     quickActions: {
       title: "Быстрые действия",

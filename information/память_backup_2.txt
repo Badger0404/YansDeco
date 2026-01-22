@@ -1,0 +1,439 @@
+================================================================================
+           CORE SYSTEM INSTRUCTIONS / СИСТЕМНЫЕ УСТАНОВКИ ПРОЕКТА
+================================================================================
+1. ПРАВИЛО ОБНОВЛЕНИЯ: После каждой успешной реализации новой фичи (API, UI,
+   логика и та далее) ИИ ОБЯЗАН предложить обновить этот файл.
+2. ПРОЦЕДУРА: ИИ спрашивает "Сохраняем в память_backup?", при ответе "Да" —
+   генерирует ПОЛНЫЙ текст обновленного файла для перезаписи.
+3. КОНТЕКСТ: Всегда придерживаться премиального стиля Yan's Deco (темная тема,
+   оранжевый неон, минимализм).
+================================================================================
+
+
+================================================================================
+                      YAN'S DECO PROJECT - COMPREHENSIVE MEMORY FILE
+================================================================================
+Дата создания: 2026-01-17
+Последнее обновление: 2026-01-22 (ADMIN SLOGANS - DYNAMIC SLIDES V1)
+================================================================================
+
+О ПРОЕКТЕ
+================================================================================
+Yan's Deco - строительный магазин декоративных материалов (Краски, клеи,
+инструменты) с полной админ-панелью для управления контентом и клиентской базой.
+РАСШИРЕНО: WMS система управления складом со сканированием штрихкодов.
+
+Технологический стек:
+- Frontend: React 19 + TypeScript + Vite + Framer Motion + Tailwind CSS 4
+- Backend: Cloudflare Workers (Hono.js framework)
+- Database: Cloudflare D1 (SQLite)
+- Storage: Cloudflare R2 (images)
+- AI: Cloudflare Workers AI (Llama 3.1 for translations)
+- Deployment: Cloudflare Pages + Workers
+- i18n: react-i18next (RU, FR, EN)
+- Auth: Custom JWT + Google OAuth ready
+- Barcode Scanning: Custom getUserMedia + Tesseract.js (Hybrid)
+- OCR: Tesseract.js (optimized for digits)
+
+================================================================================
+СТРУКТУРА ПРОЕКТА
+================================================================================
+
+YansDeco/
+├── src/
+│   ├── pages/                      # Страницы приложения
+│   │   ├── Home.tsx                # Главная страница
+│   │   ├── Catalogue.tsx           # Каталог
+│   │   ├── Marques.tsx             # Бренды (публичная)
+│   │   ├── BrandPublic.tsx         # Страница бренда
+│   │   ├── ProductPage.tsx         # Страница товара
+│   │   ├── ProductDetail.tsx       # Товары подкатегории
+│   │   ├── Services.tsx            # Услуги
+│   │   ├── Calculateurs.tsx        # Калькуляторы
+│   │   ├── Contact.tsx             # Контакты
+│   │   ├── Legal.tsx               # Юридические документы (/legal)
+│   │   ├── WarehouseTerminal.tsx   # WMS складской терминал
+│   │   ├── AdminSlogans.tsx        # Админ управления слайдами (НОВОЕ)
+│   │   └── admin/                  # Админ-панель
+│   ├── components/                 # Компоненты
+│   │   ├── BarcodeScanner.tsx      # Сканер штрихкодов
+│   │   └── ...
+│   ├── hooks/                      # Хуки
+│   ├── services/                   # API сервисы
+│   └── i18n.ts                     # Локализация
+├── worker/
+│   ├── src/index.ts                # Cloudflare Worker API
+│   └── wrangler.toml               # Worker конфигурация
+└── public/locales/                 # Переводы (RU, FR, EN)
+
+================================================================================
+API ENDPOINTS - PRODUCTS & CATALOG
+================================================================================
+
+ПРОДУКТЫ:
+- GET    /api/products              # Все товары
+- GET    /api/products/:id          # Товар по ID
+- POST   /api/products              # Создать товар (поддержка barcode)
+- PUT    /api/products/:id          # Обновить товар
+- PUT    /api/products/:id/barcode  # Обновить штрихкод
+- DELETE /api/products/:id          # Удалить товар
+- GET    /api/products?popular=1    # Популярные товары
+- GET    /api/products/by-barcode/:barcode  # Поиск по штрихкоду
+
+КАТЕГОРИИ:
+- GET    /api/categories            # Все категории (дерево)
+- GET    /api/categories/:id        # Категория по ID
+- POST   /api/categories            # Создать категорию
+- PUT    /api/categories/:id        # Обновить категорию
+- DELETE /api/categories/:id        # Удалить категорию
+- GET    /api/categories/:id/products  # Товары категории + подкатегорий
+
+БРЕНДЫ:
+- GET    /api/brands                # Все бренды
+- GET    /api/brands/:id            # Бренд по ID
+- POST   /api/brands                # Создать бренд
+- PUT    /api/brands/:id            # Обновить бренд
+- DELETE /api/brands/:id            # Удалить бренд
+- GET    /api/brands/:id/products   # Товары бренда
+
+================================================================================
+API ENDPOINTS - WMS & STOCK
+================================================================================
+
+СКЛАДСКИЕ ОПЕРАЦИИ:
+- POST   /api/admin/stock/in        # Приёмка товара (IN)
+    Body: { product_id, quantity, comment }
+    Returns: { success, data: { product_id, new_stock } }
+
+- POST   /api/admin/stock/out       # Списание товара (OUT)
+    Body: { product_id, quantity, comment }
+    Returns: { success, data: { product_id, new_stock } }
+
+- POST   /api/admin/stock/cash      # Продажа за наличные (SALE_CASH)
+    Header: Authorization: Bearer ADMIN.*
+    Body: { product_id, quantity=1, order_id, total_amount }
+    Returns: { success, data: { product_id, new_stock, order_id, amount } }
+
+ИСТОРИЯ И ОТЧЁТЫ:
+- GET    /api/admin/stock/logs      # Все записи логов
+    Query: ?limit=100&offset=0&product_id=123
+
+- GET    /api/admin/stock/history/:productId  # История по товару
+
+- GET    /api/admin/stock/internal-sales # Наличные продажи
+    Query: ?limit=100&offset=0
+
+================================================================================
+API ENDPOINTS - SLIDES / SLOGANS (НОВОЕ 2026-01-22)
+================================================================================
+
+ПОЛУЧЕНИЕ СЛАЙДОВ:
+- GET    /api/admin/slides          # Все слайды для админки
+    Returns: { success: true, data: [...] }
+
+СОХРАНЕНИЕ:
+- POST   /api/admin/slides          # Создать или обновить слайд
+    Body: {
+      id?: number,                  // Если есть - update, иначе - insert
+      key: string,                  // "slide1", "slide2", "slide3"
+      slide_index: number,          // 1, 2, 3
+      label_ru: string,             # Бейдж (RU)
+      label_fr: string,             # Бейдж (FR)
+      label_en: string,             # Бейдж (EN)
+      title_ru: string,             # Заголовок (RU)
+      title_fr: string,             # Заголовок (FR)
+      title_en: string,             # Заголовок (EN)
+      content_ru: string,           # Описание (RU)
+      content_fr: string,           # Описание (FR)
+      content_en: string,           # Описание (EN)
+      is_active: boolean,
+      label_size: string,           # Tailwind класс: text-xs, text-sm, text-base
+      label_weight: string,         # font-bold, font-normal
+      label_transform: string,      # uppercase, lowercase
+      label_tracking: string,       # tracking-widest, tracking-tight
+      label_color: string,          # Hex цвет: #FF6B00
+      title_size: string,           # text-3xl, text-4xl, text-5xl
+      title_weight: string,         # font-black, font-bold
+      title_italic: boolean,        # italic: true/false
+      title_transform: string,      # uppercase, lowercase
+      title_color: string,          # Hex цвет: #FFFFFF
+      content_size: string,         # text-sm, text-base
+      content_weight: string,       # font-normal
+      content_color: string         # Hex цвет: #9CA3AF
+    }
+
+МИГРАЦИЯ:
+- POST   /api/admin/migrate/slides  # Создать таблицу slides
+
+ПЕРЕВОДЫ:
+- POST   /api/translate             # AI перевод текста
+
+MEDIA:
+- POST   /api/upload                # Загрузка изображений в R2
+
+================================================================================
+HYBRID SCANNER v5.0 (FINAL GOLDEN CONFIG)
+================================================================================
+
+КОМПОНЕНТ: src/components/BarcodeScanner.tsx
+
+1. АРХИТЕКТУРА КАМЕРЫ (Custom Implementation):
+   - Отказ от html5-qrcode для Live View в пользу нативного <video>.
+   - Использование navigator.mediaDevices.getUserMedia напрямую.
+   - Разрешение: 4K (4096x2160) для максимальной четкости OCR.
+   - Зум: Аппаратный зум через track.applyConstraints({ advanced: [{ zoom: value }] }).
+   - UI: Ползунок зума (1x - Max), большая кнопка спуска, зеленая рамка-направляющая.
+
+2. PREPROCESSING (GOLDEN CONFIG):
+   - Crop: Вырезается ТОЛЬКО центральная часть (80% ширины, 25% высоты).
+   - Canvas Scale: Масштабирование до MAX_WIDTH = 1200px.
+   - Filters: grayscale(100%) brightness(100%) contrast(400%).
+   - Bolding: Двойная отрисовка со смещением (1px, 1px) и opacity 0.5.
+
+3. OCR CONFIGURATION (Tesseract.js):
+   - Whitelist: 0123456789 (только цифры).
+   - PSM (Page Segmentation Mode): '6' (Single Block).
+
+4. POST-PROCESSING LOGIC:
+   - Separator Fix: Если длина 15 и есть '1' на позициях 1 и 8 -> вырезаем их.
+   - Noise Fix: Если >13 символов, заменяем 001 на 00.
+   - Regex Search: Ищет EAN-13 паттерны: /(87|78|88|3\d|4\d|50)\d{11}/.
+
+================================================================================
+WMS СКЛАДСКОЙ ТЕРМИНАЛ
+================================================================================
+
+URL: /admin/warehouse
+
+ФУНКЦИОНАЛ:
+- Режим "Приёмка" (RECEPTION): Сканировать → Ввести количество → Добавить
+- Режим "Продажа за наличные" (CASH): Сканировать → Продать (ADMIN only)
+
+================================================================================
+ЦВЕТОВАЯ СХЕМА И СТИЛЬ
+================================================================================
+
+Основные цвета:
+- Акцентный: #FF6B00 (оранжевый неон)
+- Фон (темный): #0a0a0a / #111111
+- Текст: #FFFFFF / #e5e5e5
+- Muted: #737373 / #a3a3a3
+
+Стиль:
+- Темная тема по умолчанию
+- Framer Motion анимации
+- Italic заголовки (font-black italic)
+- Uppercase для кнопок и меток
+- Минималистичные карточки с hover-эффектами
+
+================================================================================
+КОМАНДЫ DEPLOY
+================================================================================
+
+Frontend (Cloudflare Pages):
+  cd YansDeco && npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=production --commit-dirty=true
+
+Backend API (Cloudflare Workers):
+  cd YansDeco/worker && npx wrangler deploy
+
+Production URL: https://yans-deco.pages.dev
+API URL: https://yasndeco-api.andrey-gaffer.workers.dev/api
+
+================================================================================
+ТЕКУЩИЕ ДАННЫЕ (РЕАЛЬНЫЙ КАТАЛОГ)
+================================================================================
+
+Основные категории (6):
+- ID 12: Peinture & Finition / Paint & Finishing / Краски и Финишные покрытия
+- ID 13: Colles & Mastics / Adhesives & Sealants / Клеи и Мастики
+- ID 14: Outillage Peintre / Painter's Tools / Инструмент Маляра
+- ID 15: Outillage Carreleur / Tiler's Tools / Инструмент Плиточника
+- ID 16: Preparation des sols / Floor Preparation / Подготовка Пола
+- ID 11: Fixation & Visserie / Fixings & Fasteners / Крепеж и Метизы
+
+================================================================================
+ADMIN SLOGANS PAGE - DYNAMIC SLIDES V1 (2026-01-22)
+================================================================================
+
+НОВАЯ СТРАНИЦА: /admin/slogans
+
+ЦЕЛЬ: Заменить захардкоженные слоганы из i18n.ts на динамические данные из БД.
+
+СТРУКТУРА СТРАНИЦЫ:
+- Верхняя панель с табами: Slide 1, Slide 2, Slide 3
+  * При нажатии переключается на редактирование соответствующего слайда
+  * В табе отображается реальный текст бейджа (чтобы было понятно какой слайд)
+
+- Основная область:
+  * Левая колонка: Карточки с Label, Title, Content
+  * Правая колонка: Превью (точная копия слайда с главной)
+
+- Модалка редактирования:
+  * 3 языковые вкладки (RU, FR, EN)
+  * Поля: Label, Title, Content для каждого языка
+  * Настройки шрифтов:
+    - Label: Size (xs/sm/base), Weight (normal/bold), Transform, Color (hex)
+    - Title: Size (3xl/4xl/5xl), Weight (bold/black), Italic (yes/no), Color
+    - Content: Size, Weight, Color
+
+ФАЙЛЫ:
+- src/pages/AdminSlogans.tsx - Новая страница
+- src/i18n.ts - Добавлены переводы для табов
+- worker/src/index.ts - Добавлены endpoints: GET/POST /api/admin/slides
+
+ДЕФОЛТНЫЙ КОНТЕНТ (из главной страницы):
+Slide 1:
+  RU: Label="ЭКСПРЕСС-ДОСТАВКА", Title="СТРОИТЕЛЬНЫЕ МАТЕРИАЛЫ С БЫСТРОЙ ДОСТАВКОЙ", Content="..."
+  FR: Label="LIVRAISON EXPRESS DISPONIBLE", Title="MATERIAUX DE CONSTRUCTION AVEC LIVRAISON RAPIDE", Content="..."
+
+Slide 2:
+  RU: Label="ПРОФЕССИОНАЛЬНОЕ КАЧЕСТВО", Title="МЕСТНЫЙ СЕРВИС В ИЛЬ-ДЕ-ФРАНС", Content="..."
+  FR: Label="QUALITÉ PROFESSIONNELLE", Title="SERVICE LOCAL EN ÎLE-DE-FRANCE", Content="..."
+
+Slide 3:
+  RU: Label="ЭКСПЕРТНЫЙ СОВЕТ", Title="ВЕСЬ АССОРТИМЕНТ МАТЕРИАЛОВ", Content="..."
+  FR: Label="CONSEIL EXPERT", Title="TOUTE GAMME DE MATÉRIAUX", Content="..."
+
+СТРУКТУРА ТАБЛИЦЫ slides:
+- id (INTEGER PRIMARY KEY)
+- key (TEXT UNIQUE) - "slide1", "slide2", "slide3"
+- slide_index (INTEGER) - 1, 2, 3
+- label_ru, label_fr, label_en (TEXT)
+- title_ru, title_fr, title_en (TEXT)
+- content_ru, content_fr, content_en (TEXT)
+- is_active (INTEGER DEFAULT 1)
+- label_size, label_weight, label_transform, label_tracking, label_color
+- title_size, title_weight, title_italic, title_transform, title_color
+- content_size, content_weight, content_color
+- created_at, updated_at (TEXT DEFAULT CURRENT_TIMESTAMP)
+
+ЦВЕТА (HEX):
+- Оранжевый: #FF6B00
+- Белый: #FFFFFF
+- Серый: #9CA3AF
+
+КЛАССЫ TAILWIND ДЛЯ ШРИФТОВ:
+Label: text-xs, text-sm, text-base / font-normal, font-bold / uppercase, lowercase
+Title: text-3xl, text-4xl, text-5xl / font-bold, font-black / italic / uppercase, lowercase
+Content: text-sm, text-base / font-normal
+
+ДЕПЛОЙ:
+Frontend: https://3271300f.yans-deco.pages.dev
+Worker: https://yasndeco-api.andrey-gaffer.workers.dev
+
+СЛЕДУЮЩИЙ ШАГ (PENDING):
+- Интегрировать динамические слайды в Home.tsx
+- Заменить захардкоженные данные из i18n.ts на API вызов /api/admin/slides
+- Обеспечить fallback на дефолтные значения если API недоступен
+
+================================================================================
+ОБНОВЛЕНИЕ 2026-01-22 (ИНТЕГРАЦИЯ DYNAMIC SLIDES V2)
+================================================================================
+
+ИНТЕГРАЦИЯ В HOME.TSX (ЗАВЕРШЕНО):
+- Добавлен интерфейс SlideData
+- Добавлен стейт slides с fetch из API /api/admin/slides
+- Функция getLocalizedSlideText() для мультиязычного контента
+- getSliderContent() теперь возвращает данные из API или fallback на i18n
+- Fallback: если API пустой или ошибка -> используются данные из i18n.ts
+
+КОД В HOME.TSX:
+```typescript
+interface SlideData {
+  id: number;
+  key: string;
+  slide_index: number;
+  label_ru: string;
+  label_fr: string;
+  label_en: string;
+  title_ru: string;
+  title_fr: string;
+  title_en: string;
+  content_ru: string;
+  content_fr: string;
+  content_en: string;
+  is_active: boolean;
+}
+
+// fetchSlides()
+const fetchSlides = async () => {
+  const response = await fetch(`${API_URL}/admin/slides`);
+  const data = await response.json();
+  if (data.success && data.data && data.data.length > 0) {
+    setSlides(data.data);
+  }
+};
+
+// getSliderContent() с fallback
+const getSliderContent = (index: number) => {
+  const slideFromApi = slides.find(s => s.slide_index === index + 1);
+  
+  if (slideFromApi) {
+    return {
+      label: getLocalizedSlideText(slideFromApi, 'label'),
+      title: getLocalizedSlideText(slideFromApi, 'title'),
+      description: getLocalizedSlideText(slideFromApi, 'content')
+    };
+  }
+  
+  // Fallback на i18n
+  const slideKey = `slide${index + 1}` as const;
+  return {
+    label: t(`home.slider.${slideKey}.label`),
+    title: t(`home.slider.${slideKey}.title`),
+    description: t(`home.slider.${slideKey}.description`)
+  };
+};
+```
+
+ЗАКОММЕНТИРОВАННЫЕ SLIDER В I18N.TS:
+- FR: slider section закомментирован (строки 23-39)
+- EN: slider section закомментирован (строки 542-558)
+- RU: slider section закомментирован (строки 1061-1077)
+- Fallback работает если БД пустая
+
+ИСПРАВЛЕНИЕ КОДИРОВКИ UTF-8 (2026-01-22):
+- Проблема: Russian текст отображался как "ромбики со знаками вопроса"
+- Решение: Данные перезаписаны через Node.js с правильной кодировкой UTF-8
+- Команда: curl с JSON данными через node -e скрипт
+- Результат: Кириллица сохраняется корректно
+
+КНОПКИ СОХРАНЕНИЯ В ADMIN SLOGANS:
+- Кнопка под превью (с иконкой Edit): handleEdit() -> открывает модалку
+- Кнопка "Save" в модалке: handleSave() -> сохраняет в локальный стейт (превью)
+- Кнопка "SAVE & UPDATE" сверху: handleSaveAll() -> сохраняет В БД
+
+РАБОЧИЙ ПРОЦЕСС:
+1. Нажать кнопку с карандашом под превью -> открывается модалка
+2. Изменить текст
+3. Нажать "Save" в модалке -> модалка закрывается, превью обновляется
+4. Нажать "SAVE & UPDATE" сверху -> сохраняет ВСЕ слайды в БД
+
+DEPLOYMENT URLs (ОБНОВЛЕНО):
+- Frontend Production: https://yans-deco.pages.dev
+- Frontend Preview: https://preview.yans-deco.pages.dev
+- API: https://yasndeco-api.andrey-gaffer.workers.dev/api
+
+КОМАНДЫ DEPLOY (ОБНОВЛЕНО):
+Preview: cd YansDeco && npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=preview --commit-dirty=true
+Production: cd YansDeco && npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=production --commit-dirty=true
+Worker: cd YansDeco/worker && npx wrangler deploy
+
+ДАННЫЕ В БД (2026-01-22):
+- Slide 1: "ДОСТУПНА ЭКСПРЕСС-ДОСТАВКА" / "LIVRAISON EXPRESS DISPONIBLE"
+- Slide 2: "ПРОФЕССИОНАЛЬНОЕ КАЧЕСТВО" / "QUALITÉ PROFESSIONNELLE"
+- Slide 3: "ЭКСПЕРТНАЯ КОНСУЛЬТАЦИЯ" / "CONSEIL EXPERT"
+
+================================================================================
+ЗАДАЧИ НА БУДУЩЕЕ
+================================================================================
+
+1. Интеграция динамических слайдов в Home.tsx (COMPLETED 2026-01-22)
+2. Добавить полноценную корзину и оформление заказа
+3. Реализовать Google OAuth авторизацию
+4. Добавить фильтры товаров в каталоге
+5. Реализовать wishlist для пользователей
+6. Добавить отзывы и рейтинги товаров
+7. Интеграция с платежной системой
+8. PWA манифест (офлайн-режим)
+9. UI улучшения: понятные названия кнопок в AdminSlogans

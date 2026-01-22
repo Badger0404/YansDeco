@@ -23,6 +23,22 @@ interface Product {
   brand_name: string | null;
 }
 
+interface SlideData {
+  id: number;
+  key: string;
+  slide_index: number;
+  label_ru: string;
+  label_fr: string;
+  label_en: string;
+  title_ru: string;
+  title_fr: string;
+  title_en: string;
+  content_ru: string;
+  content_fr: string;
+  content_en: string;
+  is_active: boolean;
+}
+
 const Home: React.FC<HomeProps> = ({ theme }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -30,7 +46,9 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [popularProducts, setPopularProducts] = useState<Product[]>([]);
   const [loadingPopular, setLoadingPopular] = useState(true);
+  const [slides, setSlides] = useState<SlideData[]>([]);
   const fetched = useRef(false);
+  const fetchedSlides = useRef(false);
 
   const API_URL = 'https://yasndeco-api.andrey-gaffer.workers.dev/api';
 
@@ -53,6 +71,50 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
     fetchPopularProducts();
   }, []);
 
+  useEffect(() => {
+    if (fetchedSlides.current) return;
+    fetchedSlides.current = true;
+    fetchSlides();
+  }, []);
+
+  const fetchSlides = async () => {
+    try {
+      const response = await fetch(`${API_URL}/admin/slides`);
+      const data = await response.json();
+      if (data.success && data.data && data.data.length > 0) {
+        setSlides(data.data);
+      }
+    } catch (err) {
+      console.log('Using fallback i18n slides');
+    }
+  };
+
+  const getLocalizedSlideText = (slide: SlideData, field: 'label' | 'title' | 'content') => {
+    const lang = i18n.language;
+    const langKey = `${field}_${lang}` as keyof SlideData;
+    const fallbackKey = `${field}_fr` as keyof SlideData;
+    return (slide[langKey] || slide[fallbackKey] || '') as string;
+  };
+
+  const getSliderContent = (index: number) => {
+    const slideFromApi = slides.find(s => s.slide_index === index + 1);
+    
+    if (slideFromApi) {
+      return {
+        label: getLocalizedSlideText(slideFromApi, 'label'),
+        title: getLocalizedSlideText(slideFromApi, 'title'),
+        description: getLocalizedSlideText(slideFromApi, 'content')
+      };
+    }
+    
+    const slideKey = `slide${index + 1}` as const;
+    return {
+      label: t(`home.slider.${slideKey}.label`),
+      title: t(`home.slider.${slideKey}.title`),
+      description: t(`home.slider.${slideKey}.description`)
+    };
+  };
+
   const fetchPopularProducts = async () => {
     try {
       const response = await fetch(`${API_URL}/products`);
@@ -73,15 +135,6 @@ const Home: React.FC<HomeProps> = ({ theme }) => {
     if (lang === 'ru') return product.name_ru || product.name_fr || product.name_en || 'Товар';
     if (lang === 'en') return product.name_en || product.name_fr || product.name_ru || 'Product';
     return product.name_fr || product.name_ru || product.name_en || 'Produit';
-  };
-
-  const getSliderContent = (index: number) => {
-    const slideKey = `slide${index + 1}` as const;
-    return {
-      label: t(`home.slider.${slideKey}.label`),
-      title: t(`home.slider.${slideKey}.title`),
-      description: t(`home.slider.${slideKey}.description`)
-    };
   };
 
   const currentSlideData = getSliderContent(currentSlide);
