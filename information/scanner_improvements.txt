@@ -1,0 +1,274 @@
+# СКАНЕР ШТРИХ-КОДОВ - ПЛАН ДОРАБОТОК
+
+**Дата:** 2026-01-22
+**Версия:** v5.0
+**Статус:** Работает стабильно, есть потенциал для улучшения
+
+---
+
+## ТЕКУЩЕЕ СОСТОЯНИЕ
+
+### Реализованные функции:
+- ✅ Камера с auto-focus (4K → 1080p fallback)
+- ✅ Zoom с debounce (max 5x)
+- ✅ Native BarcodeDetector API (приоритет 1)
+- ✅ Html5Qrcode (приоритет 2)
+- ✅ Tesseract OCR (fallback для повреждённых кодов)
+- ✅ Fullscreen mode для iPhone
+- ✅ Video stabilization
+- ✅ Safe area для notch iPhone
+- ✅ Haptic feedback (вибрация)
+- ✅ Предобработка изображения (crop, grayscale, contrast)
+
+### Проблемы:
+- ❌ При зуме на iPhone картинка трясётся
+- ❌ OCR ошибается на размытых/тёмных фото
+- ❌ Нет вспышки для тёмных помещений
+- ❌ Один кадр - если неудачный, нужно переснявать
+
+---
+
+## ПЛАН УЛУЧШЕНИЙ
+
+### 1. BETTER PREPROCESSING (+25% точности)
+**Сложность:** Средняя | **Время:** 1-2 часа | **Приоритет:** Высокий
+
+**Что добавить:**
+
+```typescript
+interface PreprocessingOptions {
+  cropEnabled: boolean;        // Обрезка центра
+  cropPercent: number;         // % обрезки (сейчас 80%)
+  
+  grayscaleEnabled: boolean;   // Ч/б (сейчас есть)
+  brightness: number;          // Яркость (сейчас 100%)
+  contrast: number;            // Контраст (сейчас 400%)
+  
+  // НОВОЕ:
+  adaptiveThreshold: boolean;  // Адаптивная бинаризация
+  noiseReduction: boolean;     // Убирание шума
+  skewCorrection: boolean;     // Исправление наклона
+  morphologicalDilation: boolean; // Утолщение линий
+  histogramEqualization: boolean; // Улучшение гистограммы
+}
+```
+
+**Алгоритм improvedPreprocess():**
+
+```
+1. Загрузить изображение в Canvas
+2. Skew detection (определить угол наклона через Hough transform или edge detection)
+3. Rotate image на угол наклона
+4. Crop до центра (80% ширины, 25% высоты)
+5. Noise reduction (median filter, radius 2)
+6. Adaptive threshold (среднее локальной области)
+7. Histogram equalization
+8. Morphological dilation (утолщение линий штрих-кода)
+9. High contrast (contrast 400%)
+```
+
+**Поможет когда:**
+- Штрих-код частично в тени
+- Фото размытое
+- Код под углом
+- Плохое освещение
+- Мелкий штрих-код
+
+---
+
+### 2. FLASHLIGHT (ВСПЫШКА)
+**Сложность:** Легкая | **Время:** 30 минут | **Приоритет:** Средний
+
+**Что добавить:**
+
+```typescript
+const [isFlashlightOn, setIsFlashlightOn] = useState(false);
+
+const toggleFlashlight = async () => {
+  if (streamRef.current) {
+    const track = streamRef.current.getVideoTracks()[0];
+    const capabilities = track.getCapabilities?.() as any;
+    
+    if (capabilities.torch) {
+      try {
+        await track.applyConstraints({
+          advanced: [{ torch: !isFlashlightOn }]
+        });
+        setIsFlashlightOn(!isFlashlightOn);
+      } catch (err) {
+        console.warn('Torch not supported:', err);
+      }
+    }
+  }
+};
+```
+
+**UI кнопка:**
+
+```tsx
+<button
+  onClick={toggleFlashlight}
+  className={`w-12 h-12 rounded-full flex items-center justify-center ${
+    isFlashlightOn ? 'bg-yellow-500' : 'bg-zinc-800'
+  }`}
+>
+  {isFlashlightOn ? <FlashlightOff className="w-6 h-6" /> : <Flashlight className="w-6 h-6" />}
+</button>
+```
+
+**Поможет когда:**
+- Снимаешь в тёмном помещении
+- Подсветка нужна для лучшего контраста
+
+---
+
+### 3. MULTIPLE CAPTURES (НЕСКОЛЬКО КАДРОВ)
+**Сложность:** Средняя | **Время:** 1-2 часа | **Приоритет:** Средний
+
+**Что добавить:**
+
+```typescript
+const captureMultiple = async (count: number = 3): Promise<File | null> => {
+  const captures: File[] = [];
+  
+  for (let i = 0; i < count; i++) {
+    const file = await capturePhoto();
+    if (file) captures.push(file);
+    await delay(200); // Пауза между кадрами
+  }
+  
+  // Выбрать лучший
+  return await selectBestCapture(captures);
+};
+
+const selectBestCapture = async (captures: File[]): Promise<File | null> => {
+  // Для каждого файла:
+  // 1. Попробовать распознать через Native API
+  // 2. Если успешно - оценить confidence
+  // 3. Вернуть файл с highest confidence
+  return captures[0]; // Упрощённо
+};
+```
+
+**UI:**
+
+```
+[📸 Снять 3 раза] - Автоматически выбирает лучший кадр
+```
+
+**Поможет когда:**
+- Рука трясётся
+- Первый кадр неудачный
+- Нужно несколько попыток
+
+---
+
+### 4. IMPROVED ZOOM (СТАБИЛИЗАЦИЯ)
+**Сложность:** Сложная | **Время:** 2-3 часа | **Приоритет:** Низкий
+
+**Что добавить:**
+
+1. **Digital zoom** вместо optical (меньше трясётся)
+2. **OIS compensation** через DeviceMotion API
+3. **Frame averaging** (усреднение нескольких кадров)
+
+```typescript
+// Device Motion для стабилизации
+const handleDeviceMotion = (event: DeviceMotionEvent) => {
+  const acceleration = event.accelerationIncludingGravity;
+  // Компенсировать тряску при зуме
+};
+```
+
+---
+
+### 5. BATCH SCANNING (СЕРИЙНОЕ СКАНИРОВАНИЕ)
+**Сложность:** Средняя | **Время:** 1 час | **Приоритет:** Низкий
+
+**Для склада WMS:**
+
+```
+[📦 Сканировать серию]
+├── Ввод количества: [ 10 ]
+├── Сканировать 10 штрих-кодов подряд
+├── Автоматически добавлять в IN
+└── Звуковой сигнал после каждого
+```
+
+---
+
+### 6. AUDIO FEEDBACK (ЗВУКОВАЯ ОБРАТНАЯ СВЯЗЬ)
+**Сложность:** Легкая | **Время:** 15 минут | **Приоритет:** Низкий
+
+```typescript
+const playBeep = (type: 'success' | 'error' | 'found') => {
+  const audioContext = new AudioContext();
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+  
+  if (type === 'success') {
+    oscillator.frequency.value = 1000;
+    gain.gain.value = 0.3;
+  } else {
+    oscillator.frequency.value = 400;
+    gain.gain.value = 0.2;
+  }
+  
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + 0.1);
+};
+```
+
+---
+
+## ПРИОРИТЕТНЫЙ ПЛАН
+
+| # | Улучшение | Сложность | Время | Эффект |
+|---|-----------|-----------|-------|--------|
+| 1 | **Better Preprocessing** | Средне | 1-2ч | +25% точности |
+| 2 | Flashlight | Легко | 30мин | +30% для тёмных |
+| 3 | Multiple Captures | Средне | 1-2ч | +20% стабильность |
+| 4 | Audio Feedback | Легко | 15мин | UX улучшение |
+| 5 | Improved Zoom | Сложно | 2-3ч | UX улучшение |
+
+**Рекомендация:** Сначала Better Preprocessing + Flashlight → самый большой эффект за минимум времени.
+
+---
+
+## ФАЙЛЫ ДЛЯ ИЗМЕНЕНИЯ
+
+| Файл | Изменения |
+|------|-----------|
+| `src/components/BarcodeScanner.tsx` | Основные изменения |
+| `src/components/BarcodeScanner.css` | Стили для кнопок |
+| `worker/src/index.ts` | Не требуется |
+
+---
+
+## ТЕСТИРОВАНИЕ
+
+После каждого изменения тестировать на:
+
+- [ ] iPhone 12 Pro Max (Safari)
+- [ ] iPhone 14 Pro (Safari)
+- [ ] Android (Chrome)
+- [ ] Desktop (Chrome/Firefox)
+- [ ] Разные условия освещения
+- [ ] Разные типы штрих-кодов (EAN-13, UPC-A, Code 128)
+
+---
+
+## РЕСУРСЫ
+
+- **Tesseract.js:** https://tesseract.projectnaptha.com/
+- **Html5Qrcode:** https://github.com/mebjas/html5-qrcode
+- **Native BarcodeDetector:** https://developer.mozilla.org/en-US/docs/Web/API/BarcodeDetector
+- **Image Processing:** https://github.com/kripken/sdljs/
+
+---
+
+**Дата создания:** 2026-01-22
+**Автор:** Yan's Deco Dev Team

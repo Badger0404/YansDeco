@@ -26,6 +26,14 @@ interface Brand {
   border_dark_enabled?: boolean;
   border_dark_color?: string | null;
   border_dark_opacity?: number | null;
+  glow_light_enabled?: boolean;
+  glow_light_color?: string | null;
+  glow_light_opacity?: number | null;
+  glow_light_blur?: number | null;
+  glow_dark_enabled?: boolean;
+  glow_dark_color?: string | null;
+  glow_dark_opacity?: number | null;
+  glow_dark_blur?: number | null;
 }
 
 const Marques: React.FC<MarquesProps> = ({ theme }) => {
@@ -108,7 +116,7 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
               <p>Aucune marque disponible</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
               {brands.map((brand) => (
                 <a
                   key={brand.id}
@@ -123,7 +131,6 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
                       ? 'hover:border-[#FF6B00]' 
                       : 'hover:border-[#FF6B00]'
                     }
-                    hover:shadow-[0_0_20px_rgba(255,107,0,0.2)]
                   `}
                   style={{
                     backgroundColor: isLight 
@@ -141,6 +148,23 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
                           ? `${brand.border_dark_color}${Math.round((brand.border_dark_opacity || 100) * 2.55).toString(16).padStart(2, '0')}`
                           : 'transparent'),
                     borderWidth: ((isLight && brand.border_light_enabled) || (!isLight && brand.border_dark_enabled)) ? '2px' : '1px'
+                  }}
+                  onMouseEnter={(e) => {
+                    const glowEnabled = isLight 
+                      ? brand.glow_light_enabled && brand.glow_light_color 
+                      : brand.glow_dark_enabled && brand.glow_dark_color;
+                    const glowColor = isLight ? brand.glow_light_color : brand.glow_dark_color;
+                    const glowOpacity = isLight ? (brand.glow_light_opacity || 50) : (brand.glow_dark_opacity || 50);
+                    const glowBlur = isLight ? (brand.glow_light_blur || 20) : (brand.glow_dark_blur || 20);
+                    
+                    if (glowEnabled && glowColor) {
+                      e.currentTarget.style.transition = 'box-shadow 300ms ease';
+                      e.currentTarget.style.boxShadow = `0 0 ${glowBlur}px ${glowColor}${Math.round(glowOpacity * 2.55).toString(16).padStart(2, '0')}`;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transition = 'box-shadow 300ms ease';
+                    e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
                   {brand.logo_url && brand.logo_url.trim() !== '' && (

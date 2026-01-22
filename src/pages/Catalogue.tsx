@@ -105,11 +105,11 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
   const processCategories = (cats: Category[]): Category[] => {
     const categoryMap = new Map<number, Category>();
     const rootCategories: Category[] = [];
-    
+
     cats.forEach(cat => {
       categoryMap.set(cat.id, { ...cat, children: [] });
     });
-    
+
     cats.forEach(cat => {
       const categoryWithChildren = categoryMap.get(cat.id)!;
       if (cat.parent_id && categoryMap.has(cat.parent_id)) {
@@ -118,7 +118,7 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
         rootCategories.push(categoryWithChildren);
       }
     });
-    
+
     return rootCategories;
   };
 
@@ -193,15 +193,15 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                         onClick={() => handleCategoryClick(category.id)}
-                              className={`rounded-xl overflow-hidden group cursor-pointer transition-all duration-300 border border-transparent hover:border-[#FF6B00] hover:scale-[1.02] bg-transparent`}
-                            >
-                              <div className="aspect-[4/3] flex items-center justify-center p-6 bg-transparent">
-                                {category.image_url ? (
-                                  <img
-                                    src={category.image_url}
-                                    alt={getCategoryName(category)}
-                                    className="max-w-full max-h-full object-contain transition-transform duration-1000 group-hover:scale-110"
-                                  />
+                        className={`rounded-xl overflow-hidden group cursor-pointer transition-all duration-300 border border-transparent hover:border-[#FF6B00] hover:scale-[1.02] bg-transparent`}
+                      >
+                        <div className="aspect-[4/3] flex items-center justify-center p-6 bg-transparent">
+                          {category.image_url ? (
+                            <img
+                              src={category.image_url}
+                              alt={getCategoryName(category)}
+                              className="max-w-full max-h-full object-contain transition-transform duration-1000 group-hover:scale-110"
+                            />
                           ) : (
                             <Package className={`w-16 h-16 ${mutedClass} opacity-30`} />
                           )}
@@ -212,7 +212,7 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                           </h2>
                           <div className="flex items-center justify-between">
                             <span className={`text-xs ${mutedClass}`}>
-                              {category.children?.length || 0} sous-catégories
+                              {category.product_count || 0} {t('catalogue.products_count', { count: category.product_count || 0 })}
                             </span>
                             <ChevronRight className={`w-5 h-5 ${mutedClass} group-hover:text-[#FF6B00] group-hover:translate-x-1 transition-all duration-300`} />
                           </div>
@@ -231,9 +231,8 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
               <>
                 <button
                   onClick={handleBack}
-                  className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
-                    isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-400 hover:text-[#FF6B00]'
-                  }`}
+                  className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-400 hover:text-[#FF6B00]'
+                    }`}
                 >
                   <ChevronRight className="w-4 h-4 rotate-180" />
                   {t('catalogue.back')}
@@ -290,7 +289,7 @@ const Catalogue: React.FC<CatalogueProps> = ({ theme }) => {
                                 </h3>
                                 <div className="flex items-center justify-between">
                                   <span className={`text-xs ${mutedClass}`}>
-                                    {sub.children?.length || 0} sous-catégories
+                                    {sub.product_count || 0} {t('catalogue.products_count', { count: sub.product_count || 0 })}
                                   </span>
                                   <ChevronRight className={`w-4 h-4 ${mutedClass} group-hover:text-[#FF6B00] group-hover:translate-x-1 transition-all duration-300`} />
                                 </div>

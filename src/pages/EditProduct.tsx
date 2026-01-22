@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ChevronRight, 
-  Upload, 
+import {
+  ChevronRight,
+  Upload,
   Plus,
   RefreshCw,
   Sparkles,
@@ -33,7 +33,7 @@ const EditProduct: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
-  
+
   const [isLight, setIsLight] = useState(() => localStorage.getItem('site-theme') === 'light');
 
   useEffect(() => {
@@ -131,7 +131,7 @@ const EditProduct: React.FC = () => {
       const data = await response.json();
       if (data.success) {
         setFlatCategories(data.data);
-        
+
         if (id && categoryId) {
           const currentCat = data.data.find((c: Category) => c.id === categoryId);
           if (currentCat && currentCat.parent_id) {
@@ -184,7 +184,7 @@ const EditProduct: React.FC = () => {
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     const file = e.dataTransfer.files[0];
     if (file) {
       await uploadImage(file);
@@ -201,7 +201,7 @@ const EditProduct: React.FC = () => {
   const uploadImage = async (file: File) => {
     setIsUploading(true);
     setError('');
-    
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', 'products');
@@ -211,9 +211,9 @@ const EditProduct: React.FC = () => {
         method: 'POST',
         body: formData
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setImageUrl(data.data.url);
         setImagePreview(data.data.url);
@@ -233,7 +233,7 @@ const EditProduct: React.FC = () => {
 
   const handleTranslateFromField = async (sourceLang: string, sourceField: 'name' | 'description') => {
     const sourceText = translations[sourceLang as keyof typeof translations][sourceField];
-    
+
     if (!sourceText.trim() || sourceText.length < 3) {
       return;
     }
@@ -342,6 +342,7 @@ const EditProduct: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sku: sku.trim(),
+          barcode: barcode?.trim() || null,
           price: parseFloat(price) || 0,
           stock: parseInt(stock) || 0,
           brand_id: brandId === null ? null : brandId,
@@ -361,13 +362,6 @@ const EditProduct: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
-        if (barcode.trim()) {
-          await fetch(`${API_URL}/products/${id}/barcode`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ barcode: barcode.trim() })
-          });
-        }
         setSuccess('Product updated successfully!');
         setTimeout(() => {
           navigate('/admin/products');
@@ -402,9 +396,8 @@ const EditProduct: React.FC = () => {
           <div className="mb-6">
             <button
               onClick={() => navigate('/admin/products')}
-              className={`mb-3 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
-                isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-zinc-400 hover:text-[#FF6B00]'
-              }`}
+              className={`mb-3 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-zinc-400 hover:text-[#FF6B00]'
+                }`}
             >
               <ChevronRight className="w-4 h-4 rotate-180" />
               {t('admin.backToProducts')}
@@ -443,7 +436,7 @@ const EditProduct: React.FC = () => {
               <h2 className={`font-bold italic text-lg uppercase tracking-wide mb-4 ${textClass}`}>
                 Informations de base
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
@@ -457,7 +450,7 @@ const EditProduct: React.FC = () => {
                     placeholder="SKU-12345"
                   />
                 </div>
-                
+
                 <div>
                   <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
                     Barcode
@@ -480,7 +473,7 @@ const EditProduct: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                
+
                 <div>
                   <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
                     Prix *
@@ -498,7 +491,7 @@ const EditProduct: React.FC = () => {
                     <span className={`absolute right-4 top-1/2 -translate-y-1/2 ${mutedClass}`}>€</span>
                   </div>
                 </div>
-                
+
                 <div>
                   <label className={`block text-xs font-bold uppercase tracking-wide mb-2 ${mutedClass}`}>
                     Stock
@@ -587,16 +580,15 @@ const EditProduct: React.FC = () => {
               <h2 className={`font-bold italic text-lg uppercase tracking-wide mb-4 ${textClass}`}>
                 Image du produit
               </h2>
-              
+
               <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
-                  isDragging 
-                    ? 'border-[#FF6B00] bg-[#FF6B00]/10' 
+                className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${isDragging
+                    ? 'border-[#FF6B00] bg-[#FF6B00]/10'
                     : `${borderClass} ${isLight ? 'bg-gray-50' : 'bg-black/30'}`
-                }`}
+                  }`}
               >
                 {isUploading ? (
                   <div className="flex flex-col items-center gap-3">
@@ -605,9 +597,9 @@ const EditProduct: React.FC = () => {
                   </div>
                 ) : imagePreview ? (
                   <div className="relative">
-                    <img 
-                      src={imagePreview} 
-                      alt="Aperçu du produit" 
+                    <img
+                      src={imagePreview}
+                      alt="Aperçu du produit"
                       className="max-h-64 mx-auto rounded-lg"
                     />
                     <button
@@ -637,7 +629,7 @@ const EditProduct: React.FC = () => {
                     <p className={`text-xs ${mutedClass} opacity-70 mb-4`}>
                       PNG, JPG jusqu'à 5MB
                     </p>
-                    
+
                     <label className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF6B00] text-black text-sm font-bold uppercase tracking-wide rounded-lg hover:bg-[#FF8533] transition-colors cursor-pointer">
                       <Camera className="w-5 h-5" />
                       Choisir un fichier
@@ -649,7 +641,7 @@ const EditProduct: React.FC = () => {
                         className="hidden"
                       />
                     </label>
-                    
+
                     <input
                       type="file"
                       accept="image/*"
@@ -679,11 +671,10 @@ const EditProduct: React.FC = () => {
                 ].map((lang) => (
                   <button
                     key={lang.code}
-                    className={`px-4 py-2 text-xs font-bold uppercase tracking-wide rounded-lg transition-colors ${
-                      translations[lang.code as keyof typeof translations] === translations.ru 
-                        ? 'bg-[#FF6B00] text-black' 
+                    className={`px-4 py-2 text-xs font-bold uppercase tracking-wide rounded-lg transition-colors ${translations[lang.code as keyof typeof translations] === translations.ru
+                        ? 'bg-[#FF6B00] text-black'
                         : `border ${borderClass} ${textClass} hover:border-[#FF6B00]`
-                    }`}
+                      }`}
                   >
                     {lang.flag} {lang.label}
                   </button>
@@ -714,24 +705,24 @@ const EditProduct: React.FC = () => {
                           placeholder={lang === 'ru' ? 'Nom du produit' : lang === 'fr' ? 'Nom du produit' : 'Product name'}
                         />
                         <AnimatePresence>
-                          {focusedField?.lang === lang && focusedField?.field === 'name' && 
-                           translations[lang as keyof typeof translations].name.length >= 3 && (
-                            <motion.button
-                              initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              exit={{ opacity: 0, scale: 0.8 }}
-                              onClick={() => handleTranslateFromField(lang, 'name')}
-                              disabled={translatingField !== null}
-                              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-[#FF6B00]/20 hover:bg-[#FF6B00]/40 rounded-lg transition-colors group"
-                              title="AI Translate"
-                            >
-                              {translatingField?.lang === lang && translatingField?.field === 'name' ? (
-                                <RefreshCw className="w-4 h-4 text-[#FF6B00] animate-spin" />
-                              ) : (
-                                <Sparkles className="w-4 h-4 text-[#FF6B00] group-hover:scale-110 transition-transform" />
-                              )}
-                            </motion.button>
-                          )}
+                          {focusedField?.lang === lang && focusedField?.field === 'name' &&
+                            translations[lang as keyof typeof translations].name.length >= 3 && (
+                              <motion.button
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                onClick={() => handleTranslateFromField(lang, 'name')}
+                                disabled={translatingField !== null}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-[#FF6B00]/20 hover:bg-[#FF6B00]/40 rounded-lg transition-colors group"
+                                title="AI Translate"
+                              >
+                                {translatingField?.lang === lang && translatingField?.field === 'name' ? (
+                                  <RefreshCw className="w-4 h-4 text-[#FF6B00] animate-spin" />
+                                ) : (
+                                  <Sparkles className="w-4 h-4 text-[#FF6B00] group-hover:scale-110 transition-transform" />
+                                )}
+                              </motion.button>
+                            )}
                         </AnimatePresence>
                       </div>
                     </div>
@@ -757,23 +748,23 @@ const EditProduct: React.FC = () => {
                         />
                         <AnimatePresence>
                           {focusedField?.lang === lang && focusedField?.field === 'description' &&
-                           translations[lang as keyof typeof translations].description.length >= 3 && (
-                            <motion.button
-                              initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              exit={{ opacity: 0, scale: 0.8 }}
-                              onClick={() => handleTranslateFromField(lang, 'description')}
-                              disabled={translatingField !== null}
-                              className="absolute right-2 top-3 p-1.5 bg-[#FF6B00]/20 hover:bg-[#FF6B00]/40 rounded-lg transition-colors group"
-                              title="AI Translate"
-                            >
-                              {translatingField?.lang === lang && translatingField?.field === 'description' ? (
-                                <RefreshCw className="w-4 h-4 text-[#FF6B00] animate-spin" />
-                              ) : (
-                                <Sparkles className="w-4 h-4 text-[#FF6B00] group-hover:scale-110 transition-transform" />
-                              )}
-                            </motion.button>
-                          )}
+                            translations[lang as keyof typeof translations].description.length >= 3 && (
+                              <motion.button
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                onClick={() => handleTranslateFromField(lang, 'description')}
+                                disabled={translatingField !== null}
+                                className="absolute right-2 top-3 p-1.5 bg-[#FF6B00]/20 hover:bg-[#FF6B00]/40 rounded-lg transition-colors group"
+                                title="AI Translate"
+                              >
+                                {translatingField?.lang === lang && translatingField?.field === 'description' ? (
+                                  <RefreshCw className="w-4 h-4 text-[#FF6B00] animate-spin" />
+                                ) : (
+                                  <Sparkles className="w-4 h-4 text-[#FF6B00] group-hover:scale-110 transition-transform" />
+                                )}
+                              </motion.button>
+                            )}
                         </AnimatePresence>
                       </div>
                     </div>
@@ -786,7 +777,7 @@ const EditProduct: React.FC = () => {
               <h2 className={`font-bold italic text-lg uppercase tracking-wide mb-4 ${textClass}`}>
                 Paramètres commerciaux
               </h2>
-              
+
               <div className="space-y-4">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -831,29 +822,29 @@ const EditProduct: React.FC = () => {
               </label>
 
               <div className="flex gap-3 order-1 sm:order-2 w-full sm:w-auto">
-              <button
-                onClick={() => navigate('/admin/products')}
-                className={`flex-1 sm:flex-none px-6 py-3 border ${borderClass} rounded-lg text-sm font-bold uppercase tracking-wide transition-colors ${textClass} hover:border-[#FF6B00]`}
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="flex-1 sm:flex-none px-8 py-3 bg-[#FF6B00] text-black rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-[#FF8533] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {isSaving ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    Enregistrement...
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-4 h-4" />
-                    Enregistrer les modifications
-                  </>
-                )}
-              </button>
+                <button
+                  onClick={() => navigate('/admin/products')}
+                  className={`flex-1 sm:flex-none px-6 py-3 border ${borderClass} rounded-lg text-sm font-bold uppercase tracking-wide transition-colors ${textClass} hover:border-[#FF6B00]`}
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="flex-1 sm:flex-none px-8 py-3 bg-[#FF6B00] text-black rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-[#FF8533] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isSaving ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      Enregistrement...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" />
+                      Enregistrer les modifications
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>

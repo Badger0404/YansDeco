@@ -2,12 +2,12 @@ import React, { useState, useMemo } from 'react';
 import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { 
-  Package, 
-  Tag, 
-  Award, 
-  Globe, 
-  Calculator, 
+import {
+  Package,
+  Tag,
+  Award,
+  Globe,
+  Calculator,
   Settings,
   Plus,
   ChevronRight,
@@ -15,7 +15,8 @@ import {
   Download,
   RefreshCw,
   Edit3,
-  Users
+  Users,
+  MessageSquare
 } from 'lucide-react';
 
 interface AdminSection {
@@ -112,6 +113,14 @@ const AdminDashboard: React.FC = () => {
       path: '/admin/content',
       color: 'from-red-500/10 to-red-600/5',
       label: t('admin.sections.content.title')
+    },
+    {
+      id: 'slogans',
+      key: 'admin.sections.slogans',
+      icon: <MessageSquare className="w-12 h-12" />,
+      path: '/admin/slogans',
+      color: 'from-indigo-500/10 to-indigo-600/5',
+      label: t('admin.sections.slogans.title')
     }
   ], [t, i18n.language]);
 
@@ -136,36 +145,31 @@ const AdminDashboard: React.FC = () => {
           >
             <Link to={section.path}>
               <div
-                className={`relative h-56 rounded-xl border border-transparent ${borderClass} bg-transparent group cursor-pointer transition-all duration-500 overflow-hidden ${
-                  hoveredSection === section.id ? 'drop-shadow-[0_0_15px_rgba(255,107,0,0.3)]' : ''
-                }`}
+                className={`relative h-56 rounded-xl border border-transparent ${borderClass} bg-transparent group cursor-pointer transition-all duration-500 overflow-hidden ${hoveredSection === section.id ? 'drop-shadow-[0_0_15px_rgba(255,107,0,0.3)]' : ''
+                  }`}
                 onMouseEnter={() => setHoveredSection(section.id)}
                 onMouseLeave={() => setHoveredSection(null)}
               >
                 <div className={`absolute inset-0 bg-gradient-to-br ${section.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                 <div className="absolute inset-0 backdrop-blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
+
                 <div className="relative z-10 flex flex-col items-center justify-center h-full p-5">
-                  <div className={`mb-3 transition-all duration-500 ${
-                    hoveredSection === section.id ? 'scale-110' : 'scale-100'
-                  } ${hoveredSection === section.id ? 'text-[#FF6B00]' : 'text-[#FF6B00]'}`}>
+                  <div className={`mb-3 transition-all duration-500 ${hoveredSection === section.id ? 'scale-110' : 'scale-100'
+                    } ${hoveredSection === section.id ? 'text-[#FF6B00]' : 'text-[#FF6B00]'}`}>
                     {section.icon}
                   </div>
-                  
-                  <h3 className={`font-black italic text-2xl uppercase tracking-tight mb-2 transition-all duration-300 ${
-                    hoveredSection === section.id ? 'text-white' : (isLight ? 'text-black' : 'text-white')
-                  }`}>
+
+                  <h3 className={`font-black italic text-2xl uppercase tracking-tight mb-2 transition-all duration-300 ${hoveredSection === section.id ? 'text-white' : (isLight ? 'text-black' : 'text-white')
+                    }`}>
                     {section.label}
                   </h3>
 
-                  <div className={`absolute bottom-3 left-3 right-3 transition-all duration-500 ${
-                    hoveredSection === section.id 
-                      ? 'opacity-100 translate-y-0' 
-                      : 'opacity-0 translate-y-3'
-                  }`}>
-                    <p className={`text-xs text-center bg-black/40 backdrop-blur-sm rounded-lg py-1.5 px-3 ${
-                      hoveredSection === section.id ? 'text-zinc-200' : mutedClass
+                  <div className={`absolute bottom-3 left-3 right-3 transition-all duration-500 ${hoveredSection === section.id
+                    ? 'opacity-100 translate-y-0'
+                    : 'opacity-0 translate-y-3'
                     }`}>
+                    <p className={`text-xs text-center bg-black/40 backdrop-blur-sm rounded-lg py-1.5 px-3 ${hoveredSection === section.id ? 'text-zinc-200' : mutedClass
+                      }`}>
                       {t(`${section.key}.description`)}
                     </p>
                   </div>
@@ -185,7 +189,7 @@ const AdminDashboard: React.FC = () => {
         <h2 className={`font-bold italic text-xl uppercase tracking-wide mb-5 ${isLight ? 'text-zinc-900' : 'text-white'}`}>
           {t('admin.quickActions.title')}
         </h2>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { icon: <Plus className="w-4 h-4" />, label: t('admin.quickActions.newProduct'), path: '/admin/add-product' },
@@ -212,7 +216,7 @@ const AdminDashboard: React.FC = () => {
         <h2 className={`font-bold italic text-xl uppercase tracking-wide mb-5 ${isLight ? 'text-zinc-900' : 'text-white'}`}>
           {t('admin.recentActivity.title')}
         </h2>
-        
+
         <div className="space-y-2">
           {[
             { time: '2 min', action: t('admin.recentActivity.items.productModified'), status: 'success' },
@@ -227,11 +231,10 @@ const AdminDashboard: React.FC = () => {
               transition={{ delay: 0.8 + index * 0.1 }}
               className={`flex items-center gap-3 p-3 bg-transparent border border-transparent ${borderClass} rounded-lg ${hoverBorderClass} transition-all duration-300`}
             >
-              <div className={`w-2 h-2 rounded-full ${
-                activity.status === 'success' ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]' :
+              <div className={`w-2 h-2 rounded-full ${activity.status === 'success' ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]' :
                 activity.status === 'warning' ? 'bg-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.6)]' :
-                'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)]'
-              }`} />
+                  'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)]'
+                }`} />
               <span className={`text-xs ${isLight ? 'text-zinc-500' : 'text-zinc-400'} w-14`}>{activity.time}</span>
               <span className={`text-sm ${isLight ? 'text-zinc-900' : 'text-white'} flex-1`}>{activity.action}</span>
               <ChevronRight className={`w-3.5 h-3.5 ${isLight ? 'text-zinc-500' : 'text-zinc-400'}`} />

@@ -1,0 +1,238 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { Html5Qrcode } from 'html5-qrcode';
+import Tesseract from 'tesseract.js';
+import { X, Zap, ZapOff, Type, ScanLine, Camera } from 'lucide-react';
+
+interface BarcodeScannerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onScan: (barcode: string) => void;
+}
+
+const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ isOpen, onClose, onScan }) => {
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const [isTorchOn, setIsTorchOn] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'scanning' | 'ocr'>('idle');
+  const [ocrResult, setOcrResult] = useState<string | null>(null);
+
+  // ID контейнера для видео
+  const readerId = "reader-stream";
+
+  useEffect(() => {
+    if (!isOpen) {
+      stopScanner();
+      return;
+    }
+
+    // Небольшая задержка, чтобы DOM успел отрисоваться
+    const timer = setTimeout(() => {
+      startScanner();
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      stopScanner();
+    };
+  }, [isOpen]);
+
+  const startScanner = async () => {
+    try {
+      setStatus('scanning');
+      // Если инстанс уже есть, чистим
+      if (scannerRef.current) {
+        await stopScanner();
+      }
+
+      const html5QrCode = new Html5Qrcode(readerId);
+      scannerRef.current = html5QrCode;
+
+      const config = {
+        fps: 10, // Кадров в секунду
+        qrbox: { width: 250, height: 150 }, // Зона сканирования (визуально и логически)
+        aspectRatio: 1.0,
+      };
+
+      await html5QrCode.start(
+        { facingMode: "environment" }, // Задняя камера
+        config,
+        (decodedText) => {
+          // УСПЕХ: Штрих-код найден
+          handleSuccess(decodedText);
+        },
+        (_errorMessage) => {
+          // Сканируем... (игнорим ошибки отсутствия кода в кадре)
+        }
+      );
+    } catch (err) {
+      console.error("Error starting scanner", err);
+      setStatus('idle');
+    }
+  };
+
+  const stopScanner = async () => {
+    if (scannerRef.current && scannerRef.current.isScanning) {
+      try {
+        await scannerRef.current.stop();
+        scannerRef.current.clear();
+      } catch (err) {
+        console.error("Error stopping scanner", err);
+      }
+    }
+  };
+
+  const handleSuccess = (text: string) => {
+    // Вибрация
+    if (navigator.vibrate) navigator.vibrate(200);
+    stopScanner();
+    onScan(text);
+    onClose();
+  };
+
+  const toggleTorch = () => {
+    // Включение фонарика (поддерживается не везде)
+    if (scannerRef.current) {
+        // @ts-ignore - applyVideoConstraints не всегда есть в типах, но работает
+      const track = scannerRef.current.getRunningTrackCameraCapabilities(); 
+      // Реализация фонарика зависит от браузера, пока оставим заглушку логики
+      setIsTorchOn(!isTorchOn);
+    }
+  };
+
+  // Функция "Снимок" для OCR (если штрих-код не берется)
+  const captureForOCR = () => {
+    if (!scannerRef.current) return;
+    
+    // Получаем видео элемент
+    const videoElement = document.getElementById(readerId)?.querySelector('video');
+    if (!videoElement) return;
+
+    setStatus('ocr');
+
+    // Рисуем кадр на канвас
+    const canvas = document.createElement('canvas');
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+      
+      // Запускаем Tesseract на картинке
+      Tesseract.recognize(
+        canvas,
+        'eng',
+        {
+           // @ts-ignore
+          tessedit_char_whitelist: '0123456789' // Только цифры
+        }
+      ).then(({ data: { text } }) => {
+        const digits = text.replace(/[^0-9]/g, '');
+        if (digits.length > 5) {
+            handleSuccess(digits);
+        } else {
+            setOcrResult("Цифры не найдены. Попробуйте еще раз.");
+            setTimeout(() => setOcrResult(null), 2000);
+            setStatus('scanning');
+        }
+      }).catch(err => {
+          console.error(err);
+          setStatus('scanning');
+      });
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] bg-black flex flex-col">
+      {/* HEADER */}
+      <div className="flex justify-between items-center p-4 bg-zinc-900/90 backdrop-blur z-20">
+        <div className="flex items-center gap-2">
+            <ScanLine className="text-[#FF6B00]" />
+            <span className="text-white font-bold">Сканер</span>
+        </div>
+        <button onClick={onClose} className="p-2 bg-white/10 rounded-full">
+          <X className="text-white w-6 h-6" />
+        </button>
+      </div>
+
+      {/* VIDEO AREA */}
+      <div className="relative flex-1 bg-black flex flex-col justify-center overflow-hidden">
+        {/* Контейнер для html5-qrcode */}
+        <div id={readerId} className="w-full h-full object-cover"></div>
+
+        {/* OVERLAY (Видоискатель) */}
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+            {/* Затемнение вокруг */}
+            <div className="absolute inset-0 border-[50px] border-black/50"></div>
+            {/* Рамка */}
+            <div className="w-[80%] h-[150px] border-2 border-[#FF6B00] relative shadow-[0_0_20px_rgba(255,107,0,0.3)]">
+                {/* Лазер */}
+                <div className="absolute top-0 left-0 w-full h-[2px] bg-[#FF6B00] shadow-[0_0_10px_#FF6B00] animate-scan-line"></div>
+            </div>
+        </div>
+
+        {/* OCR Status Text */}
+        {status === 'ocr' && (
+            <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-30">
+                <div className="text-center">
+                    <div className="w-12 h-12 border-4 border-[#FF6B00] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-white font-bold">Распознаю цифры...</p>
+                </div>
+            </div>
+        )}
+        
+        {/* Error/Info Toast */}
+        {ocrResult && (
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-red-500/90 text-white px-6 py-3 rounded-xl font-bold z-40">
+                {ocrResult}
+             </div>
+        )}
+      </div>
+
+      {/* FOOTER CONTROLS */}
+      <div className="p-6 bg-zinc-900/90 backdrop-blur flex justify-around items-center z-20 safe-area-bottom">
+        
+        {/* Фонарик (не везде работает API, но кнопка пусть будет) */}
+        <button 
+            onClick={toggleTorch}
+            className={`p-4 rounded-full ${isTorchOn ? 'bg-yellow-500 text-black' : 'bg-zinc-800 text-zinc-400'}`}
+        >
+            {isTorchOn ? <ZapOff /> : <Zap />}
+        </button>
+
+        {/* OCR Кнопка (Снимок) */}
+        <button 
+            onClick={captureForOCR}
+            className="flex flex-col items-center gap-1 group"
+        >
+            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center active:scale-95 transition-transform">
+                <div className="w-14 h-14 rounded-full border-2 border-black flex items-center justify-center">
+                    <Type className="w-6 h-6 text-black" />
+                </div>
+            </div>
+            <span className="text-xs text-zinc-400 font-medium">Скан цифр</span>
+        </button>
+
+         {/* Просто пустышка для симметрии или смена камеры */}
+         <button className="p-4 rounded-full bg-zinc-800 text-zinc-400">
+            <Camera />
+        </button>
+
+      </div>
+      
+      {/* Стили для анимации лазера */}
+      <style>{`
+        @keyframes scan-line {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+        .animate-scan-line {
+            animation: scan-line 2s linear infinite;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default BarcodeScanner;

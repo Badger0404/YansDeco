@@ -75,7 +75,7 @@ const AddProduct: React.FC = () => {
   const handleBarcodeScan = async (scannedBarcode: string) => {
     setBarcode(scannedBarcode); setShowScanner(false);
     try {
-      const res = await fetch(`${API_URL}/products/barcode/${scannedBarcode}`);
+      const res = await fetch(`${API_URL}/products/by-barcode/${scannedBarcode}`);
       const data = await res.json();
       if (data?.success && data?.data) {
         const p = data.data;
@@ -236,9 +236,24 @@ const AddProduct: React.FC = () => {
         <div>
           <div className="mb-4"><span className="text-[#FF6B00] text-sm font-bold uppercase tracking-wide">НОВЫЙ ТОВАР</span></div>
           <input type="text" value={sku} onChange={(e) => setSku(e.target.value)} className="w-full font-black italic text-3xl uppercase tracking-tight bg-transparent border-none focus:outline-none text-white mb-4" placeholder="АРТИКУЛ" />
-          <div className="flex gap-4 mb-4">
-            <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} className="w-40 font-bold text-2xl bg-transparent border-b border-dashed focus:outline-none focus:border-[#FF6B00] text-white" placeholder="0.00€" />
-            <button type="button" onClick={() => setShowScanner(true)} className="px-4 py-2 bg-[#FF6B00]/20 border border-[#FF6B00]/50 rounded-lg text-[#FF6B00]">Сканировать</button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 ml-1">Цена (€)</label>
+              <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} className="w-full font-bold text-2xl bg-transparent border-b border-dashed focus:outline-none focus:border-[#FF6B00] text-white" placeholder="0.00€" />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 ml-1">Штрих-код</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={barcode}
+                  onChange={(e) => setBarcode(e.target.value)}
+                  className="flex-1 font-mono text-sm bg-transparent border-b border-dashed focus:outline-none focus:border-[#FF6B00] text-white"
+                  placeholder="Штрих-код"
+                />
+                <button type="button" onClick={() => setShowScanner(true)} className="px-3 py-1.5 bg-[#FF6B00]/20 border border-[#FF6B00]/50 rounded-lg text-[#FF6B00] text-xs font-bold uppercase tracking-wider hover:bg-[#FF6B00]/30 transition-colors">Сканировать</button>
+              </div>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <select value={brandId ?? ''} onChange={(e) => setBrandId(e.target.value ? parseInt(e.target.value) : null)} className="px-4 py-2 rounded-lg border border-zinc-700 bg-black/50 text-white">

@@ -1,0 +1,553 @@
+ ================================================================================
+           CORE SYSTEM INSTRUCTIONS / СИСТЕМНЫЕ УСТАНОВКИ ПРОЕКТА
+================================================================================
+1. ПРАВИЛО ОБНОВЛЕНИЯ: После каждой успешной реализации новой фичи (API, UI,
+   логика и та далее) ИИ ОБЯЗАН предложить ДООЛНИТЬ НЕ ПЕРПИСЫВАЯ этот файл.
+2. ПРОЦЕДУРА: ИИ спрашивает "Сохраняем в память_backup?", при ответе "Да" —
+   генерирует ПОЛНЫЙ текст обновленного файла для перезаписи.
+3. КОНТЕКСТ: Всегда придерживаться премиального стиля Yan's Deco (темная тема,
+   оранжевый неон, минимализм).
+4. Перед реализацией новых добавлений ВСЕГДА ПРЕДСТАВЛЯЙ ПЛАН РЕАЛИЗАЦИИ НА 
+   УТВЕРЖДЕНИЕ 
+================================================================================
+00011|
+00012|
+00013| ================================================================================
+00014|                      YAN'S DECO PROJECT - COMPREHENSIVE MEMORY FILE
+00015| ================================================================================
+00016| Дата создания: 2026-01-17
+00017| Последнее обновление: 2026-01-20
+00018| ================================================================================
+00019|
+00020| О ПРОЕКТЕ
+00021| ================================================================================
+00022| Yan's Deco - строительный магазин декоративных материалов (Краски, клеи,
+00023| инструменты) с полной админ-панелью для управления контентом и клиентской базой.
+00024| РАСШИРЕНО: WMS система управления складом со сканированием штрихкодов.
+00025|
+00026| Технологический стек:
+00027| - Frontend: React 19 + TypeScript + Vite + Framer Motion + Tailwind CSS 4
+00028| - Backend: Cloudflare Workers (Hono.js framework)
+00029| - Database: Cloudflare D1 (SQLite)
+00030| - Storage: Cloudflare R2 (images)
+00031| - AI: Cloudflare Workers AI (Llama 3.1 for translations)
+00032| - Deployment: Cloudflare Pages + Workers
+00033| - i18n: react-i18next (RU, FR, EN)
+00034| - Auth: Custom JWT + Google OAuth ready
+00035| - Barcode Scanning: html5-qrcode library
+00036|
+00037| ================================================================================
+00038| СТРУКТУРА ПРОЕКТА
+00039| ================================================================================
+00040|
+00041| YansDeco/
+00042| ├── src/
+00043| │   ├── pages/                      # Страницы приложения
+00044| │   │   ├── Home.tsx                # Главная страница
+00045| │   │   ├── Catalogue.tsx           # Каталог
+00046| │   │   ├── Marques.tsx             # Бренды (публичная)
+00047| │   │   ├── BrandPublic.tsx         # Страница бренда
+00048| │   │   ├── ProductPage.tsx         # Страница товара
+00049| │   │   ├── ProductDetail.tsx       # Товары подкатегории
+00050| │   │   ├── Services.tsx            # Услуги
+00051| │   │   ├── Calculateurs.tsx        # Калькуляторы
+00052| │   │   ├── Contact.tsx             # Контакты
+00053| │   │   ├── Legal.tsx               # Юридические документы (/legal)
+00054| │   │   ├── WarehouseTerminal.tsx   # WMS складской терминал (НОВОЕ)
+00055| │   │   └── admin/                  # Админ-панель
+00056| │   ├── components/                 # Компоненты
+00057| │   │   ├── BarcodeScanner.tsx      # Сканер штрихкодов (НОВОЕ)
+00058| │   │   └── ...
+00059| │   ├── hooks/                      # Хуки
+00060| │   ├── services/                   # API сервисы
+00061| │   └── i18n.ts                     # Локализация
+00062| ├── worker/
+00063| │   ├── src/index.ts                # Cloudflare Worker API
+00064| │   └── wrangler.toml               # Worker конфигурация
+00065| └── public/locales/                 # Переводы (RU, FR, EN)
+00066|
+00067| ================================================================================
+00068| API ENDPOINTS - PRODUCTS & CATALOG
+00069| ================================================================================
+00070|
+00071| ПРОДУКТЫ:
+00072| - GET    /api/products              # Все товары
+00073| - GET    /api/products/:id          # Товар по ID
+00074| - POST   /api/products              # Создать товар (поддержка barcode)
+00075| - PUT    /api/products/:id          # Обновить товар
+00076| - PUT    /api/products/:id/barcode  # Обновить штрихкод (НОВОЕ)
+00077| - DELETE /api/products/:id          # Удалить товар
+00078| - GET    /api/products?popular=1    # Популярные товары
+00079| - GET    /api/products/by-barcode/:barcode  # Поиск по штрихкоду (НОВОЕ)
+00080|
+00081| КАТЕГОРИИ:
+00082| - GET    /api/categories            # Все категории (дерево)
+00083| - GET    /api/categories/:id        # Категория по ID
+00084| - POST   /api/categories            # Создать категорию
+00085| - PUT    /api/categories/:id        # Обновить категорию
+00086| - DELETE /api/categories/:id        # Удалить категорию
+00087| - GET    /api/categories/:id/products  # Товары категории + подкатегорий
+00088|
+00089| БРЕНДЫ:
+00090| - GET    /api/brands                # Все бренды
+00091| - GET    /api/brands/:id            # Бренд по ID
+00092| - POST   /api/brands                # Создать бренд
+00093| - PUT    /api/brands/:id            # Обновить бренд
+00094| - DELETE /api/brands/:id            # Удалить бренд
+00095| - GET    /api/brands/:id/products   # Товары бренда
+00096|
+00097| ================================================================================
+00098| API ENDPOINTS - WMS (НОВОЕ - 2026-01-20)
+00099| ================================================================================
+00099|
+00100| СКЛАДСКИЕ ОПЕРАЦИИ:
+00101| - POST   /api/admin/stock/in        # Приёмка товара (IN)
+00102|     Body: { product_id, quantity, comment }
+00103|     Returns: { success, data: { product_id, new_stock } }
+00104|
+00105| - POST   /api/admin/stock/out       # Списание товара (OUT)
+00106|     Body: { product_id, quantity, comment }
+00107|     Returns: { success, data: { product_id, new_stock } }
+00108|
+00109| - POST   /api/admin/stock/cash      # Продажа за наличные (SALE_CASH)
+00110|     Header: Authorization: Bearer ADMIN.*
+00111|     Body: { product_id, quantity=1, order_id, total_amount }
+00112|     Returns: { success, data: { product_id, new_stock, order_id, amount } }
+00113|
+00114| ИСТОРИЯ И ОТЧЁТЫ:
+00115| - GET    /api/admin/stock/logs      # Все записи логов
+00116|     Query: ?limit=100&offset=0&product_id=123
+00117|
+00118| - GET    /api/admin/stock/history/:productId  # История по товару
+00119|
+00120| - GET    /api/admin/stock/internal-sales # Наличные продажи
+00121|     Query: ?limit=100&offset=0
+00122|
+00123| ПЕРЕВОДЫ:
+00124| - POST   /api/translate             # AI перевод текста
+00125|
+00126| MEDIA:
+00127| - POST   /api/upload                # Загрузка изображений в R2
+00128|
+00129| ================================================================================
+00130| WMS СКЛАДСКОЙ ТЕРМИНАЛ (НОВОЕ - 2026-01-20)
+00131| ================================================================================
+00132|
+00133| URL: /admin/warehouse
+00134|
+00135| ФУНКЦИОНАЛ:
+00136| - Режим "Приёмка" (RECEPTION): Сканировать → Ввести количество → Добавить
+00137| - Режим "Продажа за наличные" (CASH): Сканировать → Продать (ADMIN only)
+00138|
+00139| КОМПОНЕНТЫ:
+00140| - BarcodeScanner: html5-qrcode для сканирования камерой
+00141| - WarehouseTerminal: Основная страница терминала
+00142|
+00143| РАБОЧИЙ ПРОЦЕСС:
+00144| 1. Нажать "Сканировать продукт"
+00145| 2. Камера сканирует штрихкод
+00146| 3. Товар отображается с текущим остатком
+00147| 4. Ввести количество (для приёмки) или нажать "Продать" (для наличных)
+00148| 5. Операция выполняется, лог создаётся в stock_logs
+00149|
+00150| БЕЗОПАСНОСТЬ:
+00151| - Операции SALE_CASH требуют Authorization: Bearer ADMIN.*
+00152| - Проверка на сервере в /api/admin/stock/cash
+00153|
+00154| ================================================================================
+00155| КЛЮЧЕВЫЕ ИСПРАВЛЕНИЯ И УЛУЧШЕНИЯ (2026-01-20)
+00156| ================================================================================
+00157|
+00158| 1. WMS - СИСТЕМА УПРАВЛЕНИЯ СКЛАДОМ (2026-01-20):
+00159|    - Добавлена таблица products.barcode (TEXT, unique)
+00160|    - Создана таблица stock_logs для истории движений
+00161|    - Создана таблица internal_sales для учёта наличных продаж
+00162|    - Создан компонент BarcodeScanner с html5-qrcode
+00163|    - Создана страница WarehouseTerminal
+00164|    - Добавлены API эндпоинты: /api/admin/stock/in, /api/admin/stock/out,
+00165|      /api/admin/stock/cash, /api/products/by-barcode/:barcode
+00166|    - Формы AddProduct/EditProduct поддерживают поле barcode
+00167|    - Добавлена проверка ADMIN для операций с наличными
+00168|    - Добавлены i18n ключи: stock.scan_success, stock.reception,
+00169|      stock.cash_sale, stock.history на FR, RU, EN
+00170|
+00171| 2. МОБИЛЬНАЯ АДАПТАЦИЯ АДМИН-ПАНЕЛИ (2026-01-20):
+00172|    - AddProduct.tsx: flex gap-2 → flex flex-col sm:flex-row gap-2
+00173|    - EditProduct.tsx: flex items-center justify-between → flex flex-col sm:flex-row с order-
+00174|    - AdminProducts.tsx: flex items-center gap-3 → flex flex-wrap items-center gap-2
+00175|    - AdminCategories.tsx: flex gap-3 → flex flex-wrap gap-2
+00176|    - AdminBrands.tsx: flex items-center justify-between → flex flex-col sm:flex-row
+00177|    - AdminContent.tsx: flex justify-end → flex flex-col sm:flex-row justify-end
+00178|    - AdminTranslations.tsx: grid grid-cols-3 → flex flex-wrap gap-3
+00179|    - AddCategory.tsx: flex items-center justify-between → flex flex-col sm:flex-row с order-
+00180|    - AdminCalculators.tsx: flex items-center justify-between → flex flex-col sm:flex-row
+00181|
+00182|     Общий паттерн для мобильной адаптации:
+00183|     - `flex gap-2` → `flex flex-col sm:flex-row gap-2`
+00184|     - `flex items-center justify-between` → `flex flex-col sm:flex-row sm:items-center gap-4`
+00185|     - `flex justify-end` → `flex flex-col sm:flex-row justify-end gap-2`
+00186|     - `grid grid-cols-3` → `flex flex-wrap gap-3` (для модалок)
+00187|     - `flex items-center gap-3` → `-center gap-2flex flex-wrap items`
+00188|
+00189| 3. СБРОС СКРОЛЛА ПРИ ВОЗВРАТЕ НАЗАД (2026-01-20):
+00190|    - App.tsx: AnimatePresence mode="popLayout" вместо "wait"
+00191|    - Убрана анимация y: 10/-10, оставлена только opacity
+00192|    - Добавлен will-change-transform для оптимизации
+00193|    - ScrollToTop.tsx: sessionStorage защита от двойного скролла
+00194|    - history.scrollRestoration = 'manual'
+00195|
+00196| 4. ИСПРАВЛЕНИЕ ДВОЙНОЙ ЗАГРУЗКИ ПРЕЛОАДЕРА (2026-01-20):
+00197|    - Проблема: На мобильных прелоадер "Chargement..." появлялся 2 раза
+00198|    - Причина: Конфликт AnimatePresence + bfcache + React.StrictMode
+00199|    - Решение: Добавлен useRef fetched во все страницы с загрузкой данных
+00100|
+00101| 5. 100VH BUG НА МОБИЛЬНЫХ (2026-01-20):
+00102|    - index.css: Добавлены min-height: 100dvh и -webkit-fill-available
+00103|    - CSS custom property для правильной высоты на iOS/Android
+00104|    - Новый класс .min-h-screen-safe для будущего использования
+00105|
+00106| 6. REDESIGN КАРТОЧЕК БРЕНДОВ (Marques.tsx) (2026-01-20):
+00107|    - Новая структура: Родитель <a> (ссылка) с <img> и <h3> внутри
+00108|    - Убраны раздельные блоки — единая карточка-ссылка
+00109|    - Фиксированная высота: h-[160px] sm:h-[180px] md:h-[200px]
+00110|    - Центрирование: flex flex-col items-center justify-center
+00111|    - Рамка: border + rounded-lg/rounded-xl
+00112|    - Логотип: max-h-[80-110px] object-contain mb-2-3
+00113|    - Текст: font-bold uppercase tracking-wide text-center
+00114|    - Hover эффект: подсвечивается ВСЯ плитка целиком
+00115|    - Убран navigate, добавлен прямой href на страницу бренда
+00116|    - Увеличен размер логотипов до границ карточки
+00117|
+00118| 7. HERO-СЕКЦИЯ (Home.tsx):
+00119|    - Убраны прыжки контента при смене слайдов
+00120|    - Использован AnimatePresence mode="wait" с absolute positioning
+00121|    - Текст + точки управления + кнопки выровнены по низу карточки товаров
+00122|    - Обе колонки (текст и товар) имеют одинаковую высоту h-[600px]+
+00123|    - Плавная анимация: duration 0.6s, ease [0.25, 0.1, 0.25, 1]
+00124|    - Пауза 250ms между слайдами (интервал 5250ms)
+00125|
+00126| 8. КАРТОЧКА ТОВАРА (Popular Products):
+00127|    - aspect-[4/3] для изображения с object-contain
+00128|    - flex flex-col h-full + flex-grow для выталкивания цены вниз
+00129|    - min-h-[3rem] для названия товара
+00130|    - Фиксированная высота карточки: min-h-[600px] sm:min-h-[640px] lg:min-h-[680px]
+00131|    - Скелетон загрузки с точными размерами карточки
+00132|
+00133| 9. API КАТЕГОРИЙ (worker/src/index.ts):
+00134|    - GET /api/categories/:id/products теперь возвращает товары из категории
+00135|      И ВСЕХ её подкатегорий
+00136|    - Используется RECURSIVE CTE для обхода дерева категорий
+00137|
+00138| 10. PRODUCTDETAIL (src/pages/ProductDetail.tsx):
+00139|    - Запрос товаров напрямую через /api/categories/:id/products
+00140|    - Использует categoryId и subcategoryId из URL
+00141|    - Поддерживает переход из каталога с подкатегориями
+00142|
+00143| 11. АДМИНКА - ПЕРЕВОДЫ:
+00144|     - admin.sections.content.title переводится при смене языка
+00145|     - Используется useMemo с зависимостью от i18n.language
+00146|
+00147| 12. HOVER-ЭФФЕКТЫ КАРТОЧЕК (Catalogue.tsx, Marques.tsx):
+00148|     - Добавлена оранжевая граница при наведении: hover:border-[#FF6B00]
+00149|     - Зум карточки: hover:scale-[1.02]
+00150|     - Зум изображения: group-hover:scale-110 с duration-1000
+00151|     - Анимация стрелки: group-hover:translate-x-1
+00152|     - Текст становится оранжевым: group-hover:text-[#FF6B00]
+00153|     - Используется паттерн "group" для всех hover-эффектов
+00154|
+00155| 13. СТРАНИЦА ПОДКАТЕГОРИИ (ProductDetail.tsx):
+00156|     - Убран дублирующийся заголовок с ID категории
+00157|     - Отображается только название подкатегории
+00158|     - Используется getSubcategoryName() для получения названия
+00159|
+00160| 14. ЮРИДИЧЕСКИЕ ДОКУМЕНТЫ (2026-01-20):
+00161|     - Новая страница Legal.tsx для публичного просмотра (/legal)
+00162|     - Три документа: Mentions Légales, CGV, Politique de Confidentialité
+00163|     - Три языка: FR, EN, RU для каждого документа
+00164|     - Адаптивный дизайн: сайдбар (desktop) / выпадающее меню (mobile)
+00165|     - Динамическая загрузка контента из API
+00166|     - Плитка "Юридические документы" в AdminSettings
+00167|     - Вкладки для редактирования в админке
+00168|     - API endpoints: GET /api/legal, POST /api/admin/legal
+00169|     - Таблица legal_documents в D1 (автосоздание при первом запросе)
+00170|
+00171| 15. ЛОКАЛИЗАЦИЯ LEGAL (2026-01-20):
+00172|     - FR: "Informations Légales" / "Infos Légales" (nav)
+00173|     - EN: "Legal Information" / "Legal Info" (nav)
+00174|     - RU: "Юридическая информация" (nav)
+00175|     - FR subtitle: "Conditions générales et protection des données"
+00176|     - EN subtitle: "Terms of service and privacy policy"
+00177|     - RU subtitle: "Условия использования и политика конфиденциальности"
+00178|
+00179| 16. ССЫЛКИ В НАВИГАЦИИ (2026-01-20):
+00180|     - Header.tsx: navItems с ключом 'legal' и t('nav.legal')
+00181|     - Footer.tsx: footerLinks с t('nav.legal')
+00182|     - Мобильное меню: автоматически использует navItems.map()
+00183|
+00184| ================================================================================
+00185| ЦВЕТОВАЯ СХЕМА И СТИЛЬ
+00186| ================================================================================
+00187|
+00188| Основные цвета:
+00189| - Акцентный: #FF6B00 (оранжевый неон)
+00190| - Фон (темный): #0a0a0a / #111111
+00191| - Текст: #FFFFFF / #e5e5e5
+00192| -muted: #737373 / #a3a3a3
+00193|
+00194| Стиль:
+00195| - Темная тема по умолчанию
+00196| - Framer Motion анимации
+00197| - Italic заголовки (font-black italic)
+00198| - uppercase для кнопок и меток
+00199| - Минималистичные карточки с hover-эффектами
+00200|
+00201| ================================================================================
+00202| КОМАНДЫ DEPLOY
+00203| ================================================================================
+00204|
+00205| Frontend (Cloudflare Pages):
+00206|   cd YansDeco && npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=preview
+00207|
+00208| Frontend Production (Cloudflare Pages):
+00209|   cd YansDeco && npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=production
+00210|
+00211| Backend API (Cloudflare Workers):
+00212|   cd YansDeco/worker && npx wrangler deploy --name yansdeco-api
+00213|
+00214| Production URL: https://yans-deco.pages.dev
+00215| Preview URL: https://preview.yans-deco.pages.dev
+00216| API URL: https://yansdeco-api.andrey-gaffer.workers.dev/api
+00217|
+00218| ================================================================================
+00219| ТЕКУЩИЕ ДАННЫЕ (РЕАЛЬНЫЙ КАТАЛОГ)
+00220| ================================================================================
+00221|
+00222| Основные категории (6):
+00223| - ID 12: Peinture & Finition / Paint & Finishing / Краски и Финишные покрытия
+00224| - ID 13: Colles & Mastics / Adhesives & Sealants / Клеи и Мастики
+00225| - ID 14: Outillage Peintre / Painter's Tools / Инструмент Маляра
+00226| - ID 15: Outillage Carreleur / Tiler's Tools / Инструмент Плиточника
+00227| - ID 16: Preparation des sols / Floor Preparation / Подготовка Пола
+00228| - ID 11: Fixation & Visserie / Fixings & Fasteners / Крепеж и Метизы
+00229|
+00230| Подкатегории (36):
+00231| Peinture (6):
+00232| - Peintures interieures / exterieures / Interior / Exterior Paints / Краски для внутренних и наружных работ
+00233| - Sous-couches & primaires / Undercoats & Primers / Грунтовки и праймеры
+00234| - Enduits de lissage / rebouchage / Smoothing & Filler Compounds / Шпатлевки для выравнивания и заделки трещин
+00235| - Bandes a joints / Joint Tapes / Ленты для швов (серпянка)
+00236| - Bandes armees / Reinforced Corner Tapes / Армирующие ленты
+00237| - Produits de finition / Finishing Products / Финишные составы
+00238|
+00239| Colles (8):
+00240| - Colle a carrelage / Tile Adhesive / Плиточный клей
+00241| - Colle a parquet / Parquet Adhesive / Клей для паркета
+00242| - Colle sol souple (PVC, lino, moquette) / Resilient Flooring Adhesive / Клей для мягких покрытий
+00243| - Colle pour carreaux de platre / Plaster Block Adhesive / Клей для гипсовых плит
+00244| - Colles en tube / Cartridge Adhesives / Клеи в тубах
+00245| - Mastics acryliques / Acrylic Sealants / Акриловые герметики
+00246| - Mastics silicone / Silicone Sealants / Силиконовые герметики
+00247| - Colles speciales (polyurethane, MS polymere) / Specialty Adhesives / Специальные клеи
+00248|
+00249| Outillage Peintre (8):
+00250| - Rouleaux / Paint Rollers / Валики
+00251| - Manchons / Roller Covers / Шубки для валиков
+00252| - Pinceaux / Paint Brushes / Кисти
+00253| - Brosses / Brushes / Макловицы и широкие кисти
+00254| - Couteaux a enduire / Putty Knives / Spatulas / Шпатели
+00255| - Platoirs & lames de lissage / Plastering Trowels & Smoothing Blades / Гладилки и шпатели-правила
+00256| - Bacs a peinture / Paint Trays / Кюветки для краски
+00257| - Accessoires de protection / Protection Accessories / Средства защиты
+00258|
+00259| Outillage Carreleur (6):
+00260| - Disques diamant / Diamond Blades / Алмазные диски
+00261| - Croisillons / Tile Spacers / Крестики для плитки
+00262| - Systemes de nivellement / Leveling Systems (SVP) / Системы выравнивания (СВП)
+00263| - Spatules crantees / Notched Trowels / Зубчатые шпатели
+00264| - Taloche & platoirs / Grouting Floats & Trowels / Терки и гладилки для затирки
+00265| - Accessoires de pose carrelage / Tiling Accessories / Аксессуары для укладки плитки
+00266|
+00267| Preparation des sols (4):
+00268| - Ragréage / Self-Leveling Compound / Нивелирующая смесь
+00269| - Primaires d'accrochage / Bonding Primers / Адгезионные грунты
+00270| - Produits de reparateur sol / Floor Repair Products / Средства для ремонта пола
+00271| - Mortiers specifiques / Specific Mortars / Специальные строительные смеси
+00272|
+00273| Fixation & Visserie (4):
+00274| - Visserie / Screws & Bolts / Саморезы и шурупы
+00275| - Chevilles / Wall Plugs / Anchors / Дюбели
+00276| - Fixations speciales / Specialty Fixings / Специальный крепеж
+00277| - Accessoires de pose / Installation Accessories / Монтажные аксессуары
+00278|
+00279| ================================================================================
+00280| ЗАДАЧИ НА БУДУЩЕЕ
+00281| ================================================================================
+00282|
+00283| 1. Добавить полноценную корзину и оформление заказа
+00284| 2. Реализовать Google OAuth авторизацию
+00285| 3. Добавить фильтры товаров в каталоге
+00286| 4. Реализовать wishlist для пользователей
+00287| 5. Добавить отзывы и рейтинги товаров
+00288| 6. Интеграция с платежной системой
+00289| 7. PWA манифест (офлайн-режим)
+00290| 8. Админка - история операций (GUI для stock_logs)
+00291|
+00292| ================================================================================
+00293
+
+================================================================================
+ОБНОВЛЕНИЯ 2026-01-20 (Session 2)
+================================================================================
+
+НОВЫЕ API ENDPOINTS (Удаление медиа):
+- DELETE /api/products/:id/image     # Удалить фото товара
+- DELETE /api/brands/:id/logo         # Удалить логотип бренда
+
+НОВЫЕ ФУНКЦИИ:
+1. Barcode Scanner в EditProduct.tsx
+   - Добавлено состояние сканера (html5QrCode, isScannerOpen, scannerError)
+   - Добавлены функции startBarcodeScanner() и stopBarcodeScanner()
+   - Кнопка камеры рядом с полем ввода штрихкода
+   - Модальное окно сканера с html5-qrcode
+   - Автоматическое заполнение штрихкода при сканировании
+
+2. Mobile Layout Fix
+   - Добавлен CSS fix в src/index.css:
+     * max-width: 100vw для *
+     * overflow-x: hidden для body
+   - Убрано дублирование хедеров в AddProduct.tsx и EditProduct.tsx
+   - Удалены неиспользуемые импорты
+
+3. Delete Functionality
+   - EditProduct.tsx: Кнопка удаления фото вызывает DELETE /api/products/:id/image
+   - AdminBrands.tsx: Кнопка удаления логотипа вызывает DELETE /api/brands/:id/logo
+   - Оба с подтверждением через confirm()
+
+DEPLOYMENT URLs:
+- Frontend (preview): https://preview.yans-deco.pages.dev
+- Frontend (production): https://yans-deco.pages.dev
+- Backend API: https://yansdeco-api.andrey-gaffer.workers.dev/api
+
+ИЗМЕНЕННЫЕ ФАЙЛЫ:
+- worker/src/index.ts (новые DELETE endpoints)
+- src/pages/AddProduct.tsx (очистка импортов)
+- src/pages/EditProduct.tsx (+barcode scanner, очистка импортов)
+- src/pages/AdminBrands.tsx (delete logo API call)
+- src/index.css (mobile layout fix)
+
+================================================================================
+
+================================================================================
+ОБНОВЛЕНИЯ 2026-01-20 (Session 3 - Duplicate Header Fix)
+================================================================================
+
+ИСПРАВЛЕНА ПРОБЛЕМА С ДУБЛИРУЮЩИМСЯ ХЕДЕРОМ:
+
+1. AddProduct.tsx:
+   - Уменьшен отступ кнопки "Назад" с mb-8 до mb-6
+
+2. EditProduct.tsx:
+   - Уменьшен контейнер с mb-8 до mb-6
+   - Уменьшена кнопка "Назад" с mb-4 до mb-3
+   - Заголовок уменьшен на мобильных (text-2xl -> text-3xl md:text-4xl)
+   - Описание скрыто на мобильных (hidden sm:block)
+
+3. AdminBrands.tsx:
+   - УДАЛЁН ДУБЛИРУЮЩИЙСЯ ХЕДЕР (<header> тег)
+   - AdminHeader теперь рендерится только из App.tsx
+   - Удалены неиспользуемые переменные: cloudStatus, setCloudStatus, themeToggle, headerBgClass, adminNavItems, isActive, isCloudOnline, location, useLocation
+   - Удалены неиспользуемые импорты: Link, ChevronRight, Package, Tag, Award, Globe, Calculator, Settings, Cloud, LogOut, User
+
+ПРИЧИНА ПРОБЛЕМЫ:
+Многие страницы админки имели свой собственный <header> тег с fixed positioning,
+который конфликтовал с AdminHeader из App.tsx. Это создавало визуальное
+дублирование хедеров на всех страницах admin.
+
+РЕШЕНИЕ:
+Теперь App.tsx рендерит AdminHeader для всех admin-страниц, а индивидуальные
+страницы (AdminBrands и другие) используют только этот общий хедер.
+
+DEPLOYMENT URLs:
+- Frontend (preview): https://preview.yans-deco.pages.dev
+- Frontend (production): https://yans-deco.pages.dev
+
+================================================================================
+
+================================================================================
+ОБНОВЛЕНИЯ 2026-01-20 (Session 4 - Duplicate Header Fix v2)
+================================================================================
+
+ГЛАВНЫЕ ИСПРАВЛЕНИЯ ДУБЛИРУЮЩЕГОСЯ ХЕДЕРА:
+
+1. App.tsx:
+   - Добавлен /v-terminal к проверке isAdmin:
+     isAdmin = pathname.startsWith('/admin') || pathname.startsWith('/v-terminal')
+   - Добавлен отступ для main на admin страницах: pt-14 sm:pt-20
+   - Удалён WarehouseTerminal из импортов (временно)
+
+2. AdminHeader.tsx - Полная переработка для мобильных:
+   - Компактный хедер высотой h-14 (56px)
+   - Одна линия с кнопкой меню, переключателем темы и профилем
+   - Добавлены safe-area отступы для iPhone (pt-safe, padding-top: env(safe-area-inset-top))
+   - Упрощённая навигация на мобильных
+   - V-Terminal режим с минимальным интерфейсом (скрыта навигация)
+
+3. index.css - Добавлены safe-area утилиты:
+   - .pt-safe { padding-top: env(safe-area-inset-top); }
+   - .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+   - .pl-safe, .pr-safe
+   - .safe-area-all
+
+4. AdminBrands.tsx - Удалён дублирующий хедер:
+   - Теперь использует общий AdminHeader из App.tsx
+   - Удалены неиспользуемые переменные и импорты
+
+5. AddProduct.tsx / EditProduct.tsx:
+   - Уменьшены отступы кнопки "Назад"
+   - Адаптированы размеры заголовков для мобильных
+
+ПРИНЦИП РАБОТЫ:
+- App.tsx теперь рендерит AdminHeader для всех /admin/* и /v-terminal страниц
+- Индивидуальные страницы админки НЕ содержат собственные <header> теги
+- Это устраняет визуальное дублирование хедеров
+
+ВАЖНО:
+- WarehouseTerminal.tsx временно отключён (требует ручного восстановления из бэкапа)
+- Страница /v-terminal показывает заглушку
+
+================================================================================
+
+================================================================================
+ОБНОВЛЕНИЯ 2026-01-21 (AI Translation System)
+================================================================================
+
+СИСТЕМА AI ПЕРЕВОДА:
+- Endpoint: POST /api/translate
+- Worker Name: yasndeco-api (исправлена опечатка в имени)
+- Model: @cf/meta/llama-3.1-8b-instruct
+- Max Tokens: 1024 (увеличено для длинных описаний)
+
+ФУНКЦИОНАЛ:
+1. Перевод товаров (product_name):
+   - Переводит одновременно Название и Описание.
+   - Поддерживает многострочные описания (сохраняет переносы строк через \n).
+   - Использует One-shot промпт (с примером) для стабильности формата.
+2. Перевод тегов и общих текстов:
+   - Поддерживает передачу tags и text.
+
+КЛЮЧЕВЫЕ ТЕХНИЧЕСКИЕ РЕШЕНИЯ:
+- Regex JSON Extractor: Воркер использует регулярное выражение /\{[\s\S]*\}/ для извлечения JSON из ответа AI. Это защищает от "болтливости" модели или лишних символов Markdown.
+- Quote Escaping: Автоматическое экранирование кавычек в промпте для предотвращения поломки JSON структуры.
+- Frontend Safety: В AddProduct.tsx добавлена проверка (vName/vDesc !== undefined), чтобы пустые ответы от AI не затирали существующий текст пользователя.
+- i18n Rotation: Исправлен фильтр targetLangs — теперь перевод работает между всеми тремя языками (RU, FR, EN) корректно.
+
+ЛОГИРОВАНИЕ (Debug Mode):
+- Frontend: Логи "--- TRANSLATION START ---", "Request Body", "API Data" в консоли браузера.
+- Backend: Подробные логи [TRANSLATE] в Cloudflare Dashboard (Real-time logs).
+
+ИЗМЕНЕННЫЕ ФАЙЛЫ:
+- worker/src/index.ts (логика промптов, экстрактор, логирование)
+- src/pages/AddProduct.tsx (логика вызова, обработка стейта, логирование)
+
+================================================================================
+

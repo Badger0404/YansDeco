@@ -1,0 +1,219 @@
+Проблема того, что «эта хня не реагирует», кроется в трех конкретных местах твоего кода. Ты нажимаешь кнопку OCR (снятие скриншота с видео), но цифры либо отсеиваются фильтром, либо интерфейс не понимает, что нужно выйти из режима камеры.
+
+Вот основные ошибки и как их исправить:
+
+1. Слишком жесткий лимит символов (Главная причина)
+В функции processImage у тебя стоит условие:
+
+TypeScript
+if (digits && digits.length >= 8) { // Типичная длина штрих-кода
+В чем ошибка: Штрих-коды бывают 5, 6, 7 цифр (особенно внутренние коды магазинов). Если Tesseract распознает 7 цифр, твой код просто говорит «Код не распознан» и уходит в ошибку, хотя цифры в переменной есть. Решение: Поставь >= 4. Лучше получить короткий код и поправить его, чем не получить ничего.
+
+2. Отсутствие сброса isLiveView при успехе OCR
+В блоке успешного сканирования штрих-кода (через файл) у тебя нет команды закрыть «живой вид». В чем ошибка: Когда ты нажимаешь кнопку OCR в режиме Live, processImage отрабатывает, находит цифры, но переменная isLiveView остается true. Из-за этого ты продолжаешь видеть камеру или черный экран вместо экрана с результатом.
+
+3. Ошибка в captureFromVideo (Передача файла)
+Ты создаешь blob, потом File, и отправляешь в processImage. Это работает, но в processImage картинка еще раз прогоняется через preprocessImage. В чем ошибка: Двойная обработка (холст на холст) на мобилках часто приводит к потере качества или «замыливанию» мелких цифр.
+
+Как исправить код (внеси эти правки):
+Исправь блок OCR в функции processImage:
+Найди этот кусок кода (примерно 215 строка) и замени его на этот:
+
+TypeScript
+// ВНУТРИ processImage -> STEP 2: Fallback to OCR
+const digits = result.data.text.replace(/[^0-9]/g, '');
+
+if (digits && digits.length >= 4) { // Уменьшили лимит до 4
+  console.log('OCR Success:', digits);
+  setManualBarcode(digits);
+  setIsSuccess(true);
+  setIsLiveView(false); // ОБЯЗАТЕЛЬНО: выключаем камеру, чтобы увидеть результат
+  setError(null);       // Сбрасываем старые ошибки
+  
+  if (window.navigator && window.navigator.vibrate) {
+    window.navigator.vibrate(200);
+  }
+} else {
+  console.warn('OCR failed to find valid digits');
+  setError('Цифры не найдены. Держите камеру ближе и четче.');
+}
+Улучши захват в captureFromVideo:
+Чтобы Tesseract лучше видел, в момент захвата лучше чуть-чуть «подтянуть» контраст прямо на канвасе.
+
+TypeScript
+const captureFromVideo = async () => {
+  const video = document.getElementById(readerId)?.querySelector('video');
+  if (!video) return;
+
+  setIsProcessing(true);
+  setProcessingStep('ocr');
+  setError(null);
+
+  try {
+    const canvas = document.createElement('canvas');
+    // Увеличиваем разрешение захвата для OCR
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error("Canvas context failed");
+
+    // Рисуем кадр
+    ctx.drawImage(video, 0, 0);
+
+    canvas.toBlob(async (blob) => {
+      if (blob) {
+        const file = new File([blob], "capture.jpg", { type: "image/jpeg" });
+        await processImage(file);
+      }
+    }, 'image/jpeg', 1.0); // Максимальное качество
+
+  } catch (err: any) {
+    setError("Ошибка захвата: " + err.message);
+    setIsProcessing(false);
+  }
+};
+Почему еще может «не реагировать»?
+Слишком мелко: Tesseract плохо ест цифры, если они занимают меньше 10% площади кадра. Старайся, чтобы цифры были прямо внутри оранжевой рамки.
+
+Фокус: На твоем iPhone (судя по модели в контексте) камера в браузере не всегда делает автофокус на близком расстоянии. Используй кнопку 2.5x, которую ты добавил, чтобы увеличить цифры без приближения телефона вплотную.
+
+Итог: Главная проблема — это digits.length >= 8 и отсутствие setIsLiveView(false). Исправь это, и цифры начнут «залетать» в поле ввода.
+
+Попробовать исправить эти строки сейчас? Рамку и лазер я вижу, они работают, проблема чисто в логике передачи текста в manualBarcode.
+1. Он ищет «страницу», а не «строку» (Самая вероятная причина)
+По умолчанию Tesseract пытается найти на картинке абзацы, заголовки и блоки текста. Для цифр штрих-кода это не работает. Нужно принудительно сказать ему: «Тут одна строка текста».
+
+Что сделать: В функции processImage добавь параметр tessedit_pageseg_mode: '7'.
+
+2. Картинка превращается в «мыло»
+В твоем коде функция preprocessImage уменьшает изображение, если оно больше 1000px. Для OCR это плохо: цифры становятся мелкими и сливаются.
+
+Что сделать: Увеличим порог, чтобы картинка оставалась четкой.
+
+3. Отсутствие обратной связи
+Когда ты жмешь кнопку, ты не знаешь, что именно «увидел» сканер.
+
+Исправь эти куски кода прямо сейчас:
+Исправление №1: Настройка Tesseract (строка ~215)
+Замени блок вызова Tesseract на этот:
+
+TypeScript
+const result = await Tesseract.recognize(
+  resizedFile,
+  'eng',
+  {
+    // @ts-ignore
+    tessedit_char_whitelist: '0123456789',
+    // PSM 7 — говорит нейронке, что перед ней одна строка текста. Это критично для цифр.
+    tessedit_pageseg_mode: '7', 
+  }
+);
+Исправление №2: Препроцессинг (строка ~113)
+Подкрутим контраст, чтобы цифры стали максимально черными на белом фоне:
+
+TypeScript
+const preprocessImage = (file: File): Promise<string> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Не уменьшаем слишком сильно — для OCR нужны пиксели
+        const maxDim = 1600; 
+        if (width > maxDim || height > maxDim) {
+          const ratio = Math.min(maxDim / width, maxDim / height);
+          width *= ratio;
+          height *= ratio;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve('');
+
+        // Жесткий контраст для Tesseract
+        ctx.filter = 'grayscale(100%) contrast(200%) brightness(100%)';
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 1.0));
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+};
+Исправление №3: Логика вывода (строка ~221)
+Убираем проверку на 8 цифр. Пусть он выводит всё, что нашел, чтобы ты видел, работает он вообще или нет. И обязательно закрываем камеру при любом успехе.
+
+TypeScript
+const digits = result.data.text.replace(/[^0-9]/g, '');
+console.log("Tesseract увидел:", digits); // Проверь это в консоли браузера на iPhone
+
+if (digits && digits.length > 0) { 
+  setManualBarcode(digits);
+  setIsSuccess(true);
+  setIsLiveView(false); // ЗАКРЫВАЕМ камеру, чтобы увидеть поле ввода
+  setError(null);
+} else {
+  setError("Ни одной цифры не найдено. Поднесите ближе.");
+}
+
+Если сканер не видит даже две цифры на таких четких фото, как те, что ты прислал (особенно та вода Cristaline с крупным кодом), значит, в коде есть «затык», который просто блокирует передачу данных.
+
+Я проанализировал твой BarcodeScanner.tsx. Вот три конкретные ошибки, из-за которых он сейчас «слепой», и готовый код для замены.
+
+Почему он ничего не выдает (Разбор ошибок)
+Логический тупик в OCR: В функции processImage (строка 221) стоит проверка digits.length >= 8. Если Tesseract из-за блика на твоем фото (как на IMG_2022.jpg) увидит только 7 цифр, код просто промолчит. Он не выдаст ошибку, он просто ничего не сделает.
+
+Интерфейс «зависает» в камере: Даже если распознавание прошло успешно, в блоке OCR (строки 221-230) отсутствует команда setIsLiveView(false). Ты нажимаешь кнопку, OCR отрабатывает, но ты продолжаешь смотреть в камеру и не видишь, что цифры уже вставились в поле внизу.
+
+Двойная переработка: В captureFromVideo ты делаешь скриншот, а потом processImage еще раз прогоняет его через фильтры. Это может «замыливать» картинку до состояния каши.
+
+Исправленный код (Замени эти функции в BarcodeScanner.tsx)
+1. Универсальная функция обработки (убираем лишние барьеры)
+Замени блок // STEP 2: Fallback to OCR (начиная со строки 215) на этот вариант:
+
+TypeScript
+      // STEP 2: Fallback to OCR if barcode not found
+      if (!barcodeFound) {
+        setProcessingStep('ocr');
+        
+        const result = await Tesseract.recognize(
+          resizedFile,
+          'eng',
+          {
+            // @ts-ignore
+            tessedit_char_whitelist: '0123456789',
+            tessedit_pageseg_mode: '7', // Важно: читаем как одну строку
+          }
+        );
+
+        const digits = result.data.text.replace(/[^0-9]/g, '');
+        console.log("OCR Result:", digits); // Для дебага в консоли
+
+        // Если нашли хотя бы что-то (даже 1 цифру) — выводим!
+        if (digits && digits.length > 0) { 
+          setManualBarcode(digits);
+          setIsSuccess(true);
+          setIsLiveView(false); // ОБЯЗАТЕЛЬНО закрываем камеру, чтобы увидеть инпут
+          setError(null);
+          
+          if (window.navigator && window.navigator.vibrate) {
+            window.navigator.vibrate(200);
+          }
+        } else {
+          setError('Цифры не найдены. Попробуйте поднести ближе или сменить угол.');
+        }
+      }
+2. Исправление захвата (максимальная четкость)
+В функции captureFromVideo (строка 105) измени качество на 1.0:
+
+TypeScript
+      }, 'image/jpeg', 1.0); // Было 0.95
+Как это проверить на твоих примерах:
+Для IMG_2021.jpg: Там есть текст «Réf. 12494» прямо над кодом. Из-за того, что в коде стоит tessedit_pageseg_mode: '7', Tesseract может схватить этот артикул вместо штрих-кода. Старайся, чтобы в оранжевую рамку попадал только нижний ряд цифр.
+
+Для IMG_2022.jpg: Здесь мешает сильный блик на цифрах «0» и «9». С моими правками он хотя бы выведет тебе «8723400...», и ты поймешь, что система жива.

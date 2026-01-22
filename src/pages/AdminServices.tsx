@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { checkHealth } from '../components/CloudStatus';
 import ColorPicker from '../components/ColorPicker';
-import { 
-  ChevronRight, 
+import {
+  ChevronRight,
   Plus,
   Package,
   Tag,
@@ -69,7 +69,7 @@ const AdminServices: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [uploading, setUploading] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     key: '',
     icon_emoji: '',
@@ -180,25 +180,17 @@ const AdminServices: React.FC = () => {
   };
 
   const handleTranslate = async () => {
-    let sourceText = '';
     let sourceLang = '';
-    let sourceTags = '';
 
     if (formData.description_ru?.trim() || formData.title_ru?.trim() || formData.subtitle_ru?.trim() || formData.tags_ru?.trim()) {
-      sourceText = formData.description_ru || formData.title_ru || formData.subtitle_ru || '';
-      sourceTags = formData.tags_ru || '';
       sourceLang = 'ru';
     } else if (formData.description_en?.trim() || formData.title_en?.trim() || formData.subtitle_en?.trim() || formData.tags_en?.trim()) {
-      sourceText = formData.description_en || formData.title_en || formData.subtitle_en || '';
-      sourceTags = formData.tags_en || '';
       sourceLang = 'en';
     } else if (formData.description_fr?.trim() || formData.title_fr?.trim() || formData.subtitle_fr?.trim() || formData.tags_fr?.trim()) {
-      sourceText = formData.description_fr || formData.title_fr || formData.subtitle_fr || '';
-      sourceTags = formData.tags_fr || '';
       sourceLang = 'fr';
     }
 
-    if (!sourceText.trim() && !sourceTags.trim()) {
+    if (!sourceLang) {
       setError(t('admin.translations.fillSourceField'));
       return;
     }
@@ -209,55 +201,37 @@ const AdminServices: React.FC = () => {
     const targetLangs = sourceLang === 'ru' ? ['fr', 'en'] : sourceLang === 'en' ? ['ru', 'fr'] : ['ru', 'en'];
 
     try {
+      const fieldsToTranslate: any = {};
+      if (formData[`title_${sourceLang}` as keyof typeof formData]) fieldsToTranslate.title = formData[`title_${sourceLang}` as keyof typeof formData];
+      if (formData[`subtitle_${sourceLang}` as keyof typeof formData]) fieldsToTranslate.subtitle = formData[`subtitle_${sourceLang}` as keyof typeof formData];
+      if (formData[`description_${sourceLang}` as keyof typeof formData]) fieldsToTranslate.description = formData[`description_${sourceLang}` as keyof typeof formData];
+      if (formData[`tags_${sourceLang}` as keyof typeof formData]) fieldsToTranslate.tags = formData[`tags_${sourceLang}` as keyof typeof formData];
+
       const response = await fetch(`${API_URL}/translate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text: sourceText,
-          tags: sourceTags,
+          fields: fieldsToTranslate,
           sourceLang,
           targetLangs
         })
       });
 
       const data = await response.json();
-      console.log('[Translate] API response:', data);
-      
+
       if (data.success && data.data) {
-        console.log('[Translate] Data to apply:', data.data);
-        
         setFormData(prev => {
           const updated = { ...prev };
-          
+
           targetLangs.forEach((lang: string) => {
-            const translation = data.data[lang];
-            console.log(`[Translate] Processing ${lang}:`, translation);
-            
-            if (translation) {
-              const translatedText = translation.description || translation.name || '';
-              const translatedTags = translation.tags || '';
-              console.log(`[Translate] ${lang} translatedText:`, translatedText);
-              console.log(`[Translate] ${lang} translatedTags:`, translatedTags);
-              
-              if (lang === 'fr') {
-                if (!updated.description_fr?.trim()) updated.description_fr = translatedText;
-                if (!updated.title_fr?.trim()) updated.title_fr = translation.name || '';
-                if (!updated.subtitle_fr?.trim()) updated.subtitle_fr = prev.subtitle_fr || '';
-                if (!updated.tags_fr?.trim()) updated.tags_fr = translatedTags;
-              } else if (lang === 'en') {
-                if (!updated.description_en?.trim()) updated.description_en = translatedText;
-                if (!updated.title_en?.trim()) updated.title_en = translation.name || '';
-                if (!updated.subtitle_en?.trim()) updated.subtitle_en = prev.subtitle_en || '';
-                if (!updated.tags_en?.trim()) updated.tags_en = translatedTags;
-              } else if (lang === 'ru') {
-                if (!updated.description_ru?.trim()) updated.description_ru = translatedText;
-                if (!updated.title_ru?.trim()) updated.title_ru = translation.name || '';
-                if (!updated.subtitle_ru?.trim()) updated.subtitle_ru = prev.subtitle_ru || '';
-                if (!updated.tags_ru?.trim()) updated.tags_ru = translatedTags;
-              }
+            const translations = data.data[lang];
+            if (translations) {
+              if (translations.title) (updated as any)[`title_${lang}`] = translations.title;
+              if (translations.subtitle) (updated as any)[`subtitle_${lang}`] = translations.subtitle;
+              if (translations.description) (updated as any)[`description_${lang}`] = translations.description;
+              if (translations.tags) (updated as any)[`tags_${lang}`] = translations.tags;
             }
           });
-          console.log('[Translate] Updated formData:', updated);
           return updated;
         });
         setSuccess(t('admin.translations.success'));
@@ -312,14 +286,14 @@ const AdminServices: React.FC = () => {
 
   const handleSave = async () => {
     setError('');
-    
+
     if (!formData.key.trim()) {
       setError('Key is required');
       return;
     }
-    
+
     try {
-      const url = editingService 
+      const url = editingService
         ? `${API_URL}/services/${editingService.id}`
         : `${API_URL}/services`;
       const method = editingService ? 'PUT' : 'POST';
@@ -335,7 +309,7 @@ const AdminServices: React.FC = () => {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         setSuccess(editingService ? t('admin.services.updated') : t('admin.services.created'));
         handleCloseModal();
@@ -353,7 +327,7 @@ const AdminServices: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     if (!confirm(t('admin.services.deleteConfirm'))) return;
-    
+
     try {
       const response = await fetch(`${API_URL}/services/${id}`, { method: 'DELETE' });
       const data = await response.json();
@@ -419,26 +393,24 @@ const AdminServices: React.FC = () => {
         <div className="flex items-center gap-3 sm:gap-4">
           <button
             onClick={() => navigate('/')}
-            className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${
-              isLight ? 'text-gray-500 hover:text-[#FF6B00]' : 'text-zinc-500 hover:text-[#FF6B00]'
-            }`}
+            className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${isLight ? 'text-gray-500 hover:text-[#FF6B00]' : 'text-zinc-500 hover:text-[#FF6B00]'
+              }`}
           >
             <ChevronRight className="w-3.5 h-3.5 rotate-180" />
             <span className="hidden sm:inline">{t('admin.backToSite')}</span>
           </button>
-          
+
           <nav className="hidden md:flex items-center gap-1">
             {adminNavItems.map((item) => (
               <Link
                 key={item.id}
                 to={item.path}
-                className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 ${
-                  item.id === 'services'
-                    ? 'bg-[#FF6B00] text-black' : ''
-                } ${isLight 
-                  ? 'text-gray-600 hover:bg-gray-100 hover:text-[#FF6B00]' 
-                  : 'text-zinc-400 hover:bg-white/5 hover:text-[#FF6B00]'
-                }`}
+                className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 ${item.id === 'services'
+                  ? 'bg-[#FF6B00] text-black' : ''
+                  } ${isLight
+                    ? 'text-gray-600 hover:bg-gray-100 hover:text-[#FF6B00]'
+                    : 'text-zinc-400 hover:bg-white/5 hover:text-[#FF6B00]'
+                  }`}
               >
                 {item.icon}
                 <span className="hidden sm:inline">{item.label}</span>
@@ -454,9 +426,8 @@ const AdminServices: React.FC = () => {
             </div>
             <button
               onClick={() => navigate('/')}
-              className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${
-                isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-zinc-400 hover:text-[#FF6B00]'
-              }`}
+              className={`flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors ${isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-zinc-400 hover:text-[#FF6B00]'
+                }`}
             >
               <LogOut className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{t('admin.logout')}</span>
@@ -525,12 +496,11 @@ const AdminServices: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className={`relative p-4 sm:p-6 border ${borderClass} rounded-xl ${cardBgClass} transition-all duration-300 ${
-                    service.is_active === 0 ? 'opacity-50 grayscale' : ''
-                  }`}
+                  className={`relative p-4 sm:p-6 border ${borderClass} rounded-xl ${cardBgClass} transition-all duration-300 ${service.is_active === 0 ? 'opacity-50 grayscale' : ''
+                    }`}
                 >
                   <div className="flex items-start justify-between mb-3 sm:mb-4">
-                    <div 
+                    <div
                       className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-2xl sm:text-3xl overflow-hidden"
                       style={{
                         background: service.gradient_from
@@ -549,11 +519,10 @@ const AdminServices: React.FC = () => {
                     <div className="flex items-center gap-1 sm:gap-2">
                       <button
                         onClick={() => handleToggleVisibility(service)}
-                        className={`p-1.5 sm:p-2 border ${borderClass} rounded-lg transition-colors ${
-                          service.is_active === 1 
-                            ? 'text-green-500 hover:bg-green-500/10' 
-                            : 'text-gray-400 hover:bg-gray-500/10'
-                        }`}
+                        className={`p-1.5 sm:p-2 border ${borderClass} rounded-lg transition-colors ${service.is_active === 1
+                          ? 'text-green-500 hover:bg-green-500/10'
+                          : 'text-gray-400 hover:bg-gray-500/10'
+                          }`}
                         title={service.is_active === 1 ? t('admin.services.hide') : t('admin.services.show')}
                       >
                         {service.is_active === 1 ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
@@ -743,7 +712,7 @@ const AdminServices: React.FC = () => {
                         {lang === 'ru' ? '🇷🇺 Русский' : lang === 'en' ? '🇬🇧 English' : '🇫🇷 Français'}
                       </h4>
                     </div>
-                    
+
                     <div className="space-y-3">
                       <div>
                         <label className={`block text-[10px] font-bold uppercase tracking-wide mb-1 ${mutedClass}`}>

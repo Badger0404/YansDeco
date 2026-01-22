@@ -177,7 +177,12 @@ function generateSlug(text: string): string {
 
 app.get('/api/brands', async (c) => {
   const { results } = await c.env.DB.prepare(
-    `SELECT id, name, logo_url, description_ru, description_fr, description_en, hide_name, bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity FROM brands ORDER BY name`
+    `SELECT id, name, logo_url, description_ru, description_fr, description_en, hide_name, 
+     bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, 
+     border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity,
+     glow_light_enabled, glow_light_color, glow_light_opacity, glow_light_blur,
+     glow_dark_enabled, glow_dark_color, glow_dark_opacity, glow_dark_blur
+     FROM brands ORDER BY name`
   ).all();
   return c.json({ success: true, data: results });
 });
@@ -185,7 +190,12 @@ app.get('/api/brands', async (c) => {
 app.get('/api/brands/:id', async (c) => {
   const id = c.req.param('id');
   const { results } = await c.env.DB.prepare(
-    `SELECT id, name, logo_url, description_ru, description_fr, description_en, hide_name, bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity FROM brands WHERE id = ?`
+    `SELECT id, name, logo_url, description_ru, description_fr, description_en, hide_name, 
+     bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, 
+     border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity,
+     glow_light_enabled, glow_light_color, glow_light_opacity, glow_light_blur,
+     glow_dark_enabled, glow_dark_color, glow_dark_opacity, glow_dark_blur
+     FROM brands WHERE id = ?`
   ).bind(id).all();
 
   if (results.length === 0) {
@@ -231,7 +241,13 @@ app.get('/api/brands/:id/products', async (c) => {
 
 app.post('/api/brands', async (c) => {
   const body = await c.req.json();
-  const { name, logo_url, description_ru, description_fr, description_en, hide_name, bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity } = body;
+  const { 
+    name, logo_url, description_ru, description_fr, description_en, hide_name, 
+    bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, 
+    border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity,
+    glow_light_enabled, glow_light_color, glow_light_opacity, glow_light_blur,
+    glow_dark_enabled, glow_dark_color, glow_dark_opacity, glow_dark_blur
+  } = body;
 
   if (!name) {
     return c.json({ success: false, error: 'Name is required' }, { status: 400 });
@@ -239,8 +255,19 @@ app.post('/api/brands', async (c) => {
 
   try {
     const { success, error } = await c.env.DB.prepare(
-      `INSERT INTO brands (name, logo_url, description_ru, description_fr, description_en, hide_name, bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).bind(name, logo_url || null, description_ru || null, description_fr || null, description_en || null, hide_name ? 1 : 0, bg_light_color || null, bg_light_opacity || null, bg_light_enabled ? 1 : 0, bg_dark_color || null, bg_dark_opacity || null, bg_dark_enabled ? 1 : 0, border_light_enabled ? 1 : 0, border_light_color || null, border_light_opacity || 100, border_dark_enabled ? 1 : 0, border_dark_color || null, border_dark_opacity || 100).run();
+      `INSERT INTO brands (name, logo_url, description_ru, description_fr, description_en, hide_name, 
+       bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, 
+       border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity,
+       glow_light_enabled, glow_light_color, glow_light_opacity, glow_light_blur,
+       glow_dark_enabled, glow_dark_color, glow_dark_opacity, glow_dark_blur) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(
+      name, logo_url || null, description_ru || null, description_fr || null, description_en || null, hide_name ? 1 : 0,
+      bg_light_color || null, bg_light_opacity || null, bg_light_enabled ? 1 : 0, bg_dark_color || null, bg_dark_opacity || null, bg_dark_enabled ? 1 : 0,
+      border_light_enabled ? 1 : 0, border_light_color || null, border_light_opacity || 100, border_dark_enabled ? 1 : 0, border_dark_color || null, border_dark_opacity || 100,
+      glow_light_enabled ? 1 : 0, glow_light_color || null, glow_light_opacity || 50, glow_light_blur || 20,
+      glow_dark_enabled ? 1 : 0, glow_dark_color || null, glow_dark_opacity || 50, glow_dark_blur || 20
+    ).run();
 
     if (!success) {
       return c.json({ success: false, error: error?.message }, { status: 400 });
@@ -260,7 +287,13 @@ app.post('/api/brands', async (c) => {
 app.put('/api/brands/:id', async (c) => {
   const id = c.req.param('id');
   const body = await c.req.json();
-  const { name, logo_url, description_ru, description_fr, description_en, hide_name, bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity } = body;
+  const { 
+    name, logo_url, description_ru, description_fr, description_en, hide_name, 
+    bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, 
+    border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity,
+    glow_light_enabled, glow_light_color, glow_light_opacity, glow_light_blur,
+    glow_dark_enabled, glow_dark_color, glow_dark_opacity, glow_dark_blur
+  } = body;
 
   if (!name) {
     return c.json({ success: false, error: 'Name is required' }, { status: 400 });
@@ -268,8 +301,20 @@ app.put('/api/brands/:id', async (c) => {
 
   try {
     await c.env.DB.prepare(
-      `UPDATE brands SET name = ?, logo_url = ?, description_ru = ?, description_fr = ?, description_en = ?, hide_name = ?, bg_light_color = ?, bg_light_opacity = ?, bg_light_enabled = ?, bg_dark_color = ?, bg_dark_opacity = ?, bg_dark_enabled = ?, border_light_enabled = ?, border_light_color = ?, border_light_opacity = ?, border_dark_enabled = ?, border_dark_color = ?, border_dark_opacity = ? WHERE id = ?`
-    ).bind(name, logo_url || null, description_ru || null, description_fr || null, description_en || null, hide_name ? 1 : 0, bg_light_color || null, bg_light_opacity || null, bg_light_enabled ? 1 : 0, bg_dark_color || null, bg_dark_opacity || null, bg_dark_enabled ? 1 : 0, border_light_enabled ? 1 : 0, border_light_color || null, border_light_opacity || 100, border_dark_enabled ? 1 : 0, border_dark_color || null, border_dark_opacity || 100, id).run();
+      `UPDATE brands SET name = ?, logo_url = ?, description_ru = ?, description_fr = ?, description_en = ?, hide_name = ?, 
+       bg_light_color = ?, bg_light_opacity = ?, bg_light_enabled = ?, bg_dark_color = ?, bg_dark_opacity = ?, bg_dark_enabled = ?, 
+       border_light_enabled = ?, border_light_color = ?, border_light_opacity = ?, border_dark_enabled = ?, border_dark_color = ?, border_dark_opacity = ?,
+       glow_light_enabled = ?, glow_light_color = ?, glow_light_opacity = ?, glow_light_blur = ?,
+       glow_dark_enabled = ?, glow_dark_color = ?, glow_dark_opacity = ?, glow_dark_blur = ?
+       WHERE id = ?`
+    ).bind(
+      name, logo_url || null, description_ru || null, description_fr || null, description_en || null, hide_name ? 1 : 0,
+      bg_light_color || null, bg_light_opacity || null, bg_light_enabled ? 1 : 0, bg_dark_color || null, bg_dark_opacity || null, bg_dark_enabled ? 1 : 0,
+      border_light_enabled ? 1 : 0, border_light_color || null, border_light_opacity || 100, border_dark_enabled ? 1 : 0, border_dark_color || null, border_dark_opacity || 100,
+      glow_light_enabled ? 1 : 0, glow_light_color || null, glow_light_opacity || 50, glow_light_blur || 20,
+      glow_dark_enabled ? 1 : 0, glow_dark_color || null, glow_dark_opacity || 50, glow_dark_blur || 20,
+      id
+    ).run();
 
     const { results } = await c.env.DB.prepare(
       `SELECT * FROM brands WHERE id = ?`

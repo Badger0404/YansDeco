@@ -41,6 +41,7 @@ import CartDrawer from './components/cart/CartDrawer';
 import AuthModal from './components/auth/AuthModal';
 import AdminClients from './pages/AdminClients';
 import AdminClientDetail from './pages/AdminClientDetail';
+import AdminSlogans from './pages/AdminSlogans';
 
 type Theme = 'dark' | 'light';
 
@@ -67,7 +68,7 @@ const AnimatedRoutes: React.FC<{ theme: Theme }> = ({ theme }) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.15, ease: 'easeOut' }}
-        className="will-change-transform"
+        className="will-change-transform w-full"
       >
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home theme={theme} />} />
@@ -119,8 +120,9 @@ const AnimatedRoutes: React.FC<{ theme: Theme }> = ({ theme }) => {
           <Route path="/admin/services" element={<AdminServices />} />
           <Route path="/admin/calculators" element={<AdminCalculators />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
-          <Route path="/admin/content" element={<AdminContent />} />
-          <Route path="/admin/warehouse" element={<div className="p-8 text-center text-zinc-400">Warehouse Terminal - Страница временно недоступна</div>} />
+<Route path="/admin/content" element={<AdminContent />} />
+            <Route path="/admin/slogans" element={<AdminSlogans />} />
+            <Route path="/admin/warehouse" element={<div className="p-8 text-center text-zinc-400">Warehouse Terminal - Страница временно недоступна</div>} />
           <Route path="/v-terminal" element={<div className="p-8 text-center text-zinc-400">Warehouse Terminal - Страница временно недоступна</div>} />
         </Routes>
       </motion.div>
@@ -154,7 +156,7 @@ const App: React.FC = () => {
     <I18nextProvider i18n={i18n}>
       <CartProvider>
         <AuthProvider>
-          <div className="relative min-h-screen">
+          <div className="relative w-full min-h-screen">
             <div
               className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-700"
               style={{
@@ -170,7 +172,7 @@ const App: React.FC = () => {
             }} />}
             {isAdmin && <AdminHeader />}
             <ScrollToTop />
-            <main className={`relative z-10 ${isAdmin ? 'pt-16 sm:pt-20' : ''}`}>
+            <main className={`relative z-10 w-full ${isAdmin ? 'pt-16 sm:pt-20' : ''}`}>
               <AnimatedRoutes theme={theme} />
             </main>
             {!isAdmin && <Footer theme={theme} />}

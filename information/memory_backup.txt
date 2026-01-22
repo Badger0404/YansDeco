@@ -1,0 +1,93 @@
+================================================================================
+           CORE SYSTEM INSTRUCTIONS / СИСТЕМНЫЕ УСТАНОВКИ ПРОЕКТА
+================================================================================
+1. ПРАВИЛО ОБНОВЛЕНИЯ: После каждой успешной реализации новой фичи (API, UI,
+   логика и та далее) ИИ ОБЯЗАН предложить ДООЛНИТЬ НЕ ПЕРПИСЫВАЯ этот файл.
+2. ПРОЦЕДУРА: ИИ спрашивает "Сохраняем в память_backup?", при ответе "Да" —
+   генерирует ПОЛНЫЙ текст обновленного файла для перезаписи.
+3. КОНТЕКСТ: Всегда придерживаться премиального стиля Yan's Deco (темная тема,
+   оранжевый неон, минимализм).
+4. Перед реализацией новых добавлений ВСЕГДА ПРЕДСТАВЛЯЙ ПЛАН РЕАЛИЗАЦИИ НА 
+   УТВЕРЖДЕНИЕ 
+================================================================================
+
+
+
+
+---
+Session: 6 - Translation Debug Attempts (2026-01-21)
+Description: Multiple attempts to restore AI translations functionality.
+
+ATTEMPT 1 - V2 Handler with Debug Logs:
+- Added console.log('--- ACTION TRIGGERED ---') at start of handleTranslateFromFieldV2
+- Added extensive logging: request body, response status, parsed data
+- Added window.runTranslate = () => handleTranslateFromFieldV2('ru', 'name') in useEffect
+- Modified button onClick to call handleTranslateFromFieldV2('ru', 'name') with logs
+- Result: Build passed, but translations still not working
+
+ATTEMPT 2 - Simplified Clean Version:
+- Rewrote AddProduct.tsx completely with minimal code
+- Created simple doTranslate function replacing complex V2 handler
+- Removed unused imports (AnimatePresence, t variable)
+- Kept core functionality: API call, state update, DOM patch
+- Added window.runTranslate = () => doTranslate('ru', 'name') in useEffect
+- Button onClick calls doTranslate(lang, 'name') directly
+- Result: Build passed, translations still not working
+
+ATTEMPT 3 - Testing via Console:
+- Exposed runTranslate() function globally for manual testing
+- User can open browser console and run runTranslate() to test
+- This isolates whether issue is with button click or API function
+
+POSSIBLE CAUSES:
+1. API endpoint may not be accessible from browser (CORS issues)
+2. API may require authentication that is missing
+3. Request body format may be incorrect for the API
+4. The Cloudflare Worker API may have rate limiting
+5. Network/firewall blocking the API calls
+
+NEXT STEPS:
+- Test API directly via curl or Postman to verify it works
+- Check Cloudflare Worker logs for incoming requests
+- Verify API URL is correct and accessible
+- Consider adding proxy through existing API endpoints
+---
+
+Session: 7 - Admin Slogans Page & Dynamic Slides (2026-01-22)
+Description: Created full admin interface for managing 3 homepage slides with font controls, integrated with database.
+
+CHANGES:
+1. Created AdminSlogans.tsx with:
+   - Tab navigation for 3 slides (Slide 1, 2, 3)
+   - Edit modal with text fields (RU/FR/EN) for label, title, content
+   - Font style controls: size, weight, italic, transform, color, tracking
+   - Real-time preview matching homepage styling
+   - Save to database via /api/admin/slides endpoint
+
+2. Added worker endpoints:
+   - GET /api/admin/slides - Retrieve all slides
+   - POST /api/admin/slides - Save/update slides with full style support
+   - POST /api/admin/migrate/slides - Create slides table
+
+3. Created slides table in D1 with columns:
+   - All text fields (label, title, content in ru/fr/en)
+   - Font styles (size, weight, transform, color, tracking, italic)
+   - Slide index and active status
+
+4. Updated translations (i18n.ts):
+   - Added slide1, slide2, slide3 titles in FR/EN/RU
+   - Added pageDesc for description
+
+5. Default content loaded from actual homepage text:
+   - Slide 1: "LIVRAISON EXPRESS DISPONIBLE" / "МАТЕРИАЛЫ С БЫСТРОЙ ДОСТАВКОЙ"
+   - Slide 2: "QUALITÉ PROFESSIONNELLE" / "МЕСТНЫЙ СЕРВИС"
+   - Slide 3: "CONSEIL EXPERT" / "ВСЯ ГАММА МАТЕРИАЛОВ"
+
+STATUS: BUILD SUCCESS - DEPLOYED
+Preview URL: https://3271300f.yans-deco.pages.dev
+Worker URL: https://yasndeco-api.andrey-gaffer.workers.dev
+
+NEXT STEPS (PENDING):
+- Replace hardcoded slogans in Home.tsx with API data
+- Make homepage fetch from /api/admin/slides instead of i18n.ts
+- Ensure proper fallback to default values if API fails

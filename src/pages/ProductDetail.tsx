@@ -57,7 +57,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ theme }) => {
     const key = `${categoryId}-${subcategoryId}`;
     if (fetched.current === key) return;
     fetched.current = key;
-    
+
     if (categoryId) {
       fetchData(parseInt(categoryId), subcategoryId ? parseInt(subcategoryId) : null);
     }
@@ -75,7 +75,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ theme }) => {
 
       const productsResponse = await fetch(`${API_URL}/categories/${subId || catId}/products`);
       const productsData = await productsResponse.json();
-      
+
       if (productsData.success) {
         setProducts(productsData.data);
       }
@@ -147,9 +147,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ theme }) => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <button
               onClick={handleBack}
-              className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
-                isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-400 hover:text-[#FF6B00]'
-              }`}
+              className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-400 hover:text-[#FF6B00]'
+                }`}
             >
               <ChevronRight className="w-4 h-4 rotate-180" />
               {t('catalogue.back')}
@@ -171,9 +170,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ theme }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
             onClick={handleBack}
-            className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${
-              isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-400 hover:text-[#FF6B00]'
-            }`}
+            className={`mb-8 transition-colors duration-200 text-sm uppercase tracking-wide flex items-center gap-2 ${isLight ? 'text-gray-600 hover:text-[#FF6B00]' : 'text-gray-400 hover:text-[#FF6B00]'
+              }`}
           >
             <ChevronRight className="w-4 h-4 rotate-180" />
             {t('catalogue.back')}
@@ -197,8 +195,21 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ theme }) => {
                   className="relative rounded-xl overflow-hidden group cursor-pointer transition-all duration-1000 ease-out hover:scale-[1.05] border border-transparent hover:border-[#FF6B00] bg-transparent"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
-                  
-                  <div className="relative p-5 cursor-pointer">
+
+                  <div className="aspect-square flex items-center justify-center p-4 bg-transparent overflow-hidden">
+                    {product.image_url ? (
+                      <img
+                        src={product.image_url}
+                        alt={getProductName(product)}
+                        className="max-w-full max-h-full object-contain transition-transform duration-1000 group-hover:scale-110"
+                      />
+                    ) : (
+                      <Package className={`w-12 h-12 ${mutedClass} opacity-30`} />
+                    )}
+                  </div>
+
+                  <div className="relative p-5 pt-0 cursor-pointer">
+
                     <div className="flex justify-between items-start mb-3">
                       <span className="text-[#FF6B00] text-xs font-bold uppercase tracking-wide">
                         {product.brand_name || 'YAN\'S DECO'}
@@ -207,17 +218,16 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ theme }) => {
                         {product.price.toFixed(2)} €
                       </span>
                     </div>
-                    
-                    <h3 className={`font-bold italic text-lg uppercase mb-2 leading-tight ${
-                      isLight ? 'text-black' : 'text-white'
-                    } group-hover:text-[#FF6B00] transition-colors`}>
+
+                    <h3 className={`font-bold italic text-lg uppercase mb-2 leading-tight ${isLight ? 'text-black' : 'text-white'
+                      } group-hover:text-[#FF6B00] transition-colors`}>
                       {getProductName(product)}
                     </h3>
-                    
+
                     <p className={`text-xs mb-4 ${mutedClass} line-clamp-2`}>
                       {getProductDescription(product)}
                     </p>
-                    
+
                     <div className="flex items-center justify-between">
                       {product.stock > 0 ? (
                         <span className={`text-xs px-2 py-1 ${isLight ? 'bg-green-100' : 'bg-green-500/20'} text-green-600 dark:text-green-400 rounded-full`}>

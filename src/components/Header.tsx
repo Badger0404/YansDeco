@@ -79,11 +79,10 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
 
   return (
     <>
-      <header className={`w-full flex items-center justify-between px-3 sm:px-6 lg:px-10 py-3 border-b fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isLight 
-          ? 'bg-white/90 backdrop-blur-md border-gray-200' 
+      <header className={`w-full flex items-center justify-between px-3 sm:px-6 lg:px-10 py-3 border-b fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isLight
+          ? 'bg-white/90 backdrop-blur-md border-gray-200'
           : 'bg-black/80 backdrop-blur-md border-gray-800'
-      }`}>
+        }`}>
         <button
           className={`p-1.5 sm:p-2 transition-colors lg:hidden ${isLight ? 'text-black hover:text-[#FF6B00]' : 'text-white hover:text-[#FF6B00]'}`}
           onClick={() => setIsMenuOpen(true)}
@@ -110,12 +109,11 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
               key={item.key}
               to={item.path}
               className={({ isActive }) =>
-                `text-[10px] xl:text-xs uppercase tracking-widest font-medium transition-colors duration-200 ${
-                  isActive
-                    ? 'text-[#FF6B00]'
-                    : isLight 
-                      ? 'text-black hover:text-[#FF6B00]' 
-                      : 'text-white hover:text-[#FF6B00]'
+                `text-[10px] xl:text-xs uppercase tracking-widest font-medium transition-colors duration-200 ${isActive
+                  ? 'text-[#FF6B00]'
+                  : isLight
+                    ? 'text-black hover:text-[#FF6B00]'
+                    : 'text-white hover:text-[#FF6B00]'
                 }`
               }
             >
@@ -125,9 +123,8 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <div className={`hidden xs:flex flex-col items-end text-[9px] sm:text-[10px] font-medium leading-tight ${
-            isLight ? 'text-gray-600' : 'text-gray-400'
-          }`}>
+          <div className={`hidden xs:flex flex-col items-end text-[9px] sm:text-[10px] font-medium leading-tight ${isLight ? 'text-gray-600' : 'text-gray-400'
+            }`}>
             <span>{getConfigValue('phone1') || t('header.phone1')}</span>
             <span>{getConfigValue('phone2') || t('header.phone2')}</span>
           </div>
@@ -137,20 +134,19 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
               <button
                 key={lang.code}
                 onClick={() => i18n.changeLanguage(lang.code)}
-                className={`px-1.5 sm:px-2 py-1 rounded transition-all duration-200 font-medium ${
-                  currentLang === lang.code
+                className={`px-1.5 sm:px-2 py-1 rounded transition-all duration-200 font-medium ${currentLang === lang.code
                     ? 'bg-[#FF6B00] text-black'
-                    : isLight 
-                      ? 'text-gray-600 hover:text-black' 
+                    : isLight
+                      ? 'text-gray-600 hover:text-black'
                       : 'text-gray-400 hover:text-white'
-                }`}
+                  }`}
               >
                 {lang.label}
               </button>
             ))}
           </div>
 
-          <button 
+          <button
             className={`relative p-1.5 transition-colors duration-200 ${isLight ? 'text-black hover:text-[#FF6B00]' : 'text-white hover:text-[#FF6B00]'}`}
             aria-label="Panier"
             onClick={() => setIsCartOpen(true)}
@@ -198,7 +194,7 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
               </div>
             </div>
           ) : (
-            <button 
+            <button
               onClick={() => setIsAuthModalOpen(true)}
               className="hidden sm:flex items-center gap-1.5 bg-[#FF6B00] text-black px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-none hover:opacity-90 transition-opacity duration-200"
             >
@@ -214,9 +210,8 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
               e.preventDefault();
               onToggleTheme();
             }}
-            className={`p-1.5 transition-colors duration-200 ${
-              isLight ? 'text-black hover:text-[#FF6B00]' : 'text-gray-400 hover:text-[#FF6B00]'
-            }`}
+            className={`p-1.5 transition-colors duration-200 ${isLight ? 'text-black hover:text-[#FF6B00]' : 'text-gray-400 hover:text-[#FF6B00]'
+              }`}
             aria-label="Toggle theme"
           >
             {isLight ? (
@@ -234,14 +229,14 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
 
       {isMenuOpen && (
         <div className="fixed inset-0 z-[60]">
-          <div 
+          <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
             onClick={() => setIsMenuOpen(false)}
           />
-          <div className={`absolute left-0 top-0 bottom-0 w-full max-w-sm sm:max-w-xs ${isLight 
-              ? 'bg-white/95 backdrop-blur-xl border-r border-gray-200' 
-              : 'bg-zinc-900/95 backdrop-blur-xl border-r border-gray-800'
-          }`}>
+          <div className={`absolute left-0 top-0 bottom-0 w-full max-w-sm sm:max-w-xs ${isLight
+            ? 'bg-white/95 backdrop-blur-xl border-r border-gray-200'
+            : 'bg-zinc-900/95 backdrop-blur-xl border-r border-gray-800'
+            }`}>
             <div className="p-4 sm:p-6 border-b border-white/10">
               <div className="flex items-center justify-between mb-4 sm:mb-6">
                 <h2 className={`font-bold text-lg sm:text-xl ${isLight ? 'text-black' : 'text-white'}`}>
@@ -262,13 +257,12 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
                   <button
                     key={lang.code}
                     onClick={() => i18n.changeLanguage(lang.code)}
-                    className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md font-medium transition-all duration-200 ${
-                      currentLang === lang.code
+                    className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-md font-medium transition-all duration-200 ${currentLang === lang.code
                         ? 'bg-[#FF6B00] text-black'
-                        : isLight 
-                          ? 'bg-gray-100 text-gray-600 hover:text-black' 
+                        : isLight
+                          ? 'bg-gray-100 text-gray-600 hover:text-black'
                           : 'bg-white/10 text-gray-400 hover:text-white'
-                    }`}
+                      }`}
                   >
                     {lang.label}
                   </button>
@@ -276,9 +270,9 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
               </div>
 
               <div className={`text-[10px] sm:text-xs ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
-                <span>{t('header.phone1')}</span>
+                <span>{getConfigValue('phone1') || t('header.phone1')}</span>
                 <br />
-                <span>{t('header.phone2')}</span>
+                <span>{getConfigValue('phone2') || t('header.phone2')}</span>
               </div>
             </div>
 
@@ -288,11 +282,10 @@ const Header: React.FC<HeaderProps> = ({ theme, onToggleTheme }) => {
                   <li key={item.key}>
                     <button
                       onClick={() => handleNavClick(item.path)}
-                      className={`w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm uppercase tracking-wide font-medium transition-all duration-200 ${
-                        isLight 
-                          ? 'text-black hover:bg-[#FF6B00] hover:text-black' 
+                      className={`w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm uppercase tracking-wide font-medium transition-all duration-200 ${isLight
+                          ? 'text-black hover:bg-[#FF6B00] hover:text-black'
                           : 'text-white hover:bg-[#FF6B00] hover:text-black'
-                      }`}
+                        }`}
                     >
                       {item.label}
                     </button>
