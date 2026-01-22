@@ -425,15 +425,198 @@ Worker: cd YansDeco/worker && npx wrangler deploy
 - Slide 3: "ЭКСПЕРТНАЯ КОНСУЛЬТАЦИЯ" / "CONSEIL EXPERT"
 
 ================================================================================
+ОБНОВЛЕНИЕ 2026-01-22 (AI TRANSLATION - WORKING SOLUTION)
+================================================================================
+
+ПРОБЛЕМА С API:
+- API /api/translate возвращает перевод в поле 'description', не в 'name'
+- Ожидалось: { label, title, content }
+- Получено: { name: "", description: "translated_text|||translated_title|||translated_content" }
+
+РАБОЧЕЕ РЕШЕНИЕ (2026-01-22):
+- Отправляем ВСЕ три поля (label, title, content) через разделитель |||
+- Формат запроса: { text: "label|||title|||content", description: "", sourceLang, targetLangs }
+- API возвращает: { description: "translated_label|||translated_title|||translated_content" }
+- Разпарсиваем через split('|||') -> 3 части
+
+ФУНКЦИЯ DO_TRANSLATE В ADMIN SLOGANS.TSX:
+```typescript
+const doTranslate = async () => {
+  const sourceLang = formData.label_fr?.trim() ? 'fr' : 
+                     formData.label_ru?.trim() ? 'ru' : 
+                     formData.label_en?.trim() ? 'en' : null;
+
+  const requestBody = {
+    text: `${sourceLabel}|||${sourceTitle}|||${sourceContent}`,
+    description: '',
+    sourceLang,
+    targetLangs: targetLangs as string[],
+    tags: 'slide_text'
+  };
+
+  const data = await resp.json();
+  
+  if (data.success && data.data) {
+    const next = { ...formData };
+    (['ru', 'fr', 'en'] as const).forEach(tLang => {
+      if (tLang === sourceLang) return;
+      const translated = data.data[tLang];
+      if (translated && translated.description) {
+        const parts = translated.description.split('|||');
+        next[`label_${tLang}`] = parts[0]?.trim() || '';
+        next[`title_${tLang}`] = parts[1]?.trim() || '';
+        next[`content_${tLang}`] = parts[2]?.trim() || '';
+      }
+    });
+    setFormData(next);
+  }
+};
+```
+
+================================================================================
+ОБНОВЛЕНИЕ 2026-01-22 (ADMIN SLOGANS - NEW UI LAYOUT)
+================================================================================
+
+НОВЫЙ ДИЗАЙН СТРАНИЦЫ /admin/slogans:
+- Убраны табы (Slide 1, 2, 3)
+- Убрана левая колонка с карточками
+- 3 превью выводятся В РЯД (grid-cols-1 md:grid-cols-3)
+- Каждое превью имеет кнопку "РЕДАКТИРОВАТЬ"
+- Кнопка "SAVE & UPDATE" сохранена сверху
+
+НОВАЯ МОДАЛКА С НАСТРОЙКАМИ ШРИФТОВ:
+- ОДНА кнопка "AI ПЕРЕВЕСТИ" сверху модалки
+- 3 вкладки: RU, FR, EN
+- Для каждого поля (label, title, content) свои настройки:
+  - Label: Size (xs/sm/base), Weight (N/B), Color (пипетка)
+  - Title: Size (3xl/4xl/5xl), Weight (B/BL), Italic (I), Color
+  - Content: Size (sm/base), Weight (N), Color
+
+================================================================================
+ОБНОВЛЕНИЕ 2026-01-22 (MARQUES - TRANSPARENT TILES)
+================================================================================
+
+ИСПРАВЛЕНИЕ СВЕТЛОЙ ТЕМЫ:
+Файл: src/pages/Marques.tsx
+Строка 109-111: bg-white -> bg-transparent
+
+```jsx
+${isLight 
+  ? 'border-gray-200 hover:border-[#FF6B00] bg-transparent' 
+  : 'border-white/10 hover:border-[#FF6B00] bg-transparent'
+}
+```
+
+ТЕПЕРЬ: В светлой теме плитки прозрачные, логотип "парит" над фоном
+
+================================================================================
+ОБНОВЛЕНИЕ 2026-01-22 (BRANDS - HIDE NAME FEATURE)
+================================================================================
+
+НОВАЯ ФУНКЦИЯ: Скрытие названия бренда на плитке
+
+ФАЙЛЫ:
+- src/pages/AdminBrands.tsx - добавлен checkbox "Не показувати назву на плитці"
+- src/pages/Marques.tsx - добавлена проверка hide_name для скрытия названия
+- worker/src/index.ts - обновлены INSERT/UPDATE/SELECT запросы
+- БД: добавлена колонка hide_name INTEGER DEFAULT 0
+
+ИНТЕРФЕЙС BRAND (AdminBrands.tsx):
+```typescript
+interface Brand {
+  id: number;
+  name: string;
+  logo_url: string | null;
+  description_ru: string | null;
+  description_fr: string | null;
+  description_en: string | null;
+  hide_name: boolean;  // НОВОЕ
+}
+```
+
+ИНТЕРФЕЙС BRAND (Marques.tsx):
+```typescript
+interface Brand {
+  id: number;
+  name: string;
+  logo_url: string | null;
+  description_ru: string | null;
+  description_fr: string | null;
+  description_en: string | null;
+  product_count?: number;
+  hide_name?: boolean;  // НОВОЕ
+}
+```
+
+ЛОГИКА В MARQUES.TSX:
+```typescript
+{!brand.hide_name && (
+  <>
+    <h3 className={...}>{getBrandName(brand)}</h3>
+    {brand.product_count > 0 && (
+      <span>{brand.product_count} produits</span>
+    )}
+  </>
+)}
+```
+
+API ЗАПРОСЫ (worker/src/index.ts):
+- INSERT: `INSERT INTO brands (..., hide_name) VALUES (..., ?)` bind: hide_name ? 1 : 0
+- UPDATE: `UPDATE brands SET ..., hide_name = ? WHERE id = ?`
+- SELECT: `SELECT ..., hide_name FROM brands`
+- МИГРАЦИЯ: `ALTER TABLE brands ADD COLUMN hide_name INTEGER DEFAULT 0`
+
+ИСПОЛЬЗОВАНИЕ:
+1. Зайти в /admin/brands
+2. Нажать Edit на бренде
+3. Поставить галочку "Не показывать название на плитке"
+4. Сохранить
+5. На /marques логотип будет "парить" без названия
+
+================================================================================
 ЗАДАЧИ НА БУДУЩЕЕ
 ================================================================================
 
 1. Интеграция динамических слайдов в Home.tsx (COMPLETED 2026-01-22)
-2. Добавить полноценную корзину и оформление заказа
-3. Реализовать Google OAuth авторизацию
-4. Добавить фильтры товаров в каталоге
-5. Реализовать wishlist для пользователей
-6. Добавить отзывы и рейтинги товаров
-7. Интеграция с платежной системой
-8. PWA манифест (офлайн-режим)
-9. UI улучшения: понятные названия кнопок в AdminSlogans
+2. AI Translation с ||| separator (COMPLETED 2026-01-22)
+3. AdminSlogans new UI layout (COMPLETED 2026-01-22)
+4. Marques transparent tiles (COMPLETED 2026-01-22)
+5. Brands hide_name feature (COMPLETED 2026-01-22)
+6. Добавить полноценную корзину и оформление заказа
+7. Реализовать Google OAuth авторизацию
+8. Добавить фильтры товаров в каталоге
+9. Реализовать wishlist для пользователей
+10. Добавить отзывы и рейтинги товаров
+11. Интеграция с платежной системой
+12. PWA манифест (офлайн-режим)
+13. Улучшить мобильную версию каталога
+14. Добавить сравнение товаров
+15. Интеграция с социальными сетями
+
+================================================================================
+ТЕКУЩЕЕ СОСТОЯНИЕ ПРОЕКТА (2026-01-22)
+================================================================================
+
+FRONTEND: https://yans-deco.pages.dev
+- Главная страница с динамическими слайдами
+- Каталог товаров с категориями
+- Страница брендов /marques
+- Админ-панель /admin/*
+- WMS складской терминал /admin/warehouse
+- Управление слоганами /admin/slogans
+
+BACKEND: https://yasndeco-api.andrey-gaffer.workers.dev/api
+- CRUD товары, категории, бренды
+- WMS операции (IN/OUT/CASH)
+- AI перевод (Llama 3.1)
+- Загрузка изображений в R2
+
+БАЗА ДАННЫХ: Cloudflare D1 (yasndeco)
+- Таблицы: products, categories, brands, slides, stock_logs, clients, orders
+
+ДЕПЛОЙ:
+Frontend: npm run build && npx wrangler pages deploy dist --project-name=yans-deco --branch=production
+Worker: cd worker && npx wrangler deploy
+
+ФАЙЛ ПАМЯТИ: information/память_backup_2.txt (ОБНОВЛЕНО 2026-01-22)
+

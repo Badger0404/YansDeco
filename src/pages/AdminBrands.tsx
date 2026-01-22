@@ -22,6 +22,7 @@ interface Brand {
   description_ru: string | null;
   description_fr: string | null;
   description_en: string | null;
+  hide_name: boolean;
 }
 
 const AdminBrands: React.FC = () => {
@@ -39,6 +40,7 @@ const AdminBrands: React.FC = () => {
   const [brandName, setBrandName] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
   const [logoPreview, setLogoPreview] = useState('');
+  const [hideName, setHideName] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -95,6 +97,7 @@ const AdminBrands: React.FC = () => {
     setBrandName(brand.name);
     setLogoUrl(brand.logo_url || '');
     setLogoPreview(brand.logo_url || '');
+    setHideName(brand.hide_name || false);
     setTranslations({
       ru: { description: brand.description_ru || '' },
       fr: { description: brand.description_fr || '' },
@@ -252,7 +255,8 @@ const AdminBrands: React.FC = () => {
             logo_url: logoUrl || null,
             description_ru: translations.ru.description,
             description_fr: translations.fr.description,
-            description_en: translations.en.description
+            description_en: translations.en.description,
+            hide_name: hideName
           })
         }
       );
@@ -574,6 +578,19 @@ const AdminBrands: React.FC = () => {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              <div className="flex items-center gap-2 mb-4">
+                <input
+                  type="checkbox"
+                  id="hideName"
+                  checked={hideName}
+                  onChange={(e) => setHideName(e.target.checked)}
+                  className="w-4 h-4 rounded border-[#FF6B00] text-[#FF6B00] focus:ring-[#FF6B00]"
+                />
+                <label htmlFor="hideName" className={`text-sm ${textClass}`}>
+                  Не показувати назву на плитці (логотип буде "парити")
+                </label>
               </div>
 
               <div className="flex gap-3 pt-6 mt-4 border-t border-gray-200 dark:border-white/10">

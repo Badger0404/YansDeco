@@ -13,6 +13,7 @@ interface Brand {
   description_fr: string | null;
   description_en: string | null;
   product_count?: number;
+  hide_name?: boolean;
 }
 
 const Marques: React.FC<MarquesProps> = ({ theme }) => {
@@ -107,7 +108,7 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
                     rounded-lg sm:rounded-xl
                     border transition-all duration-300
                     ${isLight 
-                      ? 'border-gray-200 hover:border-[#FF6B00] bg-white' 
+                      ? 'border-gray-200 hover:border-[#FF6B00] bg-transparent' 
                       : 'border-white/10 hover:border-[#FF6B00] bg-transparent'
                     }
                     hover:shadow-[0_0_20px_rgba(255,107,0,0.2)]
@@ -130,20 +131,24 @@ const Marques: React.FC<MarquesProps> = ({ theme }) => {
                     />
                   )}
 
-                  <h3 className={`
-                    text-center font-bold uppercase tracking-wide
-                    text-xs sm:text-sm md:text-base
-                    transition-colors duration-300
-                    ${isLight ? 'text-black' : 'text-white'}
-                    group-hover:text-[#FF6B00]
-                  `}>
-                    {getBrandName(brand)}
-                  </h3>
+                  {!brand.hide_name && (
+                    <>
+                      <h3 className={`
+                        text-center font-bold uppercase tracking-wide
+                        text-xs sm:text-sm md:text-base
+                        transition-colors duration-300
+                        ${isLight ? 'text-black' : 'text-white'}
+                        group-hover:text-[#FF6B00]
+                      `}>
+                        {getBrandName(brand)}
+                      </h3>
 
-                  {brand.product_count !== undefined && brand.product_count > 0 && (
-                    <span className={`text-[10px] sm:text-xs ${mutedClass} mt-1`}>
-                      {brand.product_count} {brand.product_count === 1 ? 'produit' : 'produits'}
-                    </span>
+                      {brand.product_count !== undefined && brand.product_count > 0 && (
+                        <span className={`text-[10px] sm:text-xs ${mutedClass} mt-1`}>
+                          {brand.product_count} {brand.product_count === 1 ? 'produit' : 'produits'}
+                        </span>
+                      )}
+                    </>
                   )}
                 </a>
               ))}

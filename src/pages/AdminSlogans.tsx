@@ -12,8 +12,8 @@ import {
   Save,
   X,
   Check,
-  Eye,
-  RefreshCw
+  RefreshCw,
+  Languages
 } from 'lucide-react';
 
 interface SlideStyles {
@@ -75,7 +75,7 @@ const AdminSlogans: React.FC = () => {
   const [success, setSuccess] = useState('');
   const [editingSlide, setEditingSlide] = useState<SloganSlide | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [activeSlideTab, setActiveSlideTab] = useState(1);
+  const [translating, setTranslating] = useState(false);
 
   const [formData, setFormData] = useState({
     key: '',
@@ -124,7 +124,7 @@ const AdminSlogans: React.FC = () => {
     setError('');
 
     const defaultSlides: SloganSlide[] = [
-      { id: 1, key: 'slide1', slide_index: 1, label_ru: 'ЭКСПРЕСС-ДОСТАВКА', label_fr: 'LIVRAISON EXPRESS DISPONIBLE', label_en: 'EXPRESS DELIVERY', title_ru: 'СТРОИТЕЛЬНЫЕ МАТЕРИАЛЫ С БЫСТРОЙ ДОСТАВКОЙ', title_fr: 'MATERIAUX DE CONSTRUCTION AVEC LIVRAISON RAPIDE', title_en: 'CONSTRUCTION MATERIALS WITH FAST DELIVERY', content_ru: 'Расположенные в Гролле, мы обслуживаем профессионалов и частных лиц в Монморанси и по всему Иль-де-Франс. Промышленное качество, местный сервис. Наши цены вас приятно удивят.', content_fr: 'Basé à Groslay, nous servons les professionnels et particuliers à Montmorency et dans toute l\'Île-de-France. Qualité industrielle, service local. Nos prix vous surprendront agréablement.', content_en: 'Based in Groslay, we serve professionals and individuals in Montmorency and throughout Île-de-France. Industrial quality, local service. Our prices will pleasantly surprise you.', is_active: true, styles: { ...DEFAULT_STYLES } },
+      { id: 1, key: 'slide1', slide_index: 1, label_ru: 'ЭКСПРЕСС-ДОСТАВКА', label_fr: 'LIVRAISON EXPRESS DISPONIBLE', label_en: 'EXPRESS DELIVERY', title_ru: 'СТРОИТЕЛЬНЫЕ МАТЕРИАЛЫ С БЫСТРОЙ ДОСТАВКОЙ', title_fr: 'MATERIAUX DE CONSTRUCTION AVEC LIVRAISON RAPIDE', title_en: 'CONSTRUCTION MATERIALS WITH FAST DELIVERY', content_ru: 'Расположенные в Гролле, мы обслуживаем профессионалов и частных лиц в Монморанси и по всему Иль-де-Франс. Промышленное качество, местный сервис. Наши цены вас приятно удивят.', content_fr: "Basé à Groslay, nous servons les professionnels et particuliers à Montmorency et dans toute l'Île-de-France. Qualité industrielle, service local. Nos prix vous surprendront agréablement.", content_en: 'Based in Groslay, we serve professionals and individuals in Montmorency and throughout Île-de-France. Industrial quality, local service. Our prices will pleasantly surprise you.', is_active: true, styles: { ...DEFAULT_STYLES } },
       { id: 2, key: 'slide2', slide_index: 2, label_ru: 'ПРОФЕССИОНАЛЬНОЕ КАЧЕСТВО', label_fr: 'QUALITÉ PROFESSIONNELLE', label_en: 'PROFESSIONAL QUALITY', title_ru: 'МЕСТНЫЙ СЕРВИС В ИЛЬ-ДЕ-ФРАНС', title_fr: 'SERVICE LOCAL EN ÎLE-DE-FRANCE', title_en: 'LOCAL SERVICE IN ÎLE-DE-FRANCE', content_ru: 'Конкурентные цены для профессионалов и частных лиц', content_fr: 'Prix compétitifs pour les pros et les particuliers', content_en: 'Competitive prices for pros and individuals', is_active: true, styles: { ...DEFAULT_STYLES } },
       { id: 3, key: 'slide3', slide_index: 3, label_ru: 'ЭКСПЕРТНЫЙ СОВЕТ', label_fr: 'CONSEIL EXPERT', label_en: 'EXPERT ADVICE', title_ru: 'ВЕСЬ АССОРТИМЕНТ МАТЕРИАЛОВ', title_fr: 'TOUTE GAMME DE MATÉRIAUX', title_en: 'FULL RANGE OF MATERIALS', content_ru: 'От покрытий до инструментов - всё для ваших проектов', content_fr: 'Des revêtements aux outils, tout pour vos projets', content_en: 'From coatings to tools, everything for your projects', is_active: true, styles: { ...DEFAULT_STYLES } },
     ];
@@ -153,6 +153,75 @@ const AdminSlogans: React.FC = () => {
 
   const updateField = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const doTranslate = async () => {
+    const sourceLang = formData.label_fr?.trim() ? 'fr' : 
+                       formData.label_ru?.trim() ? 'ru' : 
+                       formData.label_en?.trim() ? 'en' : null;
+
+    if (!sourceLang) {
+      setError('Введите текст для перевода');
+      return;
+    }
+
+    const sourceLabel = formData[`label_${sourceLang}` as keyof typeof formData] as string;
+    const sourceTitle = formData[`title_${sourceLang}` as keyof typeof formData] as string;
+    const sourceContent = formData[`content_${sourceLang}` as keyof typeof formData] as string;
+
+    if (!sourceLabel || sourceLabel.trim().length < 3) {
+      setError('Введите текст для перевода (минимум 3 символа)');
+      return;
+    }
+
+    setTranslating(true);
+    setError('');
+
+    const targetLangs = (['ru', 'fr', 'en'] as const).filter(l => l !== sourceLang);
+    const requestBody = {
+      text: `${sourceLabel}|||${sourceTitle}|||${sourceContent}`,
+      description: '',
+      sourceLang,
+      targetLangs: targetLangs as string[],
+      tags: 'slide_text'
+    };
+
+    try {
+      const resp = await fetch(`${API_URL}/translate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+
+      const data = await resp.json();
+
+      if (data.success && data.data) {
+        const next = { ...formData } as any;
+        
+        (['ru', 'fr', 'en'] as const).forEach(tLang => {
+          if (tLang === sourceLang) return;
+          
+          const translated = data.data[tLang];
+          if (translated && translated.description) {
+            const parts = translated.description.split('|||');
+            next[`label_${tLang}`] = parts[0]?.trim() || '';
+            next[`title_${tLang}`] = parts[1]?.trim() || '';
+            next[`content_${tLang}`] = parts[2]?.trim() || '';
+          }
+        });
+
+        setFormData(next);
+        setSuccess('Перевод выполнен');
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError('Ошибка перевода');
+      }
+    } catch (e) {
+      setError('Ошибка при переводе');
+      console.error('Translation error:', e);
+    } finally {
+      setTranslating(false);
+    }
   };
 
   const handleEdit = (slide: SloganSlide) => {
@@ -230,9 +299,6 @@ const AdminSlogans: React.FC = () => {
     );
   }
 
-  const currentSlide = slides.find(s => s.slide_index === activeSlideTab) || slides[0];
-  const currentStyles = currentSlide?.styles || DEFAULT_STYLES;
-
   return React.createElement('div', { className: 'min-h-screen' },
     React.createElement('header', { className: `w-full flex items-center justify-between px-3 sm:px-6 lg:px-10 py-3 border-b fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${headerBgClass}` },
       React.createElement('div', { className: 'flex items-center gap-3 sm:gap-4' },
@@ -267,69 +333,37 @@ const AdminSlogans: React.FC = () => {
         success && React.createElement('div', { className: 'mb-6 p-3 sm:p-4 bg-green-500/20 border border-green-500/50 rounded-lg text-green-500 text-xs sm:text-sm flex items-center gap-2' },
           React.createElement(Check, { className: 'w-4 h-4' }), success
         ),
-        React.createElement('div', { className: 'flex gap-2 mb-6 overflow-x-auto pb-2' },
-          slides.map((slide) =>
-            React.createElement('button', { key: slide.id, onClick: () => setActiveSlideTab(slide.slide_index), className: `flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs sm:text-sm font-bold uppercase tracking-wide transition-all whitespace-nowrap ${activeSlideTab === slide.slide_index ? 'bg-[#FF6B00] text-black' : `${borderClass} ${textClass} hover:border-[#FF6B00]`}` },
-              React.createElement('span', { className: 'w-6 h-6 rounded-full bg-black/10 flex items-center justify-center text-xs' }, slide.slide_index),
-              getLocalizedText(slide, 'label') || t(`admin.slide${slide.slide_index}.title`)
-            )
-          )
-        ),
-        currentSlide && React.createElement('div', { className: 'grid grid-cols-1 xl:grid-cols-2 gap-6' },
-          React.createElement('div', null,
-            React.createElement('div', { className: `mb-4 flex items-center gap-2` },
-              React.createElement('div', { className: 'w-10 h-10 rounded-xl bg-[#FF6B00]/20 flex items-center justify-center' },
-                React.createElement(Edit, { className: 'w-5 h-5 text-[#FF6B00]' })
-              ),
-              React.createElement('div', null,
-                React.createElement('h3', { className: `font-bold italic uppercase tracking-wide ${textClass}` }, t(`admin.slide${currentSlide.slide_index}.title`)),
-                React.createElement('p', { className: `text-xs ${mutedClass}` }, 'Edit text elements')
-              )
-            ),
-            React.createElement('div', { className: `border-2 border-dashed ${borderClass} rounded-2xl p-4 sm:p-6` },
-              React.createElement('div', { className: 'grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6' },
-                ['Label', 'Title', 'Content'].map((label, idx) => {
-                  const field = idx === 0 ? 'label' : idx === 1 ? 'title' : 'content';
-                  return React.createElement('div', { key: idx, className: `relative p-4 sm:p-6 border ${borderClass} rounded-xl ${cardBgClass}` },
-                    React.createElement('div', { className: 'flex items-start justify-between mb-3' },
-                      React.createElement('div', { className: 'w-10 h-10 rounded-lg bg-[#FF6B00]/10 flex items-center justify-center' },
-                        React.createElement('span', { className: 'text-[#FF6B00] font-bold text-xs' }, field === 'label' ? 'LBL' : field === 'title' ? 'TTL' : 'CNT')
-                      ),
-                      React.createElement('button', { onClick: () => handleEdit(currentSlide), className: `p-1.5 border ${borderClass} rounded hover:border-[#FF6B00]` },
-                        React.createElement(Edit, { className: `w-4 h-4 ${mutedClass}` })
-                      )
-                    ),
-                    React.createElement('p', { className: `text-xs font-bold uppercase tracking-wide mb-1 ${mutedClass}` }, label),
-                    React.createElement('p', { className: `text-sm ${textClass} line-clamp-2` }, getLocalizedText(currentSlide, field) || '—')
-                  );
-                })
-              )
-            )
-          ),
-          React.createElement('div', { className: 'xl:sticky xl:top-24 xl:self-start' },
-            React.createElement('div', { className: `mb-4 flex items-center gap-2` },
-              React.createElement('div', { className: 'w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center' },
-                React.createElement(Eye, { className: 'w-4 h-4 text-green-500' })
-              ),
-              React.createElement('h3', { className: `font-bold italic uppercase tracking-wide text-sm ${textClass}` }, t('admin.preview'))
-            ),
-            React.createElement('div', { className: `border ${borderClass} rounded-xl overflow-hidden ${cardBgClass} h-[280px] sm:h-[300px] flex flex-col` },
-              React.createElement('div', { className: `flex-grow p-4 sm:p-6 ${isLight ? 'bg-gray-50' : 'bg-white/5'}` },
-                React.createElement('div', { className: 'flex flex-col h-full' },
-                  React.createElement('span', { className: `${currentStyles.label_size} ${currentStyles.label_weight} ${currentStyles.label_transform} ${currentStyles.label_tracking} mb-1 sm:mb-2`, style: { color: currentStyles.label_color } }, getLocalizedText(currentSlide, 'label') || 'LABEL'),
-                  React.createElement('h1', { className: `${currentStyles.title_size} ${currentStyles.title_weight} ${currentStyles.title_italic ? 'italic' : ''} ${currentStyles.title_transform} leading-none tracking-tight mb-2 sm:mb-3`, style: { color: currentStyles.title_color } }, getLocalizedText(currentSlide, 'title') || 'TITLE'),
-                  React.createElement('p', { className: `${currentStyles.content_size} ${currentStyles.content_weight} flex-grow leading-relaxed line-clamp-3 sm:line-clamp-4`, style: { color: currentStyles.content_color } }, getLocalizedText(currentSlide, 'content') || 'Description...')
+        React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6' },
+          slides.map((slide) => {
+            const slideStyles = slide.styles || DEFAULT_STYLES;
+            return React.createElement('div', { key: slide.id, className: 'flex flex-col' },
+              React.createElement('div', { className: `mb-4 flex items-center gap-2` },
+                React.createElement('div', { className: 'w-10 h-10 rounded-xl bg-[#FF6B00]/20 flex items-center justify-center' },
+                  React.createElement(Edit, { className: 'w-5 h-5 text-[#FF6B00]' })
+                ),
+                React.createElement('div', null,
+                  React.createElement('h3', { className: `font-bold italic uppercase tracking-wide ${textClass}` }, getLocalizedText(slide, 'label') || t(`admin.slide${slide.slide_index}.title`)),
+                  React.createElement('p', { className: `text-xs ${mutedClass}` }, `Slide ${slide.slide_index}`)
                 )
               ),
-              React.createElement('div', { className: `px-3 py-3 border-t ${borderClass} flex items-center justify-between` },
-                React.createElement('span', { className: `text-xs ${mutedClass}` }, `ID: ${currentSlide.id}`),
-                React.createElement('button', { onClick: () => handleEdit(currentSlide), className: 'flex items-center gap-1.5 px-3 py-1.5 bg-[#FF6B00] text-black text-xs font-bold uppercase rounded hover:bg-[#FF8533]' },
-                  React.createElement(Edit, { className: 'w-3 h-3' }),
-                  t('admin.slogans.edit')
+              React.createElement('div', { className: `border ${borderClass} rounded-xl overflow-hidden ${cardBgClass} flex-grow flex flex-col h-[280px] sm:h-[300px]` },
+                React.createElement('div', { className: `flex-grow p-4 sm:p-6 ${isLight ? 'bg-gray-50' : 'bg-white/5'}` },
+                  React.createElement('div', { className: 'flex flex-col h-full' },
+                    React.createElement('span', { className: `${slideStyles.label_size} ${slideStyles.label_weight} ${slideStyles.label_transform} ${slideStyles.label_tracking} mb-1 sm:mb-2`, style: { color: slideStyles.label_color } }, getLocalizedText(slide, 'label') || 'LABEL'),
+                    React.createElement('h1', { className: `${slideStyles.title_size} ${slideStyles.title_weight} ${slideStyles.title_italic ? 'italic' : ''} ${slideStyles.title_transform} leading-none tracking-tight mb-2 sm:mb-3`, style: { color: slideStyles.title_color } }, getLocalizedText(slide, 'title') || 'TITLE'),
+                    React.createElement('p', { className: `${slideStyles.content_size} ${slideStyles.content_weight} flex-grow leading-relaxed line-clamp-3 sm:line-clamp-4`, style: { color: slideStyles.content_color } }, getLocalizedText(slide, 'content') || 'Description...')
+                  )
+                ),
+                React.createElement('div', { className: `px-3 py-3 border-t ${borderClass} flex items-center justify-between` },
+                  React.createElement('span', { className: `text-xs ${mutedClass}` }, `ID: ${slide.id}`),
+                  React.createElement('button', { onClick: () => handleEdit(slide), className: 'flex items-center gap-1.5 px-3 py-1.5 bg-[#FF6B00] text-black text-xs font-bold uppercase rounded hover:bg-[#FF8533]' },
+                    React.createElement(Edit, { className: 'w-3 h-3' }),
+                    t('admin.slogans.edit')
+                  )
                 )
               )
-            )
-          )
+            );
+          })
         )
       )
     ),
@@ -337,37 +371,68 @@ const AdminSlogans: React.FC = () => {
       React.createElement('div', { className: 'fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]', onClick: handleCloseModal }),
       React.createElement('div', { className: `fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl max-h-[90vh] z-[70] ${cardBgClass} rounded-2xl shadow-2xl overflow-hidden flex flex-col` },
         React.createElement('div', { className: `p-4 sm:p-6 border-b ${borderClass} flex items-center justify-between` },
-          React.createElement('h2', { className: `font-bold italic text-lg sm:text-xl uppercase tracking-wide ${textClass}` }, t(`admin.slide${activeSlideTab}.title`)),
+          React.createElement('h2', { className: `font-bold italic text-lg sm:text-xl uppercase tracking-wide ${textClass}` }, editingSlide ? t(`admin.slide${editingSlide.slide_index}.title`) : t('admin.slogans.title')),
           React.createElement('button', { onClick: handleCloseModal, className: `p-1.5 sm:p-2 rounded-lg transition-colors ${isLight ? 'hover:bg-gray-100' : 'hover:bg-white/10'}` },
             React.createElement(X, { className: `w-5 h-5 ${textClass}` })
           )
         ),
         React.createElement('div', { className: 'flex-1 overflow-y-auto p-4 sm:p-6 space-y-4' },
+          React.createElement('div', { className: 'flex justify-end' },
+            React.createElement('button', { 
+              onClick: doTranslate, 
+              disabled: translating,
+              className: `flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold uppercase rounded-lg transition-colors ${translating ? 'bg-[#FF6B00]/50 text-black cursor-not-allowed' : 'bg-[#FF6B00] text-black hover:bg-[#FF8533]'}` 
+            },
+              React.createElement(Languages, { className: 'w-4 h-4' }),
+              translating ? 'Перевод...' : 'AI ПЕРЕВЕСТИ'
+            )
+          ),
           ['ru', 'fr', 'en'].map((lang) =>
             React.createElement('div', { key: lang, className: `p-3 sm:p-4 border ${borderClass} rounded-xl ${isLight ? 'bg-gray-50' : 'bg-white/5'}` },
               React.createElement('h4', { className: `font-bold uppercase text-xs ${mutedClass} mb-3` }, lang === 'ru' ? 'RU' : lang === 'en' ? 'EN' : 'FR'),
               ['label', 'title', 'content'].map((field) =>
-                React.createElement('div', { key: field, className: 'mb-3' },
-                  React.createElement('label', { className: `block text-[10px] font-bold uppercase tracking-wide mb-1 ${mutedClass}` }, field),
+                React.createElement('div', { key: field, className: 'mb-4' },
+                  React.createElement('div', { className: 'flex items-center justify-between mb-2' },
+                    React.createElement('label', { className: `block text-[10px] font-bold uppercase tracking-wide ${mutedClass}` }, field),
+                    field === 'label' && React.createElement('div', { className: 'flex gap-1' },
+                      React.createElement('select', { value: formData.label_size, onChange: (e: any) => updateField('label_size', e.target.value), className: `px-2 py-1 border ${borderClass} rounded text-xs ${textClass} ${inputBgClass}` },
+                        React.createElement('option', { value: 'text-xs' }, 'xs'),
+                        React.createElement('option', { value: 'text-sm' }, 'sm'),
+                        React.createElement('option', { value: 'text-base' }, 'base')
+                      ),
+                      React.createElement('select', { value: formData.label_weight, onChange: (e: any) => updateField('label_weight', e.target.value), className: `px-2 py-1 border ${borderClass} rounded text-xs ${textClass} ${inputBgClass}` },
+                        React.createElement('option', { value: 'font-normal' }, 'N'),
+                        React.createElement('option', { value: 'font-bold' }, 'B')
+                      ),
+                      React.createElement('input', { type: 'color', value: formData.label_color, onChange: (e: any) => updateField('label_color', e.target.value), className: 'w-7 h-6 rounded border cursor-pointer' })
+                    ),
+                    field === 'title' && React.createElement('div', { className: 'flex gap-1' },
+                      React.createElement('select', { value: formData.title_size, onChange: (e: any) => updateField('title_size', e.target.value), className: `px-2 py-1 border ${borderClass} rounded text-xs ${textClass} ${inputBgClass}` },
+                        React.createElement('option', { value: 'text-3xl' }, '3xl'),
+                        React.createElement('option', { value: 'text-4xl' }, '4xl'),
+                        React.createElement('option', { value: 'text-5xl' }, '5xl')
+                      ),
+                      React.createElement('select', { value: formData.title_weight, onChange: (e: any) => updateField('title_weight', e.target.value), className: `px-2 py-1 border ${borderClass} rounded text-xs ${textClass} ${inputBgClass}` },
+                        React.createElement('option', { value: 'font-bold' }, 'B'),
+                        React.createElement('option', { value: 'font-black' }, 'BL')
+                      ),
+                      React.createElement('button', { onClick: () => updateField('title_italic', !formData.title_italic), className: `px-2 py-1 border ${borderClass} rounded text-xs ${formData.title_italic ? 'bg-[#FF6B00] text-black' : textClass} ${inputBgClass}` }, 'I'),
+                      React.createElement('input', { type: 'color', value: formData.title_color, onChange: (e: any) => updateField('title_color', e.target.value), className: 'w-7 h-6 rounded border cursor-pointer' })
+                    ),
+                    field === 'content' && React.createElement('div', { className: 'flex gap-1' },
+                      React.createElement('select', { value: formData.content_size, onChange: (e: any) => updateField('content_size', e.target.value), className: `px-2 py-1 border ${borderClass} rounded text-xs ${textClass} ${inputBgClass}` },
+                        React.createElement('option', { value: 'text-sm' }, 'sm'),
+                        React.createElement('option', { value: 'text-base' }, 'base')
+                      ),
+                      React.createElement('select', { value: formData.content_weight, onChange: (e: any) => updateField('content_weight', e.target.value), className: `px-2 py-1 border ${borderClass} rounded text-xs ${textClass} ${inputBgClass}` },
+                        React.createElement('option', { value: 'font-normal' }, 'N')
+                      ),
+                      React.createElement('input', { type: 'color', value: formData.content_color, onChange: (e: any) => updateField('content_color', e.target.value), className: 'w-7 h-6 rounded border cursor-pointer' })
+                    )
+                  ),
                   React.createElement('input', { type: 'text', value: formData[`${field}_${lang}` as keyof typeof formData] as string, onChange: (e: any) => updateField(`${field}_${lang}`, e.target.value), className: `w-full px-3 py-2 border ${borderClass} rounded-lg text-xs ${textClass} ${inputBgClass}` })
                 )
               )
-            )
-          ),
-          React.createElement('div', { className: 'pt-4 border-t border-dashed border-zinc-700/50' },
-            React.createElement('h4', { className: `font-bold uppercase text-xs ${mutedClass} mb-3` }, 'Font Sizes'),
-            React.createElement('div', { className: 'grid grid-cols-3 gap-3' },
-              React.createElement('select', { value: formData.label_size, onChange: (e: any) => updateField('label_size', e.target.value), className: `px-2 py-2 border ${borderClass} rounded-lg text-xs ${textClass} ${inputBgClass}` },
-                React.createElement('option', { value: 'text-xs' }, 'xs'),
-                React.createElement('option', { value: 'text-sm' }, 'sm'),
-                React.createElement('option', { value: 'text-base' }, 'base')
-              ),
-              React.createElement('select', { value: formData.title_size, onChange: (e: any) => updateField('title_size', e.target.value), className: `px-2 py-2 border ${borderClass} rounded-lg text-xs ${textClass} ${inputBgClass}` },
-                React.createElement('option', { value: 'text-3xl' }, '3xl'),
-                React.createElement('option', { value: 'text-4xl' }, '4xl'),
-                React.createElement('option', { value: 'text-5xl' }, '5xl')
-              ),
-              React.createElement('button', { onClick: () => updateField('title_italic', !formData.title_italic), className: `px-2 py-2 border ${borderClass} rounded-lg text-xs ${formData.title_italic ? 'bg-[#FF6B00] text-black' : textClass} ${inputBgClass}` }, formData.title_italic ? 'Italic: Yes' : 'Italic: No')
             )
           )
         ),
