@@ -8,6 +8,8 @@ interface Env {
   GREEN_API_ID_INSTANCE: string;
   GREEN_API_TOKEN_INSTANCE: string;
   ENV: string;
+  ADMIN_PASSWORD: string;
+  DEVELOPER_PASSWORD: string;
 }
 
 const app = new Hono<{ Bindings: Env }>();
@@ -54,6 +56,52 @@ app.use('*', cors({
 app.get('/api', (c) => c.text('API_ALIVE'));
 app.get('/', (c) => c.text('API_ALIVE'));
 
+// Debug endpoint to check environment variables
+app.get('/api/admin/debug', async (c) => {
+  return c.json({ 
+    admin_set: !!c.env.ADMIN_PASSWORD,
+    developer_set: !!c.env.DEVELOPER_PASSWORD,
+    admin_length: c.env.ADMIN_PASSWORD?.length || 0,
+    developer_length: c.env.DEVELOPER_PASSWORD?.length || 0,
+    env: c.env.ENV
+  });
+});
+
+// Admin authentication verification
+app.post('/api/admin/verify', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { role, password } = body;
+
+    if (!role || !password) {
+      return c.json({ success: false, error: 'Role and password required' }, { status: 400 });
+    }
+
+    // Debug logging - remove in production
+    console.log('Login attempt:', { role, passwordLength: password.length });
+    console.log('Env vars:', { 
+      admin: c.env.ADMIN_PASSWORD ? 'SET' : 'NOT_SET', 
+      developer: c.env.DEVELOPER_PASSWORD ? 'SET' : 'NOT_SET' 
+    });
+
+    let isValid = false;
+
+    if (role === 'admin' && password === c.env.ADMIN_PASSWORD) {
+      isValid = true;
+    } else if (role === 'developer' && password === c.env.DEVELOPER_PASSWORD) {
+      isValid = true;
+    }
+
+    if (isValid) {
+      return c.json({ success: true, role });
+    } else {
+      return c.json({ success: false, error: 'Invalid credentials' }, { status: 401 });
+    }
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
 // Full health check
 app.get('/api/health', async (c) => {
   try {
@@ -89,7 +137,7 @@ app.get('/api/health', async (c) => {
       success: false,
       status: 'unhealthy',
       error: error.message
-}, { status: 500 });
+    }, { status: 500 });
   }
 });
 
@@ -98,7 +146,7 @@ app.post('/api/admin/migrate/slogans', async (c) => {
   try {
     // Drop old table if exists with bad schema
     await c.env.DB.prepare(`DROP TABLE IF EXISTS slogans`).run();
-    
+
     // Create table with proper schema (key quoted, CURRENT_TIMESTAMP for dates)
     await c.env.DB.prepare(`
       CREATE TABLE slogans (
@@ -121,6 +169,43 @@ app.post('/api/admin/migrate/slogans', async (c) => {
   } catch (error: any) {
     console.error('[Migration] Error:', error.message);
     return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+// Migration endpoint for categories visual settings
+app.post('/api/admin/migrate/categories', async (c) => {
+  try {
+    // Add visual settings columns to categories table (safe - only adds if not exists)
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN bg_light_enabled INTEGER DEFAULT 0`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN bg_light_color TEXT`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN bg_light_opacity INTEGER DEFAULT 50`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN bg_dark_enabled INTEGER DEFAULT 0`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN bg_dark_color TEXT`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN bg_dark_opacity INTEGER DEFAULT 50`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN border_light_enabled INTEGER DEFAULT 0`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN border_light_color TEXT`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN border_light_opacity INTEGER DEFAULT 100`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN border_dark_enabled INTEGER DEFAULT 0`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN border_dark_color TEXT`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN border_dark_opacity INTEGER DEFAULT 100`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN glow_light_enabled INTEGER DEFAULT 0`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN glow_light_color TEXT`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN glow_light_opacity INTEGER DEFAULT 50`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN glow_light_blur INTEGER DEFAULT 20`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN glow_dark_enabled INTEGER DEFAULT 0`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN glow_dark_color TEXT`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN glow_dark_opacity INTEGER DEFAULT 50`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN glow_dark_blur INTEGER DEFAULT 20`).run();
+    await c.env.DB.prepare(`ALTER TABLE categories ADD COLUMN hide_name INTEGER DEFAULT 0`).run();
+
+    return c.json({ success: true, message: 'Categories migration completed' });
+  } catch (error: any) {
+    // If column already exists, SQLite will throw error - that's OK
+    if (error.message && error.message.includes('duplicate column name')) {
+      return c.json({ success: true, message: 'Columns already exist' });
+    }
+    console.error('[Categories migration] Error:', error.message);
+    return c.json({ success: false, error: error.message }, { status: 400 });
   }
 });
 
@@ -241,9 +326,9 @@ app.get('/api/brands/:id/products', async (c) => {
 
 app.post('/api/brands', async (c) => {
   const body = await c.req.json();
-  const { 
-    name, logo_url, description_ru, description_fr, description_en, hide_name, 
-    bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, 
+  const {
+    name, logo_url, description_ru, description_fr, description_en, hide_name,
+    bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled,
     border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity,
     glow_light_enabled, glow_light_color, glow_light_opacity, glow_light_blur,
     glow_dark_enabled, glow_dark_color, glow_dark_opacity, glow_dark_blur
@@ -287,9 +372,9 @@ app.post('/api/brands', async (c) => {
 app.put('/api/brands/:id', async (c) => {
   const id = c.req.param('id');
   const body = await c.req.json();
-  const { 
-    name, logo_url, description_ru, description_fr, description_en, hide_name, 
-    bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled, 
+  const {
+    name, logo_url, description_ru, description_fr, description_en, hide_name,
+    bg_light_color, bg_light_opacity, bg_light_enabled, bg_dark_color, bg_dark_opacity, bg_dark_enabled,
     border_light_enabled, border_light_color, border_light_opacity, border_dark_enabled, border_dark_color, border_dark_opacity,
     glow_light_enabled, glow_light_color, glow_light_opacity, glow_light_blur,
     glow_dark_enabled, glow_dark_color, glow_dark_opacity, glow_dark_blur
@@ -1070,6 +1155,13 @@ app.get('/api/categories', async (c) => {
       c.id, c.slug, c.icon, c.image_url, c.parent_id, c.sort_order, c.created_at,
       c.name_ru, c.name_fr, c.name_en,
       c.desc_ru, c.desc_fr, c.desc_en,
+      c.hide_name,
+      c.bg_light_enabled, c.bg_light_color, c.bg_light_opacity,
+      c.bg_dark_enabled, c.bg_dark_color, c.bg_dark_opacity,
+      c.border_light_enabled, c.border_light_color, c.border_light_opacity,
+      c.border_dark_enabled, c.border_dark_color, c.border_dark_opacity,
+      c.glow_light_enabled, c.glow_light_color, c.glow_light_opacity, c.glow_light_blur,
+      c.glow_dark_enabled, c.glow_dark_color, c.glow_dark_opacity, c.glow_dark_blur,
       COALESCE(pc.count, 0) as product_count
     FROM categories c
     LEFT JOIN product_counts pc ON c.id = pc.root_id
@@ -1094,7 +1186,14 @@ app.get('/api/categories/:id', async (c) => {
     SELECT 
       id, slug, icon, image_url, parent_id, sort_order, created_at,
       name_ru, name_fr, name_en,
-      desc_ru, desc_fr, desc_en
+      desc_ru, desc_fr, desc_en,
+      hide_name,
+      bg_light_enabled, bg_light_color, bg_light_opacity,
+      bg_dark_enabled, bg_dark_color, bg_dark_opacity,
+      border_light_enabled, border_light_color, border_light_opacity,
+      border_dark_enabled, border_dark_color, border_dark_opacity,
+      glow_light_enabled, glow_light_color, glow_light_opacity, glow_light_blur,
+      glow_dark_enabled, glow_dark_color, glow_dark_opacity, glow_dark_blur
     FROM categories 
     WHERE id = ?
   `).bind(id).all();
@@ -1156,12 +1255,30 @@ app.get('/api/categories/:id/products', async (c) => {
 
 app.post('/api/categories', async (c) => {
   const body = await c.req.json();
-  const { slug, icon, image_url, parent_id, sort_order, name_ru, desc_ru, name_fr, desc_fr, name_en, desc_en } = body;
+  const {
+    slug, icon, image_url, parent_id, sort_order, name_ru, desc_ru, name_fr, desc_fr, name_en, desc_en,
+    hide_name,
+    bg_light_enabled, bg_light_color, bg_light_opacity,
+    bg_dark_enabled, bg_dark_color, bg_dark_opacity,
+    border_light_enabled, border_light_color, border_light_opacity,
+    border_dark_enabled, border_dark_color, border_dark_opacity,
+    glow_light_enabled, glow_light_color, glow_light_opacity, glow_light_blur,
+    glow_dark_enabled, glow_dark_color, glow_dark_opacity, glow_dark_blur
+  } = body;
 
   try {
     const insertResult = await c.env.DB.prepare(`
-      INSERT INTO categories (slug, icon, image_url, parent_id, sort_order, name_ru, name_fr, name_en, desc_ru, desc_fr, desc_en)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO categories (
+        slug, icon, image_url, parent_id, sort_order, 
+        name_ru, name_fr, name_en, desc_ru, desc_fr, desc_en,
+        hide_name,
+        bg_light_enabled, bg_light_color, bg_light_opacity,
+        bg_dark_enabled, bg_dark_color, bg_dark_opacity,
+        border_light_enabled, border_light_color, border_light_opacity,
+        border_dark_enabled, border_dark_color, border_dark_opacity,
+        glow_light_enabled, glow_light_color, glow_light_opacity, glow_light_blur,
+        glow_dark_enabled, glow_dark_color, glow_dark_opacity, glow_dark_blur
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       slug,
       icon || null,
@@ -1173,7 +1290,14 @@ app.post('/api/categories', async (c) => {
       name_en || null,
       desc_ru || null,
       desc_fr || null,
-      desc_en || null
+      desc_en || null,
+      hide_name ? 1 : 0,
+      bg_light_enabled ? 1 : 0, bg_light_color || null, bg_light_opacity || 50,
+      bg_dark_enabled ? 1 : 0, bg_dark_color || null, bg_dark_opacity || 50,
+      border_light_enabled ? 1 : 0, border_light_color || null, border_light_opacity || 100,
+      border_dark_enabled ? 1 : 0, border_dark_color || null, border_dark_opacity || 100,
+      glow_light_enabled ? 1 : 0, glow_light_color || null, glow_light_opacity || 50, glow_light_blur || 20,
+      glow_dark_enabled ? 1 : 0, glow_dark_color || null, glow_dark_opacity || 50, glow_dark_blur || 20
     ).run();
 
     const categoryId = (insertResult.meta.last_row_id as number);
@@ -1182,8 +1306,14 @@ app.post('/api/categories', async (c) => {
     const { results } = await c.env.DB.prepare(`
       SELECT 
         id, slug, icon, image_url, parent_id, sort_order, created_at,
-        name_ru, name_fr, name_en,
-        desc_ru, desc_fr, desc_en
+        name_ru, name_fr, name_en, desc_ru, desc_fr, desc_en,
+        hide_name,
+        bg_light_enabled, bg_light_color, bg_light_opacity,
+        bg_dark_enabled, bg_dark_color, bg_dark_opacity,
+        border_light_enabled, border_light_color, border_light_opacity,
+        border_dark_enabled, border_dark_color, border_dark_opacity,
+        glow_light_enabled, glow_light_color, glow_light_opacity, glow_light_blur,
+        glow_dark_enabled, glow_dark_color, glow_dark_opacity, glow_dark_blur
       FROM categories 
       WHERE id = ?
     `).bind(categoryId).all();
@@ -1198,14 +1328,30 @@ app.post('/api/categories', async (c) => {
 app.put('/api/categories/:id', async (c) => {
   const id = c.req.param('id');
   const body = await c.req.json();
-  const { slug, icon, image_url, parent_id, sort_order, name_ru, desc_ru, name_fr, desc_fr, name_en, desc_en } = body;
+  const {
+    slug, icon, image_url, parent_id, sort_order, name_ru, desc_ru, name_fr, desc_fr, name_en, desc_en,
+    hide_name,
+    bg_light_enabled, bg_light_color, bg_light_opacity,
+    bg_dark_enabled, bg_dark_color, bg_dark_opacity,
+    border_light_enabled, border_light_color, border_light_opacity,
+    border_dark_enabled, border_dark_color, border_dark_opacity,
+    glow_light_enabled, glow_light_color, glow_light_opacity, glow_light_blur,
+    glow_dark_enabled, glow_dark_color, glow_dark_opacity, glow_dark_blur
+  } = body;
 
   try {
     await c.env.DB.prepare(`
       UPDATE categories SET 
         slug = ?, icon = ?, image_url = ?, parent_id = ?, sort_order = ?,
         name_ru = ?, name_fr = ?, name_en = ?,
-        desc_ru = ?, desc_fr = ?, desc_en = ?
+        desc_ru = ?, desc_fr = ?, desc_en = ?,
+        hide_name = ?,
+        bg_light_enabled = ?, bg_light_color = ?, bg_light_opacity = ?,
+        bg_dark_enabled = ?, bg_dark_color = ?, bg_dark_opacity = ?,
+        border_light_enabled = ?, border_light_color = ?, border_light_opacity = ?,
+        border_dark_enabled = ?, border_dark_color = ?, border_dark_opacity = ?,
+        glow_light_enabled = ?, glow_light_color = ?, glow_light_opacity = ?, glow_light_blur = ?,
+        glow_dark_enabled = ?, glow_dark_color = ?, glow_dark_opacity = ?, glow_dark_blur = ?
       WHERE id = ?
     `).bind(
       slug,
@@ -1219,6 +1365,13 @@ app.put('/api/categories/:id', async (c) => {
       desc_ru || null,
       desc_fr || null,
       desc_en || null,
+      hide_name ? 1 : 0,
+      bg_light_enabled ? 1 : 0, bg_light_color || null, bg_light_opacity || 50,
+      bg_dark_enabled ? 1 : 0, bg_dark_color || null, bg_dark_opacity || 50,
+      border_light_enabled ? 1 : 0, border_light_color || null, border_light_opacity || 100,
+      border_dark_enabled ? 1 : 0, border_dark_color || null, border_dark_opacity || 100,
+      glow_light_enabled ? 1 : 0, glow_light_color || null, glow_light_opacity || 50, glow_light_blur || 20,
+      glow_dark_enabled ? 1 : 0, glow_dark_color || null, glow_dark_opacity || 50, glow_dark_blur || 20,
       id
     ).run();
 
@@ -1226,8 +1379,14 @@ app.put('/api/categories/:id', async (c) => {
     const { results } = await c.env.DB.prepare(`
       SELECT 
         id, slug, icon, image_url, parent_id, sort_order, created_at,
-        name_ru, name_fr, name_en,
-        desc_ru, desc_fr, desc_en
+        name_ru, name_fr, name_en, desc_ru, desc_fr, desc_en,
+        hide_name,
+        bg_light_enabled, bg_light_color, bg_light_opacity,
+        bg_dark_enabled, bg_dark_color, bg_dark_opacity,
+        border_light_enabled, border_light_color, border_light_opacity,
+        border_dark_enabled, border_dark_color, border_dark_opacity,
+        glow_light_enabled, glow_light_color, glow_light_opacity, glow_light_blur,
+        glow_dark_enabled, glow_dark_color, glow_dark_opacity, glow_dark_blur
       FROM categories 
       WHERE id = ?
     `).bind(id).all();
@@ -1401,7 +1560,7 @@ app.post('/api/admin/slides', async (c) => {
 app.post('/api/admin/migrate/slides', async (c) => {
   try {
     await c.env.DB.prepare(`DROP TABLE IF EXISTS slides`).run();
-    
+
     await c.env.DB.prepare(`
       CREATE TABLE slides (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1501,6 +1660,63 @@ app.delete('/api/calculator-materials/:id', async (c) => {
   const id = c.req.param('id');
   const { success } = await c.env.DB.prepare(`DELETE FROM calculator_materials WHERE id = ?`).bind(id).run();
   return c.json({ success });
+});
+
+// ==================== ADMIN ACCESS SETTINGS API ====================
+
+app.get('/api/admin/access-settings', async (c) => {
+  try {
+    console.log('Loading access settings...');
+    const { results } = await c.env.DB.prepare(`
+      SELECT value FROM site_config WHERE key = 'admin_access_sections'
+    `).all();
+
+    if (results.length > 0) {
+      const sections = JSON.parse(results[0].value);
+      console.log('Found access settings:', sections);
+      return c.json({ success: true, sections });
+    } else {
+      // Default settings if not found
+      const defaultSections = ['products', 'categories', 'clients'];
+      console.log('Using default access settings:', defaultSections);
+      return c.json({ success: true, sections: defaultSections });
+    }
+  } catch (error: any) {
+    console.error('Error loading access settings:', error);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
+});
+
+app.post('/api/admin/access-settings', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { sections } = body;
+    
+    console.log('Saving access settings:', sections);
+
+    if (!Array.isArray(sections)) {
+      return c.json({ success: false, error: 'Sections must be an array' }, { status: 400 });
+    }
+
+    await c.env.DB.prepare(`
+      INSERT INTO site_config (key, value_ru, value_fr, value_en, type)
+      VALUES ('admin_access_sections', ?, ?, ?, 'json')
+      ON CONFLICT(key) DO UPDATE SET 
+        value_ru = ?, value_fr = ?, value_en = ?, type = 'json', updated_at = datetime('now')
+    `).bind(
+      JSON.stringify(sections),
+      JSON.stringify(sections),
+      JSON.stringify(sections),
+      JSON.stringify(sections),
+      JSON.stringify(sections),
+      JSON.stringify(sections)
+    ).run();
+
+    return c.json({ success: true, sections });
+  } catch (error: any) {
+    console.error('Error saving access settings:', error);
+    return c.json({ success: false, error: error.message }, { status: 500 });
+  }
 });
 
 // ==================== SITE CONFIG API ====================

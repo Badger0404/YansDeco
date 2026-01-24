@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useAdminAuth } from '../context/AdminAuthContext';
 import {
   Package,
   Tag,
@@ -30,6 +31,7 @@ interface AdminSection {
 
 const AdminDashboard: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const { hasAccess, adminSections } = useAdminAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
@@ -122,7 +124,7 @@ const AdminDashboard: React.FC = () => {
       color: 'from-indigo-500/10 to-indigo-600/5',
       label: t('admin.sections.slogans.title')
     }
-  ], [t, i18n.language]);
+  ].filter(section => hasAccess(section.id)), [t, i18n.language, hasAccess, adminSections]);
 
   const renderDashboardContent = () => (
     <>
